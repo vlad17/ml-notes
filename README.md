@@ -9,6 +9,7 @@ Prerequisites:
 
 Topics:
 
-* Statistical learning theory
-* Bayesian learning
-* Optimization for empirical risk minimization
+* [Statistical learning theory](statistical-learning/README.md)
+* Common models (and their considerations) for ERM-based supervised learning
+* Bayesian-motivated unsupervised learning
+* Optimization concerns
