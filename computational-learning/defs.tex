@@ -1,0 +1,185 @@
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{enumerate}
+\usepackage{fullpage}
+\usepackage{bbm}
+\usepackage{caption}
+\usepackage{mathrsfs}
+\usepackage[all]{xy}
+
+\newcommand{\pa}[1]{ \left({#1}\right) }
+
+\def \N {\mathbb{N}}
+\def \Nbr {\mathcal{N}}
+\def \Q {\mathbb{Q}}
+\def \F {\mathbb{F}}
+\def \then {\implies &}
+\def \oif {\Longleftrightarrow &\,}
+\def \given {\text{Given }&}
+\def \assume {\text{Assume }&}
+\def \thfr {\therefore &\enskip}
+\def \bij {\leftrightarrow}
+\def \inj {\rightarrowtail}
+\def \sur {\twoheadedrightarrow}
+\def \Z {\mathbb{Z}}
+\def \R {\mathbb{R}}
+\def \C {\mathbb{C}}
+\def \T {\mathbb{T}}
+\def \iff {\Longleftrightarrow}
+\def \kron {\boldsymbol\delta}
+\def \indicator {\mathbbm{1}}
+
+\def\Ta{\textbf{a}}
+\def\Tm{\textbf{m}}
+\def\Tb{\textbf{b}}
+\def\Tc{\textbf{c}}
+\def\Td{\textbf{d}}
+\def\Te{\textbf{e}}
+\def\Tv{\textbf{v}}
+\def\Tx{\textbf{x}}
+\def\Tw{\textbf{w}}
+\def\Ty{\textbf{y}}
+\def\Tk{\textbf{k}}
+\def\Tt{\textbf{t}}
+\def\Tz{\textbf{z}}
+\def\Tl{\textbf{l}}
+\def\quotient{\mathclose{}/\mathopen{}}
+\def\Tf{\textbf{f}}
+\def\Th{\textbf{h}}
+\def\Tg{\textbf{g}}
+\def\sumn{\sum_{n=0}^\infty}
+\def\limn{\lim_{n\rightarrow\infty}}
+\def\prodn{\prod_{n=0}^\infty}
+
+\def\bsz{\textbf{0}}
+\def\bs1{\textbf{1}}
+\def\bsa{{\boldsymbol\alpha}}
+\def\bse{{\boldsymbol\eta}}
+\def \bss{ {\boldsymbol\sigma}}
+
+\DeclareMathOperator{\conv}{conv}
+\DeclareMathOperator\cat{cat}
+\DeclareMathOperator\adj{adj}
+\DeclareMathOperator\Pois{Pois}
+\DeclareMathOperator\Id{Id}
+\DeclareMathOperator\mathProb{\mathbb{P}}
+\def\P{\mathProb} % need to overwrite stupid paragraph symbol
+\DeclareMathOperator\mathExp{\mathbb{E}}
+\def \E {\mathExp}
+
+
+\newcommand{\stc}[1]{\widetilde{#1}}   
+\newcommand{\set}[2]{ \left\{ #1 \,\middle|\, #2 \right\} }
+\newcommand{\idx}[3]{ \left\{ #1 \right\}_{ #2 }^{ #3 } }
+\newcommand{\shift}[1]{&\quad & \text{#1}\\}
+\newcommand{\lem}[1]{\text{\textbf{L.\ref{#1}}}}
+\newcommand{\card}[1]{\left\vert{#1}\right\vert}
+\newcommand{\colv}[1]{\begin{pmatrix} #1 \end{pmatrix}}
+\newcommand{\mat}[1]{\begin{pmatrix} #1 \end{pmatrix}}
+\newcommand{\detmat}[1]{\begin{vmatrix} #1 \end{vmatrix}}
+\newcommand{\spanb}[1]{\text{span}\{ #1 \}}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\opcat}[1]{#1^{\text{op}}}
+\newcommand{\Inner}[1]{\left\langle #1 \right\rangle}
+\newcommand{\Innercpy}[1]{\Inner{ #1, #1 }}
+\newcommand{\norm}[1]{\left\| #1 \right\|}% use instead of $\|x\|$
+
+\def\eqd{\mathrel{\overset{\Delta}{=}}}
+
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\vcdim}{VC-dim}
+\DeclareMathOperator*{\Err}{\text{err}}
+\DeclareMathOperator*{\ErrE}{\mathbb{E}}
+\DeclareMathOperator{\Tr}{tr}
+\DeclareMathOperator{\Dim}{dim}
+\DeclareMathOperator{\Rank}{rank}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\proj}{proj}
+\DeclareMathOperator{\Ker}{ker}
+\DeclareMathOperator{\Diam}{diam}
+\DeclareMathOperator{\Int}{int}
+\DeclareMathOperator{\Clo}{clo}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\MyRe}{Re}
+\DeclareMathOperator{\MyIm}{Im}
+\DeclareMathOperator{\image}{image}
+\DeclareMathOperator{\colim}{colim}
+\DeclareMathOperator{\Supp}{supp}
+\DeclareMathOperator{\Var}{var}
+\DeclareMathOperator{\Hom}{hom}
+\DeclareMathOperator{\Ob}{ob}
+\DeclareMathOperator{\El}{el}
+\DeclareMathOperator\power{{\mathcal{P}}}
+\DeclareMathOperator{\Nat}{Nat}
+\DeclareMathOperator{\cone}{cone}
+\DeclareMathOperator{\vectorize}{vec}
+\DeclareMathOperator{\matricize}{mat}
+
+% probability stuff
+\def \sa {{$\sigma$-algebra}}
+\def\OR{{\overline{\R}}}
+\def\OX{{\overline{X}}}
+
+\def\mcU{{\mathcal{U}}}
+\def \mcX {\mathcal{X}}
+\def \mcS {\mathcal{S}}
+\def \mcY {\mathcal{Y}}
+\def \mcH {\mathcal{H}}
+\def \mcD {\mathcal{D}}
+\def \mcC {\mathcal{C}}
+\def \mcA {\mathcal{A}}
+\def \mcK {\mathcal{K}}
+\def \mcM {\mathcal{M}}
+\def\mcG{{\mathcal{G}}}
+\def\mcH{{\mathcal{H}}}
+\def\mcF{{\mathcal{F}}}
+\def\mcB{{\mathcal{B}}}
+\def\mcE{{\mathcal{E}}}
+\def\mcI{{\mathcal{I}}}
+\def\mcQ{{\mathcal{Q}}}
+\def\mcM{{\mathcal{M}}}
+\def\mcC{{\mathcal{C}}}
+\def\mcT{{\mathcal{T}}}
+\def\mcO{{\mathcal{O}}}
+\def\mcJ{{\mathcal{J}}}
+
+\makeatletter
+\DeclareFontFamily{U}  {MnSymbolF}{}
+\DeclareSymbolFont{symbolsMN}{U}{MnSymbolF}{m}{n}
+\SetSymbolFont{symbolsMN}{bold}{U}{MnSymbolF}{b}{n}
+\DeclareFontShape{U}{MnSymbolF}{m}{n}{
+    <-6>  MnSymbolF5
+   <6-7>  MnSymbolF6
+   <7-8>  MnSymbolF7
+   <8-9>  MnSymbolF8
+   <9-10> MnSymbolF9
+  <10-12> MnSymbolF10
+  <12->   MnSymbolF12}{}
+\DeclareFontShape{U}{MnSymbolF}{b}{n}{
+    <-6>  MnSymbolF-Bold5
+   <6-7>  MnSymbolF-Bold6
+   <7-8>  MnSymbolF-Bold7
+   <8-9>  MnSymbolF-Bold8
+   <9-10> MnSymbolF-Bold9
+  <10-12> MnSymbolF-Bold10
+  <12->   MnSymbolF-Bold12}{}
+\DeclareMathSymbol{\tbigtimes}{\mathop}{symbolsMN}{2}
+\newcommand*{\bigtimes}{%
+  \DOTSB
+  \tbigtimes
+  \slimits@ 
+}
+\makeatother
+
+% category theory arguments
+% more equality: http://tex.stackexchange.com/questions/333629/
+\newcommand\superequiv{ \mathrel{\rlap{\raisebox{\fontdimen22\textfont2}{$ = $}}\raisebox{-0.5\fontdimen22\textfont2}{$ = $}}}
+\newcommand{\catfst}{{-}}
+\newcommand{\catsnd}{{=}}
+\newcommand{\cattrd}{{\equiv}}
+\newcommand{\catfth}{{\superequiv}}

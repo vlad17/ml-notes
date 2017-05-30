@@ -1,0 +1,32 @@
+\documentclass{article}
+
+\title{Complexity Measures}
+\author{Vladimir Feinberg}
+
+\input{defs}
+
+\begin{document}
+
+\maketitle
+
+Complexity measures evaluate the expressiveness of a hypothesis class; they are useful to the extent with which they relate sample and generalization error.
+
+\section{Setup}
+
+We suppose that our data comes in the form of ordered pairs from $\mcX\times \mcY$. Samples follow a particular distribution $(x, y)\sim D$. A hypothesis class $\mcH$ is set of functions $\mcX\rightarrow\mcY$.
+
+A common approach to supervised learning is empirical risk minimization, where $m$ iid samples from $D$, $S$, are used to find the $h\in\mcH$ minimizing a specified loss $\ell:\mcY^2\rightarrow\R$ over this set. Complexity measures then let us quanify exactly how much loss we can expect when sampling from $D$ again.
+
+Thus, it is useful to find bounds on $\varepsilon$, the difference between the generalization loss $\E\left[\ell\pa{h(x), y)}\right]$, where $(x,y)\sim D$, and sample loss, where the loss is the expectation before taken for $(x,y)$ is uniform over $S$.
+
+Let the gap between the generalization and sample error be $\varepsilon$.
+
+\section{Complexity Measures}
+
+\section{Overview of Results}
+
+Proofs can be found in a cogent write-up by Prof. Beckage from the University of Kansas,\footnote{\url{http://ittc.ku.edu/~beckage/ml800/VC_dim.pdf}} copied into this repository.
+
+
+
+\end{document}

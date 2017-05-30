@@ -1,3 +1,4 @@
 # Editor backups
 *~
-
+*.log
+*.aux
