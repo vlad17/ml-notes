@@ -3,7 +3,6 @@
 \title{Complexity Measures}
 \author{Vladimir Feinberg}
 
-\usepackage{nicefrac}
 \input{defs}
 
 \begin{document}
@@ -12,15 +11,20 @@
 
 Complexity measures evaluate the expressiveness of a hypothesis class; they are useful to the extent with which they relate sample and generalization error.
 
-Notation. TODO move to common place in repo. Big-$O$ notation (and $\Theta,\Omega$) is used in the standard sense for single variables: $f=O(g)$ if there exists a $c$ such that $f(x)\le cg(x)$ for all $x$ sufficiently large. In multiple variables, big-$O$ and similarly $\Theta,\Omega$ require $f(\Tx)\le cg(\Tx)$ for all $\norm{x}_\infty$ sufficiently large. To capture the essence of asymptotics, a tilde will crudely capture asymptotic behavior up to logarithmic factors: $f=\tilde{O}(g)$ if $f=O(g\log^k g)$ for some $k\in\N$.
-
-Abbreviations. TODO move to common place.
-
 \section{Setup}
 
 We suppose that our data comes in the form of ordered pairs from $\mcX\times \mcY$. Samples follow a particular distribution $(x, y)\sim D$. A hypothesis class $\mcH$ is set of functions $\mcX\rightarrow\mcY$.
 
-A common approach to supervised learning is empirical risk minimization, where $m$ iid samples from $D$, $S$, are used to find the $h\in\mcH$ minimizing a specified loss $\ell:\mcY^2\rightarrow\R$ over this set. Complexity measures then let us quanify exactly how much loss we can expect when sampling from $D$ again.
+A common approach to supervised learning is ERM, where $m$ iid samples from $D$, $S$, are used to find the $h\in\mcH$ minimizing a specified loss $\ell:\mcY^2\rightarrow\R$ over this set. Complexity measures then let us quanify exactly how much loss we can expect when sampling from $D$ again.
+
+We seek to quantify the generalization gap with the help of our notions of complexity. For a fixed $h\in \mcH$:
+
+$$
+\varepsilon= \E\left[\ell\pa{h(x), y)}|(x,y)\sim D\right]-\E\left[\ell\pa{h(x), y)}|(x,y)\sim \Uniform(S)\right]
+$$
+
+Analysis of Rademacher complexity is agnostic to $h,\ell$; the hypothesis class might as well consist of functions $g:\mcX\times\mcY\rightarrow\R$ yielding their composition. VC dimension analysis, however, requires $\mcY=\{0, 1\}$ and $\ell(a, b)=\indicator\{a=b\}$. VC dimension is still useful for regression problems, by thresholding hypotheses $h\mapsto \indicator{h>\beta}$ for fixed $\beta$.\footnote{\url{https://stats.stackexchange.com/questions/140430}}
+
 
 Thus, it is useful to find bounds on $\varepsilon$, the difference between the generalization loss $\E\left[\ell\pa{h(x), y)}\right]$, where $(x,y)\sim D$, and sample loss, where the loss is the expectation before taken for $(x,y)$ is uniform over $S$.
 
@@ -30,16 +34,11 @@ Let the gap between the generalization and sample error be $\varepsilon$.
 
 Rademacher complexity. TODO. relates complexity through noise correlation. equivalently, gives a consistent view of ``error'' through a ``uniform'' noise model.
 
-The growth function. TODO.
-
 VC-dimension. TODO.
 
 \section{Overview of Results}
 
-Proofs can be found in a cogent write-up by Prof. Beckage from the University of Kansas,\footnote{\url{http://ittc.ku.edu/~beckage/ml800/VC_dim.pdf}} copied into this repository.\footnote{\url{https://github.com/vlad17/shallow-ml-notes/raw/7c3db7b7c924fbd2ae2891d4ecfef84e5647dcc8/computational-learning/complexity-measures-beckage.pdf}} Recall our generalization gap definition. For a fixed $h\in \mcH$:
-$$
-\varepsilon= \E\left[\ell\pa{h(x), y)}|(x,y)\sim D\right]-\E\left[\ell\pa{h(x), y)}|(x,y)\sim \Uniform(S)\right]
-$$
+Proofs can be found in a cogent write-up by Prof. Beckage from the University of Kansas, copied into this repository as \texttt{complexity-measures-beckage.pdf}.\footnote{\url{http://ittc.ku.edu/~beckage/ml800/VC_dim.pdf}}
 
 \subsection{VC Generalization Bounds}
 
@@ -56,7 +55,7 @@ $$
 
 The above implies that in the common case of agnostic hypothesis learning, where we do not know distribution $D$, VC-dimension is, \textit{up to logarithmic factors, asymptotically efficient} in quantifying the generalization gap.
 
-Realizability. Suppose $D$ is realizable wrt $\mcH$, so that almost surely there exists an $f\in\mcH$ such that for any $(x,y)$ sampled from $D$, $f(x)=y$. Then all statements above hold but with $\sqrt{\varepsilon}$ instead of $\varepsilon}$.
+Realizability. Suppose $D$ is realizable wrt $\mcH$, so that almost surely there exists an $f\in\mcH$ such that for any $(x,y)$ sampled from $D$, $f(x)=y$. Then all statements above hold but with $\sqrt{\varepsilon}$ instead of $\varepsilon$.
 
 
 \subsection{Rademacher bounds}
@@ -70,4 +69,6 @@ $R_m$ may be NP-hard to compute, depending on $\mcH$. This tells us Rademacher c
 TODO. NP-hardness? More computational learning theory.
 
 TODO. Rademacher and Gaussian Complexities: Risk Bounds and Structural Results by Bartlett and Mendelson.
+
+TODO. Growth function as rademacher/VC bridge. Graph of (log Growth func) vs m linear then logarithmic past d. Note no nuance in number of shatterable sets, just that one exists [missing direction for analysis?]
 \end{document}
