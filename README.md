@@ -9,6 +9,7 @@ Prerequisites:
 
 Topics:
 
+* Statistical learning theory
 * Computational learning theory
 * Bayesian learning
 * Optimization for empirical risk minimization

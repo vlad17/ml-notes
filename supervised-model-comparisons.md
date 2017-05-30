@@ -8,3 +8,5 @@
 * Skewness (no reflective symmetry or bimodality) will mess with LDA regardless of sample size; LR is more robust to this since it is more flexible in the distributions it allows.
 
 ## Logistic Regression vs. SVM
+
+TODO

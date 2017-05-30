@@ -3,6 +3,7 @@
 \title{Complexity Measures}
 \author{Vladimir Feinberg}
 
+\usepackage{nicefrac}
 \input{defs}
 
 \begin{document}
@@ -10,6 +11,10 @@
 \maketitle
 
 Complexity measures evaluate the expressiveness of a hypothesis class; they are useful to the extent with which they relate sample and generalization error.
+
+Notation. TODO move to common place in repo. Big-$O$ notation (and $\Theta,\Omega$) is used in the standard sense for single variables: $f=O(g)$ if there exists a $c$ such that $f(x)\le cg(x)$ for all $x$ sufficiently large. In multiple variables, big-$O$ and similarly $\Theta,\Omega$ require $f(\Tx)\le cg(\Tx)$ for all $\norm{x}_\infty$ sufficiently large. To capture the essence of asymptotics, a tilde will crudely capture asymptotic behavior up to logarithmic factors: $f=\tilde{O}(g)$ if $f=O(g\log^k g)$ for some $k\in\N$.
+
+Abbreviations. TODO move to common place.
 
 \section{Setup}
 
@@ -23,10 +28,46 @@ Let the gap between the generalization and sample error be $\varepsilon$.
 
 \section{Complexity Measures}
 
+Rademacher complexity. TODO. relates complexity through noise correlation. equivalently, gives a consistent view of ``error'' through a ``uniform'' noise model.
+
+The growth function. TODO.
+
+VC-dimension. TODO.
+
 \section{Overview of Results}
 
-Proofs can be found in a cogent write-up by Prof. Beckage from the University of Kansas,\footnote{\url{http://ittc.ku.edu/~beckage/ml800/VC_dim.pdf}} copied into this repository.
+Proofs can be found in a cogent write-up by Prof. Beckage from the University of Kansas,\footnote{\url{http://ittc.ku.edu/~beckage/ml800/VC_dim.pdf}} copied into this repository.\footnote{\url{https://github.com/vlad17/shallow-ml-notes/raw/7c3db7b7c924fbd2ae2891d4ecfef84e5647dcc8/computational-learning/complexity-measures-beckage.pdf}} Recall our generalization gap definition. For a fixed $h\in \mcH$:
+$$
+\varepsilon= \E\left[\ell\pa{h(x), y)}|(x,y)\sim D\right]-\E\left[\ell\pa{h(x), y)}|(x,y)\sim \Uniform(S)\right]
+$$
+
+\subsection{VC Generalization Bounds}
+
+Upper bound. If $d$ is the VC-dimension of $\mcH$, then for any $D$ wp $1-\delta$:
+$$
+\varepsilon\le \tilde{O}\pa{\sqrt{\frac{d-\log \delta}{m}}}
+$$
+The above inequality is random since it depends on $S$, the $D^m$-valued rv. TODO. find source removing tilde?
+
+Agnostic lower bound. We may find a $D$ such that with a fixed nonzero probability (a nonneglible set of candidate samples $S$), the following holds:
+$$
+\varepsilon\ge \Omega\pa{\sqrt{\frac{d}{m}}}
+$$
+
+The above implies that in the common case of agnostic hypothesis learning, where we do not know distribution $D$, VC-dimension is, \textit{up to logarithmic factors, asymptotically efficient} in quantifying the generalization gap.
+
+Realizability. Suppose $D$ is realizable wrt $\mcH$, so that almost surely there exists an $f\in\mcH$ such that for any $(x,y)$ sampled from $D$, $f(x)=y$. Then all statements above hold but with $\sqrt{\varepsilon}$ instead of $\varepsilon}$.
 
 
+\subsection{Rademacher bounds}
 
+With $R_m$ either the empirical or expected Rademacher complexity over the sample for a given $h,\ell$ we have again wp $1-\delta$:
+$$
+\varepsilon\le 2R_m+O\pa{\frac{\log\nicefrac{1}{\delta}}{m}}
+$$
+$R_m$ may be NP-hard to compute, depending on $\mcH$. This tells us Rademacher complexity could only be a useful imporvement over VC-bounds, asymptotically, if we have an efficient approximation for the empirical Rademacher complexity or some knowledge of $D$ as required to compote the true Rademacher complexity.
+
+TODO. NP-hardness? More computational learning theory.
+
+TODO. Rademacher and Gaussian Complexities: Risk Bounds and Structural Results by Bartlett and Mendelson.
 \end{document}
