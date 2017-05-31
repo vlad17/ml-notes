@@ -9,6 +9,7 @@ Prerequisites:
 
 Topics:
 
+* [Idiosyncrasies](idiosyncrasies.pdf)
 * [Statistical learning theory](statistical-learning/README.md)
 * Common models (and their considerations) for ERM-based supervised learning
 * Bayesian-motivated unsupervised learning

@@ -1,0 +1,28 @@
+\documentclass{article}
+
+\title{Idiosyncrasies}
+\author{Vladimir Feinberg}
+
+\input{defs}
+
+\begin{document}
+
+\maketitle
+
+\section{Notation}
+
+Landau notation is used in the standard sense for single variables: $f=O(g)$ if there exists a $c$ such that $f(x)\le cg(x)$ for all $x$ sufficiently large, with $x$ perhaps restricted to the support of $g$ as required by the context. We use the analogous sense for $\Omega,\Theta,o,\omega$.
+
+In multiple variables, big-$O$ and friends require $f(\Tx)\le cg(\Tx)$ and similar inequalities, respectively, for all $\Tx$ in the support for the current context with $\norm{\Tx}_\infty$ sufficiently large. To capture the essence of asymptotics, a tilde will crudely absorb behavior up to logarithmic factors: $f=\tilde{O}(g)$ if $f=O(g\log^k g)$ for some $k\in\N$.
+
+\section{Abbreviations}
+
+\begin{itemize}
+\item iid: independent and identically distributed
+\item rv: random variable
+\item wp: with probability
+\item wrt: with respect to
+\item wlog: without loss of generality
+  \end{itemize}
+
+\end{document}
