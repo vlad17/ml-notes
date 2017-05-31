@@ -11,6 +11,6 @@ Topics:
 
 * [Idiosyncrasies](idiosyncrasies.pdf)
 * [Statistical learning theory](statistical-learning/README.md)
-* Common models (and their considerations) for ERM-based supervised learning
+* [Common models (and their considerations) for ERM-based supervised learning](supervised-ml/README.md)
 * Bayesian-motivated unsupervised learning
 * Optimization concerns
