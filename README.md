@@ -17,3 +17,5 @@ Topics:
 * Estimation Theory
 * [Deep Learning](deep-learning/README.md)
 * Optimization concerns
+
+This repository contains copied copyrighted material (under fair use).
