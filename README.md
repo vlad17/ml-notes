@@ -10,10 +10,10 @@ Prerequisites:
 Topics:
 
 * [Idiosyncrasies](idiosyncrasies.pdf)
-* [Statistical learning theory](statistical-learning/README.md) [TODO regularization]
+* [Statistical learning theory](statistical-learning/README.md)
 * [Common models (and their considerations) for ERM-based supervised learning](supervised/README.md)
 * [Bayesian-motivated unsupervised learning](unsupervised/README.md)
-* Information Theory (e.g., KL Intuition; see Fig 3.6 in DL book)
-* Estimation Theory (e.g., MLE, asymptotics; see PRML)
-* [Deep Learning](deep-learning/README.md) [TODO feed forward]
+* Information Theory
+* Estimation Theory
+* [Deep Learning](deep-learning/README.md)
 * Optimization concerns
