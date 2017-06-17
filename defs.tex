@@ -1,4 +1,5 @@
 \usepackage{nicefrac}
+\usepackage[hidelinks]{hyperref}
 \usepackage{xcolor}
 \usepackage{url}
 \usepackage{lmodern}
@@ -7,6 +8,7 @@
 \usepackage{amssymb}
 \usepackage{amsfonts}
 \usepackage{enumerate}
+\usepackage{graphicx}
 \usepackage{fullpage}
 \usepackage{bbm}
 \usepackage{caption}
@@ -62,10 +64,12 @@
 \def\bsa{{\boldsymbol\alpha}}
 \def\bse{{\boldsymbol\eta}}
 \def \bss{ {\boldsymbol\sigma}}
+\def \bsth{ {\boldsymbol\theta}}
 
 \DeclareMathOperator{\conv}{conv}
 \DeclareMathOperator\cat{cat}
 \DeclareMathOperator\adj{adj}
+\DeclareMathOperator{\Laplace}{Laplace}
 \DeclareMathOperator\Poisson{Poisson}
 \DeclareMathOperator\Id{Id}
 \DeclareMathOperator\Uniform{Uniform}
@@ -185,3 +189,6 @@
 \newcommand{\catsnd}{{=}}
 \newcommand{\cattrd}{{\equiv}}
 \newcommand{\catfth}{{\superequiv}}
+
+
+\newcommand{\nurl}[2]{\href{ #1 }{\color{blue}\underline{#2}}}

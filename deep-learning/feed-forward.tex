@@ -1,0 +1,104 @@
+\documentclass{article}
+
+\title{Feed-Forward Networks}
+\author{Vladimir Feinberg}
+
+\input{../defs}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Many-layer feed forward networks, or deep neural networks (DNNs), are the simplest type of artificial neural network. For a given network architecture, a feed-forward network forms a family of possibly nonlinear functions. This family defines a hypothesis class for empirical risk minimization. These networks have been incredibly successful in supervised ML settings.
+
+These notes follow Goodfellow's \nurl{http://www.deeplearningbook.org/contents/mlp.html}{Deep Learning Book}. As mentioned there, there are two essential components to DNNs:
+\begin{enumerate}
+\item Expressiveness through depth: iterative compositions of linear functions followed by activations can efficiently model mostly continuous functions (specifics below).
+\item Tractable learning: compositions of simple functions as a graph allow for linear-time evaluation, and, critically, linear-time gradients via back-propagation.
+\end{enumerate}
+
+Interestingly, these two frequently-cited facts give rise to two perplexing questions about DNNs, which don't seem to yet have a good answer:
+\begin{enumerate}
+\item If DNNs are so expressive, then isn't their VC dimension extremely large? Wouldn't this make them extremely prone to overfitting, to the point that they would be unusable? Perhaps DNNs can model ``real distributions'' well, so the distribution-independent analysis of VC-based statistical learning theory is insufficient. How can we justify the previous sentence? (\nurl{https://arxiv.org/abs/1611.03530}{Zhang et al 2017}, \nurl{https://openreview.net/pdf?id=rJv6ZgHYg}{Krueger et al 2017})
+\item Why exactly is learning so tractable? Efficient derivatives aren't good enough in a non-convex enviornment: we know we'll reach a local min, but what makes a local min good? (\nurl{https://arxiv.org/abs/1602.04915}{Lee et al 2016}, \nurl{https://arxiv.org/abs/1703.00887}{Jin et al 2017}, \nurl{https://arxiv.org/abs/1412.0233}{Choromanska et al 2014})
+\end{enumerate}
+
+\section{Definition}
+
+A vanilla multi-layer perceptron (MLP) $f$ of depth $d$ is a a composition of $d$ vector-valued functions:
+$$
+f(\Tx)=f^{(d)}\circ f^{(d-1)}\circ\cdots\circ f^{(2)}\circ f^{(1)}\pa{\Tx}
+$$
+
+Note that the input and output dimension of each $f^{(i)}$ may differ; the maximum such dimension is the width of the network. For MLPs, each $f$ is the comosition of a vectorized activation function $g$ and an affine function. The dimensionality of the affine functions and the choice of activation are hyperparameters.
+
+$$
+f^{(i)}(\Tx)=g\pa{W^{(i)}\Tx+\Tb^{(i)}}
+$$
+$W^{(i)},\Tb^{(i)}$ define parameters for $f$. The activation $g$ is usually a parameter-free (but perhaps not hyperparameter-free) nonlinearity. The MLP differs from other DNNs in that it is fully connected (all $W^{(i)}$ are unconstrained). A network whose $W^{(i)}$ matrices correspond to convolutions is a CNN, for instance, and refers to a much more restricted family of functions.
+
+A cost function $J(\bsth)$ must be defined over the vector of aggregate parameters $\bsth$. MLE informs the shape of $J$ in most cases: for $(\Tx,\Ty)$ distributed according to some data distribution, the log likelihood is the cross entropy $\E p_\text{model}(\Ty|\Tx,\bsth)$. With $p_\text{model}(\Ty|\Tx,\bsth)=N(f_\bsth(\Tx),I)$, for instance, MLE is equivalent to minimizing MSE. This kind of approach has the DNN specify the parameters for an output distribution, instead of predicting the output directly: this enables us to encode additional statistical knowledge about the inputs.
+
+Training is typically performed with first-order optimization of $J(\bsth)$; this leverages back-propagation for efficient derivatives.
+
+\section{Activations}
+
+\textbf{ReLU} (\nurl{http://proceedings.mlr.press/v15/glorot11a.html}{Glorot et al 2011}). The ReLU $g(\Tx)=\max\pa{\Tx,\bsz}$ induces activation sparsity, which is more biologically plausible. Their use improves accuracy when compared to smoother activations in practice, and their linear regime keeps magnitude scaling behavior reasonable as we traverse the net, which is a boon to optimization.
+\\\\
+\noindent
+\textbf{Maxout} (\nurl{https://arxiv.org/abs/1302.4389}{Goodfellow et al 2013}, \nurl{https://arxiv.org/abs/1312.6211}{Goodfellow et al}). A maxout layer is a generalized ReLU $g$ with input dimension $n$ and fixed $p$ and $k$ as hyperparameters has fixed subsets $G^{(i)}=\set{ik+j}{j\in[p]}$ such that $g(\Tz)_i=\max_{j\in G^{(i)}}z_j$. In addition to being more theoretically expressive (allowing for fewer units in the next layer), maxout enables units to be driven by several ``filters'' (activations in the previous layer), preventing catastrophic forgetting. Morevoer, maxout is complimentary to dropout.
+
+\section{Regularization}
+
+At a high level, regularization changes the objective from usual loss $J(\bsth)$ to loss plus weight penalty $J(\bsth)+\Omega(\bsth)$ or loss plus constraints; it is effective in moving overfit models of high capacity to those of appropriate capacity for the problem: lower variance for a bit higher bias.
+\\\\
+\noindent
+\textbf{Weight Decay}. For all affine transforms let the weight matrix terms (not bias), vectorized, be $\Tw$. Add $\Omega(\bsth)=\frac{\alpha}{2}\norm{\Tw}_2^2$. Intuitively, bias is unrestricted because it only interacts with one variable directly (the output feature map), so it isn't prone to overfitting. For a quadratic approximation of the loss at $J(\bsth)$, with hessian $H=Q\Lambda Q^\top$, $L^2$ regualrization would result in a new optimum $Q(\Lambda+\alpha I)^{-1}\Lambda Q^\top \Tw_*$ where $\Tw_*$ is the unconstrained optimum. If $\Tv_i$ is the $i$-th eigenvector of $H$ and $\lambda_i$ its eigenvalue, then the regularization adjusts the solution by rescaling the $\Tv_i$-th component of $\Tw_*$ by a factor of $\frac{\lambda_i}{\lambda_i+\alpha}$. Regualrization can also be viewed as constraints by identifying that $\alpha$ is a KKT multiplier: a fixed $\alpha$ corresponds to optimizing $\min J(\bsth)$ such that $\norm{\Tw}\le k$ for some $k$ (which is in practice difficult to find given $\alpha$). $L^2$ regularization is equivalent to Bayesian MAP if weights have $N(0,\alpha^{-1})$ prior.
+\\\\
+\noindent
+\textbf{Proximal Regularization}. Similar to weight decay, but $\Omega(\bsth)=\alpha\norm{\Tw}_1$. Assuming a (convex) diagonal Hessian approximation to $J(\bsth)$ (more strict than above), the $i$-th component solution is pulled down to
+$$w_i=\begin{cases}
+\pa{\abs{w_i}-\frac{\alpha}{H_{i,i}}}\sgn w_i  & H_{i,i}>0, \abs{w_i}>\frac{\alpha}{H_{i,i}}\\
+  0 & \text{otherwise}
+\end{cases}$$
+$L^1$ regualrization is equiavalent to Bayesian MAP if weights have $\Laplace(0, \alpha^{-1})$ prior.
+\\\\
+\noindent
+\textbf{Dataset Augmentation and Manifold Learning}. Modify supervised pairs $(\Tx, y)$ to include $(T(\Tx), y)$ where $T$ is a transformation we expect the classifier to be invariant to. Noise injection into inputs, too can be a form of dataset augmentation. An automatic technique for doing this is tangent propagation (\nurl{https://papers.nips.cc/paper/4409-the-manifold-tangent-classifier}{Rifai et al 2011}), which adds a penalty if the output is sensitive to changes along learned manifold vectors $\Tv_i$: $\Omega(f)=\sum_i\pa{\Tv_i^\top\nabla f)^2}$.
+\\\\
+\noindent
+\textbf{Noise Robustness} (\nurl{https://papers.nips.cc/paper/4329-practical-variational-inference-for-neural-networks}{Graves 2011}). Inject noise into weights during training, forcing learned weights to be robust to small variations.
+\\\\
+\noindent
+\textbf{Early Stopping}. Stop training if validation increases; even if training is unconverged. If validation set is large, you miss out on a lot of data. More complicated algorithms are necessary to find an applicable early stopping time when re-training to include validation set (see \nurl{http://www.deeplearningbook.org/contents/regularization.html}{Goodfellow's DL book}, Algorithm 7.3). Early stopping is similar to $L^2$ regularization (for quadratic loss it is just that).
+\\\\
+\noindent
+\textbf{Parameter Sharing}. Reuse part of a network for another task, encoding prior knowledge that the feature maps must be the same between two tasks. CNNs, below, are a form of parameter sharing, since the linear matrix $W$ is restricted to a convolution transform.
+\\\\
+\noindent
+\textbf{Ensemble Methods}. Bagging uses votes of several models: $k$ uncorrelated models will tend to have $\nicefrac{1}{k}$-th generalization error when bagged. Training data can be resampled to create more uncorrelated models.
+\\\\
+\noindent
+\textbf{Dropout} (\nurl{https://arxiv.org/abs/1207.0580}{Hinton et al 2012}, \nurl{http://proceedings.mlr.press/v28/wang13a.html}{Wang et al 2013}, \nurl{http://jmlr.org/papers/v15/srivastava14a.html}{Srivastava 2014}, \nurl{https://arxiv.org/abs/1506.02142}{Gal et al 2015}). Dropout is a cheap, practical approximation to averaging exponentially many models (exponential in the number of dropout layers). Dropout at a certain hidden or input layer wp $p$ drops an activation by setting it to zero during training and multiplying all activations (or the weights) by $p$ with no drops during testing (the weight scaling inference rule); theoretically this does not guarantee a proper output activation averaging, only individual hidden unit output expectation is preserved, but this works well in practice. Weight scaling actually corresponds to taking a geometric means of the votes, and has been showed to work better than Monte Carlo sub-network averaging (which is intractable). First, this prevents feature co-adaptation: since a given activation might vanish at any time during training, the net is forced to learn those activations at each layer which independently contribute to the loss minimization task. Note that this conflicts with locality-focused tasks which rely on specific co-adaptations, like convolutional layers, but might be used at higher levels in CNNs to force the networks to identify more than one underlying feature for their classification (though lower levels can be locally co-adapted). Naive Bayes is an extreme form of dropout which demonstrates the co-adaptation avoidance.
+\\\\
+\noindent
+\textbf{Adversarial Training} (\nurl{https://arxiv.org/abs/1412.6572}{Goodfellow 2014}). Tiny changes in input can result in large differences in output, showing that the learned manifold for a classification category is too sensitive to perturbations in directions that it shouldn't be. Adversarial training forces nets to overcome this.
+
+\section{Theory}
+
+\noindent
+\textbf{Universal Approximation Theorem}. A feedforward network with a linear outputlayer, at least one hidden layer, and the logistic sigmoid activation can approximate any Borel measurable function and its derivatives, where they exist, arbitrarily well, given sufficient hidden units.
+\\\\
+\noindent
+\textbf{Deep Rectifier Network Efficiency Theorem} (\nurl{https://arxiv.org/abs/1402.1869}{Mont\'{u}far et al 2014}). A deep rectifier network of constant width $w$, input dimension $i$ and depth $d$ may have up to $\Omega\pa{\pa{\nicefrac{w}{i}}^{di}i^i}$ distinct linear regions and a maxout network with $k$ filters per unit may have up to $\Omega(k^{i+l-1})$. Visually demonstrated in Figure~\ref{fig:montufar}.
+
+\begin{figure}[!h]
+\centering
+{\includegraphics[width=\textwidth]{montufar2014.pdf}}
+  \caption{Visual demonstration of how composing an absolute value rectifier, which in effect allows for a higher-level function to be mirrored over some hyperplane in the input space, can result in exponentially many different linear regions by relying on (learned) symmetry.}
+\label{fig:montufar}
+\end{figure}
+
+\end{document}
