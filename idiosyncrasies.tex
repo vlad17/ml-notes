@@ -13,7 +13,11 @@
 
 Landau notation is used in the standard sense for single variables: $f=O(g)$ if there exists a $c$ such that $f(x)\le cg(x)$ for all $x$ sufficiently large, with $x$ perhaps restricted to the support of $g$ as required by the context. We use the analogous sense for $\Omega,\Theta,o,\omega$.
 
-In multiple variables, big-$O$ and friends require $f(\Tx)\le cg(\Tx)$ and similar inequalities, respectively, for all $\Tx$ in the support for the current context with $\norm{\Tx}_\infty$ sufficiently large. To capture the essence of asymptotics, a tilde will crudely absorb behavior up to logarithmic factors: $f=\tilde{O}(g)$ if $f=O(g\log^k g)$ for some $k\in\N$.
+In multiple variables, big-$O$ and friends require $f(\Tx)\le cg(\Tx)$ and similar inequalities, respectively, for all $\Tx$ in the support for the current context with $\norm{\Tx}_\infty$ sufficiently large. To capture the essence of asymptotics, a tilde will crudely absorb behavior up to logarithmic factors: $f=\tilde{O}(g)$ if $f=O(g\log^k g)$ for some $k\in\N$ and possibly multivariate function $g$.
+
+When some iterative process is clear, such as $\Tx_t$ arising from iterative optimization of an objective $f$, then the gradient will be abbreviated $\nabla_t=\nabla f(\Tx_t)$. Similarly we use $H_t=\nabla^2f(\Tx_t)$.
+
+I'll use $x\simeq y$ to claim that equality holds up to some fixed multiplicative constants.
 
 \section{Abbreviations}
 

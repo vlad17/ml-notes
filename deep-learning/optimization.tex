@@ -9,11 +9,86 @@
 
 \maketitle
 
-This document contains notes on optimization of DNNs; i.e., the ERM task for a prescribed family of neural networks. Content is mostly from \nurl{http://www.deeplearningbook.org/contents/optimization.html}{Goodfellow's Deep Learning Book}.
+This document contains notes on optimization of DNNs; i.e., the ERM task for a prescribed family of neural networks. Content is mostly from \nurl{http://www.deeplearningbook.org/contents/optimization.html}{Goodfellow's Deep Learning Book}. In the optimization chapter Dr. Goodfellow warns that over the past 30 years of machine learning advances in training speed have mostly been made from making a net that's easier to optimize, not by focusing on the optimization algorithm.
 
-[TODO Ch. 8 DL Book]
-\\\\
+\section{Setting}
+
+To cover a broad NN setting, which, in addition to deep neural networks (DNN) includes recurrent neural networks (RNN), we assume that we wish to minimize empirical risk:
+$$
+J(\bsth)=\frac{1}{m}\sum_{i=1}^mL\pa{f\pa{\Tx^{(i)}, \bsth}, y^{(i)}} + \Omega(\bsth)
+$$
+Above, $L$ is a fixed, differentiable loss function, as is the regularizer $\Omega$, which is also assumed to be one of several cannonical forms. Next, $f$ is a neural network, and therefore a real-valued circuit. Altogether this and backpropagation implies that we have efficient evaluation of $f$ and $\nabla f$ through backprop, as well as some second-order information if desired through Hessian-vector products $\pa{\nabla^2 f}\Tv=\nabla\pa{\Tv^\top\nabla f}$ (\nurl{http://uhra.herts.ac.uk/handle/2299/4335}{Christianson 1992}).
+
+\section{Stochastic Gradients}
+
+Since $J$ above decomposes easily, we frequently use a stochastic gradient with $B\ll m$ examples,
+$$\frac{1}{B}\sum_{i=1}^B\nabla_\bsth L\pa{f\pa{\Tx^{(\sigma_i)}, \bsth}, y^{(i)}},$$ for random samples $\sigma_i$ uniformly taken from the dataset. Using this for stochastic gradient descent (SGD) as opposed to full gradient descent (GD) enables more efficient derivatives.
+
+\section{Conditioning}
+
+An ill-conditioned Hessian can result in poor optimization. At any given step a twice-differentiable loss will have the following improvement with local Hessian $H$ and gradient $\Tg$ assuming step size $\epsilon$:
+$$
+\epsilon^2 \Tg^\top H\Tg-\epsilon \Tg^\top\Tg
+$$
+Monitoring both of the terms above (which can be done efficiently) during training can help with identifying training issues.
+
+\section{Non-convexity}
+
+$J$ is almost always non-convex in the NN case. This implies that local minima (LM) reached are not necessarily global. However, a global minimum (GM) is not necessary: just a LM close enough to it.
+
+LMs, however, may not always be the root of the problem. Many LMs are induced by symmetry (highly connected nets have combinatorially many symmetries). Recent research shows that LMs concentrate around the GM (\nurl{https://arxiv.org/abs/1412.0233}{Choromanska et al 2014}), so many of these LMs are equivalent to a good solution anyway. Goodfellow claims that most of the time (thanks to early stopping, for instance), most DNN optimizations don't arrive at a critical point of any kind.
+
+A more pertinent problem is that of saddle points (which tend to be much more populous than LMs): locations where the gradient vanishes but the Hessian has both positive and negative eigenvalues (\nurl{https://arxiv.org/abs/1406.2572}{Dauphin et al 2014}). The issue is that along one direction (the linear subspace of positive eigenvectors), the saddle appears to be a LM, and it can take many steps to to get close enough to the bottom of the saddle to locate the direction of negative eigenvalue in the Hessian.
+
+Wide, flat objective regions, ``plateaus,'' are another threat: one that is difficult to circumvent altogether. Momentum is an approach to solve some versions of this problem.
+
+Cliffs may cause a misstep (onto the cliff) to cause a far overshoot, sending the parameters careening very far away [TODO figure 6 from \nurl{https://arxiv.org/abs/1211.5063}{Pascanu et al 2013}]. This is resolved with gradient clipping.
+
+\section{Initialization}
+
+Parameters should not be initialized uniformly so as to break symmetry between hidden units; otherwise, the parameters will remain the same during training. This motivates random initialization. Biases, however, are typically constants, heuristically chosen.
+
+Weights are typically Gaussian or uniform, but scale is important. Large scale, which breaks symmetry strongly, must be balanced with stability of the learning algorithm. Heuristics do exist:
+
+\begin{enumerate}
+\item ReLU activations, since they're linear, suggest that that the scale of the output for a basic ReLU MLP with $\norm{y}\sim \norm{\Tx}\prod_i\norm{W^{(i)}}$. In general, the scale of weights should be treated as a hyperparameter. Importantly, loss (such as softmax) not scale-invariant; keep an eye out for initialization.
+\item (\nurl{http://proceedings.mlr.press/v9/glorot10a.html}{Glorot and Bengio 2010}). Normed initialization suggests that a fully connected layer initializes an $n\times m$ weight matrix entrywise with $\Uniform\pa{-u, u}$ where $u=\sqrt{\frac{6}{m+n}}$. This approach intends to keep gradient variance the same across layers.
+\item (\nurl{https://arxiv.org/abs/1312.6120}{Saxe et al 2013}, \nurl{https://arxiv.org/abs/1412.6558}{Susillo 2014}). Orthogonal matrix initialization with a scaling factor dependent on layer activation is motivated by making hidden units track a varied set of functions, resulting in training time independent of depth (if nonlinearities are the identity).
+\item Output layer bias should be initialized to the marginal statistics of observations.
+\item Certain initialization schemes may be compatible with positive constant bias initialization, which lets gradients start on the linear part of a ReLU.
+\item (\nurl{https://research.google.com/pubs/pub45473.html}{Jozefowicz et al 2015}). If a unit acts as a control gate for letting other information pass (like a forget gate in an LSTM), then bias should be initialized as positive there.
+\end{enumerate}
+
+\section{Optimization Methods}
+
+See my \nurl{https://vlad17.github.io/2017/06/19/neural-network-optimization-methods.html}{blog post}.
+
+\section{Techniques}
+
 \noindent
-\textbf{Second-order methods} (\nurl{http://uhra.herts.ac.uk/handle/2299/4335}{Christianson 1992}).
+\textbf{Batch Size}. Note that variance in the gradient is reduced sublinearly in batch size (from the standard error of the mean formula). However, very small batches may damage gradient accuracy to the point where noise dominates gradient signal at the end of training (though, with early stopping, this may not be a large problem)---a common strategy is to increase batch size during training. Second-order methods may require larger batches since the inverse Hessian is sensitive to fluctuation.
+[TODO 8.7 DL Book]
+
+batch normalization vs initialization (\nurl{https://arxiv.org/abs/1511.06422}{Mishkin and Matas 2015})
+
+Polyak averaging (https://arxiv.org/abs/1107.2490)
+
+*skip* coordinate descent
+
+network reuse (``Net2Net: Accelerating Learning via
+Knowledge Transfer.'')
+
+Greedy pre-training
+
+simultaneous full-depth training (find better name): attaching MLP heads in the middle of an architecture
+
+Curriculum learning (*skip* continuation)
+
+\section{Cost Function Shape}
+
+TODO: link to goodfellow SGD slides + 2015 paper (copy them in)
+``Qualitatively Characterizing Neural Network
+Optimization Problems,''
+Goodfellow, Vinyals and Saxe, ICLR 2015
 
 \end{document}
