@@ -15,20 +15,20 @@ This document contains notes on optimization of DNNs; i.e., the ERM task for a p
 
 To cover a broad NN setting, which, in addition to deep neural networks (DNN) includes recurrent neural networks (RNN), we assume that we wish to minimize empirical risk:
 $$
-J(\bsth)=\frac{1}{m}\sum_{i=1}^mL\pa{f\pa{\Tx^{(i)}, \bsth}, y^{(i)}} + \Omega(\bsth)
+J(\vtheta)=\frac{1}{m}\sum_{i=1}^mL\pa{f\pa{\vx^{(i)}, \vtheta}, y^{(i)}} + \Omega(\vtheta)
 $$
-Above, $L$ is a fixed, differentiable loss function, as is the regularizer $\Omega$, which is also assumed to be one of several cannonical forms. Next, $f$ is a neural network, and therefore a real-valued circuit. Altogether this and backpropagation implies that we have efficient evaluation of $f$ and $\nabla f$ through backprop, as well as some second-order information if desired through Hessian-vector products $\pa{\nabla^2 f}\Tv=\nabla\pa{\Tv^\top\nabla f}$ (\nurl{http://uhra.herts.ac.uk/handle/2299/4335}{Christianson 1992}).
+Above, $L$ is a fixed, differentiable loss function, as is the regularizer $\Omega$, which is also assumed to be one of several cannonical forms. Next, $f$ is a neural network, and therefore a real-valued circuit. Altogether this and backpropagation implies that we have efficient evaluation of $f$ and $\nabla f$ through backprop, as well as some second-order information if desired through Hessian-vector products $\pa{\nabla^2 f}\vv=\nabla\pa{\vv^\top\nabla f}$ (\nurl{http://uhra.herts.ac.uk/handle/2299/4335}{Christianson 1992}).
 
 \section{Stochastic Gradients}
 
 Since $J$ above decomposes easily, we frequently use a stochastic gradient with $B\ll m$ examples,
-$$\frac{1}{B}\sum_{i=1}^B\nabla_\bsth L\pa{f\pa{\Tx^{(\sigma_i)}, \bsth}, y^{(i)}},$$ for random samples $\sigma_i$ uniformly taken from the dataset. Using this for stochastic gradient descent (SGD) as opposed to full gradient descent (GD) enables more efficient derivatives.
+$$\frac{1}{B}\sum_{i=1}^B\nabla_\vtheta L\pa{f\pa{\vx^{(\sigma_i)}, \vtheta}, y^{(i)}},$$ for random samples $\sigma_i$ uniformly taken from the dataset. Using this for stochastic gradient descent (SGD) as opposed to full gradient descent (GD) enables more efficient derivatives.
 
 \section{Conditioning}
 
-An ill-conditioned Hessian can result in poor optimization. At any given step a twice-differentiable loss will have the following improvement with local Hessian $H$ and gradient $\Tg$ assuming step size $\epsilon$:
+An ill-conditioned Hessian can result in poor optimization. At any given step a twice-differentiable loss will have the following improvement with local Hessian $H$ and gradient $\vg$ assuming step size $\epsilon$:
 $$
-\epsilon^2 \Tg^\top H\Tg-\epsilon \Tg^\top\Tg
+\epsilon^2 \vg^\top H\vg-\epsilon \vg^\top\vg
 $$
 Monitoring both of the terms above (which can be done efficiently) during training can help with identifying training issues.
 
@@ -51,7 +51,7 @@ Parameters should not be initialized uniformly so as to break symmetry between h
 Weights are typically Gaussian or uniform, but scale is important. Large scale, which breaks symmetry strongly, must be balanced with stability of the learning algorithm. Heuristics do exist:
 
 \begin{enumerate}
-\item ReLU activations, since they're linear, suggest that that the scale of the output for a basic ReLU MLP with $\norm{y}\sim \norm{\Tx}\prod_i\norm{W^{(i)}}$. In general, the scale of weights should be treated as a hyperparameter. Importantly, loss (such as softmax) not scale-invariant; keep an eye out for initialization.
+\item ReLU activations, since they're linear, suggest that that the scale of the output for a basic ReLU MLP with $\norm{y}\sim \norm{\vx}\prod_i\norm{W^{(i)}}$. In general, the scale of weights should be treated as a hyperparameter. Importantly, loss (such as softmax) not scale-invariant; keep an eye out for initialization.
 \item (\nurl{http://proceedings.mlr.press/v9/glorot10a.html}{Glorot and Bengio 2010}). Normed initialization suggests that a fully connected layer initializes an $n\times m$ weight matrix entrywise with $\Uniform\pa{-u, u}$ where $u=\sqrt{\frac{6}{m+n}}$. This approach intends to keep gradient variance the same across layers.
 \item (\nurl{https://arxiv.org/abs/1312.6120}{Saxe et al 2013}, \nurl{https://arxiv.org/abs/1412.6558}{Susillo 2014}). Orthogonal matrix initialization with a scaling factor dependent on layer activation is motivated by making hidden units track a varied set of functions, resulting in training time independent of depth (if nonlinearities are the identity).
 \item Output layer bias should be initialized to the marginal statistics of observations.

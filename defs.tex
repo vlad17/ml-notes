@@ -1,157 +1,177 @@
-\usepackage{nicefrac}
-\usepackage[hidelinks]{hyperref}
-\usepackage{xcolor}
-\usepackage{url}
+% latex math commands
+% Vladimir Feinberg
+% \vx notation for vectors from Goodfellow
+% https://github.com/goodfeli/dlbook_exercises
+
+% alphabet templates
+% abcdefghijklmnopqrstuvwxyz
+% ABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+% fonts, math, and layout commands
 \usepackage{lmodern}
+\usepackage{fullpage}
+\usepackage{bbm}
+\usepackage{enumerate}
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
 \usepackage{amsfonts}
-\usepackage{enumerate}
-\usepackage{graphicx}
-\usepackage{fullpage}
-\usepackage{bbm}
-\usepackage{caption}
 \usepackage{mathrsfs}
 \usepackage[all]{xy}
 
+% include graphics with \includegraphics
+\usepackage{graphicx}
+\usepackage{caption}
+
+% \nicefrac{x}{y} gives a diagonal fraction bar x/y
+\usepackage{nicefrac}
+
+% \nurl{<url>}{link name} renders a blue underlined link
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+\usepackage{url}
+\newcommand{\nurl}[2]{\href{ #1 }{\color{blue}\underline{#2}}}
+
+% brackets, norms, cardinalities
 \newcommand{\pa}[1]{ \left({#1}\right) }
+\newcommand{\ha}[1]{ \left[{#1}\right] }
+\newcommand{\ca}[1]{ \left\{{#1}\right\} }
+\newcommand{\inner}[1]{\left\langle #1 \right\rangle}
+\newcommand{\innercpy}[1]{\inner{ #1, #1 }}
+\newcommand{\norm}[1]{\left\| #1 \right\|}
+\newcommand{\abs}[1]{\left|{#1}\right|}
+\newcommand{\card}[1]{\left\vert{#1}\right\vert}
 
-\def \N {\mathbb{N}}
-\def \Nbr {\mathcal{N}}
-\def \Q {\mathbb{Q}}
-\def \F {\mathbb{F}}
-\def \then {\implies &}
-\def \oif {\Longleftrightarrow &\,}
-\def \given {\text{Given }&}
-\def \assume {\text{Assume }&}
-\def \thfr {\therefore &\enskip}
-\def \bij {\leftrightarrow}
-\def \inj {\rightarrowtail}
-\def \sur {\twoheadedrightarrow}
-\def \Z {\mathbb{Z}}
-\def \R {\mathbb{R}}
-\def \C {\mathbb{C}}
-\def \T {\mathbb{T}}
-\def \iff {\Longleftrightarrow}
-\def \kron {\boldsymbol\delta}
-\def \indicator {\mathbbm{1}}
+% math vectors
+\newcommand{\va}{\textbf{a}}
+\newcommand{\vb}{\textbf{b}}
+\newcommand{\vc}{\textbf{c}}
+\newcommand{\vd}{\textbf{d}}
+\newcommand{\ve}{\textbf{e}}
+\newcommand{\vf}{\textbf{f}}
+\newcommand{\vg}{\textbf{g}}
+\newcommand{\vh}{\textbf{h}}
+\newcommand{\vi}{\textbf{i}}
+\newcommand{\vj}{\textbf{j}}
+\newcommand{\vk}{\textbf{k}}
+\newcommand{\vl}{\textbf{l}}
+\newcommand{\vm}{\textbf{m}}
+\newcommand{\vn}{\textbf{n}}
+\newcommand{\vo}{\textbf{o}}
+\newcommand{\vp}{\textbf{p}}
+\newcommand{\vq}{\textbf{q}}
+\newcommand{\vr}{\textbf{r}}
+\newcommand{\vs}{\textbf{s}}
+\newcommand{\vt}{\textbf{t}}
+\newcommand{\vu}{\textbf{u}}
+\newcommand{\vv}{\textbf{v}}
+\newcommand{\vw}{\textbf{w}}
+\newcommand{\vx}{\textbf{x}}
+\newcommand{\vy}{\textbf{y}}
+\newcommand{\vz}{\textbf{z}}
+\newcommand{\vzero}{\textbf{0}}
+\newcommand{\vone}{\textbf{1}} 
+\newcommand{\valpha}{{\boldsymbol\alpha}}
+\newcommand{\vepsilon}{{\boldsymbol\epsilon}}
+\newcommand{\veta}{{\boldsymbol\eta}}
+\newcommand{\vsigma}{ {\boldsymbol\sigma}}
+\newcommand{\vtheta}{ {\boldsymbol\theta}}
+\newcommand{\vdelta}{ {\boldsymbol\delta}}
 
-\def\Ta{\textbf{a}}
-\def\Tm{\textbf{m}}
-\def\Tb{\textbf{b}}
-\def\Tc{\textbf{c}}
-\def\Td{\textbf{d}}
-\def\Te{\textbf{e}}
-\def\Tv{\textbf{v}}
-\def\Tx{\textbf{x}}
-\def\Tw{\textbf{w}}
-\def\Ty{\textbf{y}}
-\def\Tk{\textbf{k}}
-\def\Tt{\textbf{t}}
-\def\Tz{\textbf{z}}
-\def\Tl{\textbf{l}}
-\def\quotient{\mathclose{}/\mathopen{}}
-\def\Tf{\textbf{f}}
-\def\Th{\textbf{h}}
-\def\Tg{\textbf{g}}
+
+% math function arrows, misc binary math ops
+\newcommand{\bij}{\leftrightarrow}
+\newcommand{\inj}{\rightarrowtail}
+\newcommand{\sur}{\twoheadedrightarrow}
+\newcommand{\eqd}{\mathrel{\overset{\Delta}{=}}}
+
+% common math sets
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\T}{\mathbb{T}}
+
+% limits
 \def\sumn{\sum_{n=0}^\infty}
 \def\limn{\lim_{n\rightarrow\infty}}
 \def\prodn{\prod_{n=0}^\infty}
 
-\def\bsz{\textbf{0}}
-\def\bs1{\textbf{1}}
-\def\bsa{{\boldsymbol\alpha}}
-\def\bse{{\boldsymbol\eta}}
-\def \bss{ {\boldsymbol\sigma}}
-\def \bsth{ {\boldsymbol\theta}}
+% mathcal
+\newcommand{\mcA}{\mathcal{A}}
+\newcommand{\mcB}{\mathcal{B}}
+\newcommand{\mcC}{\mathcal{C}}
+\newcommand{\mcD}{\mathcal{D}}
+\newcommand{\mcE}{\mathcal{E}}
+\newcommand{\mcF}{\mathcal{F}}
+\newcommand{\mcG}{\mathcal{G}}
+\newcommand{\mcH}{\mathcal{H}}
+\newcommand{\mcI}{\mathcal{I}}
+\newcommand{\mcJ}{\mathcal{J}}
+\newcommand{\mcK}{\mathcal{K}}
+\newcommand{\mcL}{\mathcal{L}}
+\newcommand{\mcM}{\mathcal{M}}
+\newcommand{\mcN}{\mathcal{N}}
+\newcommand{\mcO}{\mathcal{O}}
+\newcommand{\mcP}{\mathcal{P}}
+\newcommand{\mcQ}{\mathcal{Q}}
+\newcommand{\mcR}{\mathcal{R}}
+\newcommand{\mcS}{\mathcal{S}}
+\newcommand{\mcT}{\mathcal{T}}
+\newcommand{\mcU}{\mathcal{U}}
+\newcommand{\mcV}{\mathcal{V}}
+\newcommand{\mcW}{\mathcal{W}}
+\newcommand{\mcX}{\mathcal{X}}
+\newcommand{\mcY}{\mathcal{Y}}
+\newcommand{\mcZ}{\mathcal{Z}}
 
-\DeclareMathOperator{\conv}{conv}
-\DeclareMathOperator\cat{cat}
-\DeclareMathOperator\adj{adj}
+% measure theory
+\newcommand{\indicator}{\mathbbm{1}}
 \DeclareMathOperator{\Laplace}{Laplace}
-\DeclareMathOperator\Poisson{Poisson}
-\DeclareMathOperator\Id{Id}
-\DeclareMathOperator\Uniform{Uniform}
+\DeclareMathOperator{\Poisson}{Poisson}
+\DeclareMathOperator{\Uniform}{Uniform}
 \DeclareMathOperator\mathProb{\mathbb{P}}
-\def\P{\mathProb} % need to overwrite stupid paragraph symbol
+
+\renewcommand{\P}{\mathProb} % need to overwrite stupid paragraph symbol
 \DeclareMathOperator\mathExp{\mathbb{E}}
-\def \E {\mathExp}
+\newcommand{\E}{\mathExp}
 
+\newcommand{\sa}{{$\sigma$-algebra}}
+\newcommand{\OR}{{\overline{\R}}}
+\newcommand{\OX}{{\overline{X}}}
+\DeclareMathOperator{\power}{{\mathcal{P}}}
+\DeclareMathOperator{\var}{var}
 
-\newcommand{\stc}[1]{\widetilde{#1}}   
+% \set{from set}{condition} with set-builder notation
 \newcommand{\set}[2]{ \left\{ #1 \,\middle|\, #2 \right\} }
-\newcommand{\idx}[3]{ \left\{ #1 \right\}_{ #2 }^{ #3 } }
-\newcommand{\card}[1]{\left\vert{#1}\right\vert}
-\newcommand{\colv}[1]{\begin{pmatrix} #1 \end{pmatrix}}
+
+% linear-algebra related
 \newcommand{\mat}[1]{\begin{pmatrix} #1 \end{pmatrix}}
 \newcommand{\detmat}[1]{\begin{vmatrix} #1 \end{vmatrix}}
 \newcommand{\spanb}[1]{\text{span}\{ #1 \}}
-\newcommand{\abs}[1]{\left|#1\right|}
-\newcommand{\opcat}[1]{#1^{\text{op}}}
-\newcommand{\Inner}[1]{\left\langle #1 \right\rangle}
-\newcommand{\Innercpy}[1]{\Inner{ #1, #1 }}
-\newcommand{\norm}[1]{\left\| #1 \right\|}% use instead of $\|x\|$
-
-\def\eqd{\mathrel{\overset{\Delta}{=}}}
-
+\DeclareMathOperator{\conv}{conv} % convex hull
+\DeclareMathOperator{\cone}{cone}
+\DeclareMathOperator{\vectorize}{vec}
+\DeclareMathOperator{\matricize}{mat}
+\DeclareMathOperator{\adj}{adj}
 \DeclareMathOperator{\diag}{diag}
-\DeclareMathOperator{\vcdim}{VC-dim}
-\DeclareMathOperator*{\Err}{\text{err}}
-\DeclareMathOperator*{\ErrE}{\mathbb{E}}
-\DeclareMathOperator{\Tr}{tr}
-\DeclareMathOperator{\Dim}{dim}
-\DeclareMathOperator{\Rank}{rank}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\rank}{rank}
 \DeclareMathOperator*{\argmin}{argmin}
 \DeclareMathOperator*{\proj}{proj}
-\DeclareMathOperator{\Ker}{ker}
-\DeclareMathOperator{\Diam}{diam}
-\DeclareMathOperator{\Int}{int}
-\DeclareMathOperator{\Clo}{clo}
+
+% misc
+\DeclareMathOperator{\diam}{diam}
 \DeclareMathOperator{\sgn}{sgn}
 \DeclareMathOperator{\MyRe}{Re}
 \DeclareMathOperator{\MyIm}{Im}
 \DeclareMathOperator{\image}{image}
 \DeclareMathOperator{\colim}{colim}
-\DeclareMathOperator{\Supp}{supp}
-\DeclareMathOperator{\Var}{var}
-\DeclareMathOperator{\Hom}{hom}
-\DeclareMathOperator{\Ob}{ob}
-\DeclareMathOperator{\El}{el}
-\DeclareMathOperator\power{{\mathcal{P}}}
-\DeclareMathOperator{\Nat}{Nat}
-\DeclareMathOperator{\cone}{cone}
-\DeclareMathOperator{\vectorize}{vec}
-\DeclareMathOperator{\matricize}{mat}
+\DeclareMathOperator{\supp}{supp}
 
-% probability stuff
-\def \sa {{$\sigma$-algebra}}
-\def\OR{{\overline{\R}}}
-\def\OX{{\overline{X}}}
-
-\def\mcU{{\mathcal{U}}}
-\def \mcX {\mathcal{X}}
-\def \mcS {\mathcal{S}}
-\def \mcY {\mathcal{Y}}
-\def \mcH {\mathcal{H}}
-\def \mcD {\mathcal{D}}
-\def \mcC {\mathcal{C}}
-\def \mcA {\mathcal{A}}
-\def \mcK {\mathcal{K}}
-\def \mcM {\mathcal{M}}
-\def\mcG{{\mathcal{G}}}
-\def\mcH{{\mathcal{H}}}
-\def\mcF{{\mathcal{F}}}
-\def\mcB{{\mathcal{B}}}
-\def\mcE{{\mathcal{E}}}
-\def\mcI{{\mathcal{I}}}
-\def\mcQ{{\mathcal{Q}}}
-\def\mcM{{\mathcal{M}}}
-\def\mcC{{\mathcal{C}}}
-\def\mcT{{\mathcal{T}}}
-\def\mcO{{\mathcal{O}}}
-\def\mcJ{{\mathcal{J}}}
-
+% \bigtimes: large indexed cross product
 \makeatletter
 \DeclareFontFamily{U}  {MnSymbolF}{}
 \DeclareSymbolFont{symbolsMN}{U}{MnSymbolF}{m}{n}
@@ -181,12 +201,12 @@
 \makeatother
 
 % category theory arguments
-% more equality: http://tex.stackexchange.com/questions/333629/
-\newcommand\superequiv{ \mathrel{\rlap{\raisebox{\fontdimen22\textfont2}{$ = $}}\raisebox{-0.5\fontdimen22\textfont2}{$ = $}}}
+% See https://tex.stackexchange.com/questions/356873
 \newcommand{\catfst}{{-}}
 \newcommand{\catsnd}{{=}}
 \newcommand{\cattrd}{{\equiv}}
-\newcommand{\catfth}{{\superequiv}}
-
-
-\newcommand{\nurl}[2]{\href{ #1 }{\color{blue}\underline{#2}}}
+\DeclareMathOperator{\Id}{Id}
+\newcommand{\opcat}[1]{{#1}^{\text{op}}}
+\DeclareMathOperator{\Hom}{hom}
+\DeclareMathOperator{\Ob}{ob}
+\DeclareMathOperator{\El}{el}
