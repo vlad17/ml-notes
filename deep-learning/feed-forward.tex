@@ -11,7 +11,7 @@
 
 \section{Introduction}
 
-Many-layer feed forward networks, or deep neural networks (DNNs), are the simplest type of artificial neural network. For a given network architecture, a feed-forward network forms a family of possibly nonlinear functions. This family defines a hypothesis class for empirical risk minimization. These networks have been incredibly successful in supervised ML settings.
+Many-layer feed-forward networks, or deep neural networks (DNNs), are the simplest type of artificial neural network. For a given network architecture, a feed-forward network forms a family of possibly nonlinear functions. This family defines a hypothesis class for empirical risk minimization. These networks have been incredibly successful in supervised ML settings.
 
 These notes follow Goodfellow's \nurl{http://www.deeplearningbook.org/contents/mlp.html}{Deep Learning Book}. As mentioned there, there are two essential components to DNNs:
 \begin{enumerate}
@@ -32,7 +32,7 @@ $$
 f(\vx)=f^{(d)}\circ f^{(d-1)}\circ\cdots\circ f^{(2)}\circ f^{(1)}\pa{\vx}
 $$
 
-Note that the input and output dimension of each $f^{(i)}$ may differ; the maximum such dimension is the width of the network. For MLPs, each $f$ is the comosition of a vectorized activation function $g$ and an affine function. The dimensionality of the affine functions and the choice of activation are hyperparameters.
+Note that the input and output dimension of each $f^{(i)}$ may differ; the maximum such dimension is the width of the network. For MLPs, each $f$ is the composition of a vectorized activation function $g$ and an affine function. The dimensionality of the affine functions and the choice of activation are hyperparameters.
 
 $$
 f^{(i)}(\vx)=g\pa{W^{(i)}\vx+\vb^{(i)}}
@@ -48,14 +48,14 @@ Training is typically performed with first-order optimization of $J(\vtheta)$; t
 \textbf{ReLU} (\nurl{http://proceedings.mlr.press/v15/glorot11a.html}{Glorot et al 2011}). The ReLU $g(\vx)=\max\pa{\vx,\vzero}$ induces activation sparsity, which is more biologically plausible. Their use improves accuracy when compared to smoother activations in practice, and their linear regime keeps magnitude scaling behavior reasonable as we traverse the net, which is a boon to optimization.
 \\\\
 \noindent
-\textbf{Maxout} (\nurl{https://arxiv.org/abs/1302.4389}{Goodfellow et al 2013}, \nurl{https://arxiv.org/abs/1312.6211}{Goodfellow et al}). A maxout layer is a generalized ReLU $g$ with input dimension $n$ and fixed $p$ and $k$ as hyperparameters has fixed subsets $G^{(i)}=\set{ik+j}{j\in[p]}$ such that $g(\vz)_i=\max_{j\in G^{(i)}}z_j$. In addition to being more theoretically expressive (allowing for fewer units in the next layer), maxout enables units to be driven by several ``filters'' (activations in the previous layer), preventing catastrophic forgetting. Morevoer, maxout is complimentary to dropout.
+\textbf{Maxout} (\nurl{https://arxiv.org/abs/1302.4389}{Goodfellow et al 2013}, \nurl{https://arxiv.org/abs/1312.6211}{Goodfellow et al}). A maxout layer is a generalized ReLU $g$ with input dimension $n$ and fixed $p$ and $k$ as hyperparameters has fixed subsets $G^{(i)}=\set{ik+j}{j\in[p]}$ such that $g(\vz)_i=\max_{j\in G^{(i)}}z_j$. In addition to being more theoretically expressive (allowing for fewer units in the next layer), maxout enables units to be driven by several ``filters'' (activations in the previous layer), preventing catastrophic forgetting. Moreover, maxout is complimentary to dropout.
 
 \section{Regularization}
 
 At a high level, regularization changes the objective from usual loss $J(\vtheta)$ to loss plus weight penalty $J(\vtheta)+\Omega(\vtheta)$ or loss plus constraints; it is effective in moving overfit models of high capacity to those of appropriate capacity for the problem: lower variance for a bit higher bias.
 \\\\
 \noindent
-\textbf{Weight Decay}. For all affine transforms let the weight matrix terms (not bias), vectorized, be $\vw$. Add $\Omega(\vtheta)=\frac{\alpha}{2}\norm{\vw}_2^2$. Intuitively, bias is unrestricted because it only interacts with one variable directly (the output feature map), so it isn't prone to overfitting. For a quadratic approximation of the loss at $J(\vtheta)$, with hessian $H=Q\Lambda Q^\top$, $L^2$ regualrization would result in a new optimum $Q(\Lambda+\alpha I)^{-1}\Lambda Q^\top \vw_*$ where $\vw_*$ is the unconstrained optimum. If $\vv_i$ is the $i$-th eigenvector of $H$ and $\lambda_i$ its eigenvalue, then the regularization adjusts the solution by rescaling the $\vv_i$-th component of $\vw_*$ by a factor of $\frac{\lambda_i}{\lambda_i+\alpha}$. Regualrization can also be viewed as constraints by identifying that $\alpha$ is a KKT multiplier: a fixed $\alpha$ corresponds to optimizing $\min J(\vtheta)$ such that $\norm{\vw}\le k$ for some $k$ (which is in practice difficult to find given $\alpha$). $L^2$ regularization is equivalent to Bayesian MAP if weights have $N(0,\alpha^{-1})$ prior.
+\textbf{Weight Decay}. For all affine transforms let the weight matrix terms (not bias), vectorized, be $\vw$. Add $\Omega(\vtheta)=\frac{\alpha}{2}\norm{\vw}_2^2$. Intuitively, bias is unrestricted because it only interacts with one variable directly (the output feature map), so it isn't prone to overfitting. For a quadratic approximation of the loss at $J(\vtheta)$, with hessian $H=Q\Lambda Q^\top$, $L^2$ regularization would result in a new optimum $Q(\Lambda+\alpha I)^{-1}\Lambda Q^\top \vw_*$ where $\vw_*$ is the unconstrained optimum. If $\vv_i$ is the $i$-th eigenvector of $H$ and $\lambda_i$ its eigenvalue, then the regularization adjusts the solution by rescaling the $\vv_i$-th component of $\vw_*$ by a factor of $\frac{\lambda_i}{\lambda_i+\alpha}$. Regularization can also be viewed as constraints by identifying that $\alpha$ is a KKT multiplier: a fixed $\alpha$ corresponds to optimizing $\min J(\vtheta)$ such that $\norm{\vw}\le k$ for some $k$ (which is in practice difficult to find given $\alpha$). $L^2$ regularization is equivalent to Bayesian MAP if weights have $N(0,\alpha^{-1})$ prior.
 \\\\
 \noindent
 \textbf{Proximal Regularization}. Similar to weight decay, but $\Omega(\vtheta)=\alpha\norm{\vw}_1$. Assuming a (convex) diagonal Hessian approximation to $J(\vtheta)$ (more strict than above), the $i$-th component solution is pulled down to
@@ -63,7 +63,7 @@ $$w_i=\begin{cases}
 \pa{\abs{w_i}-\frac{\alpha}{H_{i,i}}}\sgn w_i  & H_{i,i}>0, \abs{w_i}>\frac{\alpha}{H_{i,i}}\\
   0 & \text{otherwise}
 \end{cases}$$
-$L^1$ regualrization is equiavalent to Bayesian MAP if weights have $\Laplace(0, \alpha^{-1})$ prior.
+$L^1$ regularization is equivalent to Bayesian MAP if weights have $\Laplace(0, \alpha^{-1})$ prior.
 \\\\
 \noindent
 \textbf{Dataset Augmentation and Manifold Learning}. Modify supervised pairs $(\vx, y)$ to include $(T(\vx), y)$ where $T$ is a transformation we expect the classifier to be invariant to. Noise injection into inputs, too can be a form of dataset augmentation. An automatic technique for doing this is tangent propagation (\nurl{https://papers.nips.cc/paper/4409-the-manifold-tangent-classifier}{Rifai et al 2011}), which adds a penalty if the output is sensitive to changes along learned manifold vectors $\vv_i$: $\Omega(f)=\sum_i\pa{\vv_i^\top\nabla f)^2}$.
@@ -89,7 +89,7 @@ $L^1$ regualrization is equiavalent to Bayesian MAP if weights have $\Laplace(0,
 \section{Theory}
 
 \noindent
-\textbf{Universal Approximation Theorem}. A feedforward network with a linear outputlayer, at least one hidden layer, and the logistic sigmoid activation can approximate any Borel measurable function and its derivatives, where they exist, arbitrarily well, given sufficient hidden units.
+\textbf{Universal Approximation Theorem}. A feed-forward network with a linear output layer, at least one hidden layer, and the logistic sigmoid activation can approximate any Borel measurable function and its derivatives, where they exist, arbitrarily well, given sufficient hidden units.
 \\\\
 \noindent
 \textbf{Deep Rectifier Network Efficiency Theorem} (\nurl{https://arxiv.org/abs/1402.1869}{Mont\'{u}far et al 2014}). A deep rectifier network of constant width $w$, input dimension $i$ and depth $d$ may have up to $\Omega\pa{\pa{\nicefrac{w}{i}}^{di}i^i}$ distinct linear regions and a maxout network with $k$ filters per unit may have up to $\Omega(k^{i+l-1})$. Visually demonstrated in Figure~\ref{fig:montufar}.

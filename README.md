@@ -1,6 +1,6 @@
 # ML Notes
 
-These notes are a dedicated collection of condensed educational materials relating to machine learning (ML). I hope that eventually they will contain a comprehensive, rigorous overview of practical and theoretical concerns for machine learning, ultra-compactified (but with links everywhere for deep-diving!)
+These notes are a dedicated collection of condensed educational materials relating to machine learning (ML). I hope that eventually they will contain a comprehensive, rigorous overview of practical and theoretical concerns for machine learning, ultra-compacted (but with links everywhere for deep-diving!)
 
 Prerequisites:
 

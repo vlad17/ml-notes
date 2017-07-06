@@ -1,3 +1,3 @@
 # Unsupervised Bayesian Machine Learning
 
-* [Gaussian Mixture Models](gaussian-mixtrue-models.md)
+* [Gaussian Mixture Models](gaussian-mixture-models.md)

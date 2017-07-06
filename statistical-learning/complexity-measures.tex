@@ -15,7 +15,7 @@ Complexity measures evaluate the expressiveness of a hypothesis class; they are 
 
 We suppose that our data comes in the form of ordered pairs from $\mcX\times \mcY$. Samples follow a particular distribution $(x, y)\sim D$. A hypothesis class $\mcH$ is set of functions $\mcX\rightarrow\mcY$.
 
-A common approach to supervised learning is ERM, where $m$ iid samples from $D$, $S$, are used to find the $h\in\mcH$ minimizing a specified loss $\ell:\mcY^2\rightarrow\R$ over this set. Complexity measures then let us quanify exactly how much loss we can expect when sampling from $D$ again.
+A common approach to supervised learning is ERM, where $m$ iid samples from $D$, $S$, are used to find the $h\in\mcH$ minimizing a specified loss $\ell:\mcY^2\rightarrow\R$ over this set. Complexity measures then let us quantify exactly how much loss we can expect when sampling from $D$ again.
 
 We seek to quantify the generalization gap with the help of our notions of complexity. For a fixed $h\in \mcH$:
 
@@ -48,7 +48,7 @@ $$
 $$
 The above inequality is random since it depends on $S$, the $D^m$-valued rv. TODO. find source removing tilde?
 
-Agnostic lower bound. We may find a $D$ such that with a fixed nonzero probability (a nonneglible set of candidate samples $S$), the following holds:
+Agnostic lower bound. We may find a $D$ such that with a fixed nonzero probability (a non-negligible set of candidate samples $S$), the following holds:
 $$
 \varepsilon\ge \Omega\pa{\sqrt{\frac{d}{m}}}
 $$
@@ -64,7 +64,7 @@ With $R_m$ either the empirical or expected Rademacher complexity over the sampl
 $$
 \varepsilon\le 2R_m+O\pa{\frac{\log\nicefrac{1}{\delta}}{m}}
 $$
-$R_m$ may be NP-hard to compute, depending on $\mcH$. This tells us Rademacher complexity could only be a useful imporvement over VC-bounds, asymptotically, if we have an efficient approximation for the empirical Rademacher complexity or some knowledge of $D$ as required to compote the true Rademacher complexity.
+$R_m$ may be NP-hard to compute, depending on $\mcH$. This tells us Rademacher complexity could only be a useful improvement over VC-bounds, asymptotically, if we have an efficient approximation for the empirical Rademacher complexity or some knowledge of $D$ as required to compote the true Rademacher complexity.
 
 TODO. NP-hardness? More computational learning theory.
 
