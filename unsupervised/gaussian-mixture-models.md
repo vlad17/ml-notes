@@ -4,4 +4,3 @@
 
 Equivalent to Quadratic Discriminant Analysis
 
-TODO

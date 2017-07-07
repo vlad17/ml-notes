@@ -10,12 +10,12 @@ Prerequisites:
 Topics:
 
 * [Idiosyncrasies](idiosyncrasies.pdf)
-* Information Theory
-* Estimation Theory
+* Theoretical Statistics (Information Theory and Estimation Theory)
 * [Statistical learning theory](statistical-learning/README.md)
 * [Common models (and their considerations) for ERM-based supervised learning](supervised/README.md)
 * [Bayesian-motivated unsupervised learning](unsupervised/README.md)
 * [Deep Learning](deep-learning/README.md)
 * Optimization concerns
+* RKHS and kernel methods [overview](https://en.wikipedia.org/wiki/Reproducing_kernel_Hilbert_space)
 
 This repository contains copied copyrighted material with attribution (under fair use).

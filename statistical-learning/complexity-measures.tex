@@ -32,13 +32,20 @@ Let the gap between the generalization and sample error be $\varepsilon$.
 
 \section{Complexity Measures}
 
-Rademacher complexity. TODO. relates complexity through noise correlation. equivalently, gives a consistent view of ``error'' through a ``uniform'' noise model.
+The empirical Rademacher complexity $\hat{R}_S$ assumes a fixed sample $S$ from $D^m$. It relates complexity of a function class $\mcG$ containing vectorized functions $g\in \mcG$ which take elements $z=(x, y)$ and return costs through the correlation of $\mcG$ with noise. Let $\vsigma\sim \Uniform\pa{\pm 1}^m$ and $\vz\sim\Uniform\pa{S}$. Rademacher complexity is then the average empirical one.
+$$
+\hat{R}_S(\mcG)=\E_\vsigma\E_\vz \sup_g {g(\vz)\cdot \vsigma},\;\;\; R_m(\mcG)=\E_S\hat{R}_S(\mcG)
+$$
 
-VC-dimension. TODO.
+VC dimension accomplishes a similar task for binary classification by rating the complexity of a hypothesis class $\mcH$. Let hypotheses $\mcH\ni h:\mcX\rightarrow \mcY=\ca{\pm 1}$ be applied elementwise over a vector of inputs $\vx$. First we define the growth function $\Pi_\mcH:\N\rightarrow\N$, which defines the maximum number of distinctions a hypothesis class can make over all sets of points in the input space:
+$$
+\Pi_\mcH(m)=\max_{\vx\in\mcX^m}\card{\set{h(\vx)}{h\in\mcH}}
+$$
+Then the VC dimension of $\mcH$ is then $\max\set{m\in\N}{\Pi_\mcH(m)=2^m}$.
 
 \section{Overview of Results}
 
-Proofs can be found in a cogent write-up by Prof. Beckage from the University of Kansas, copied into this repository as \texttt{complexity-measures-beckage.pdf}.\footnote{\url{http://ittc.ku.edu/~beckage/ml800/VC_dim.pdf}}
+Proofs can be found in a \nurl{http://ittc.ku.edu/~beckage/ml800/VC_dim.pdf}{cogent write-up} by Prof. Beckage from the University of Kansas.
 
 \subsection{VC Generalization Bounds}
 
@@ -58,6 +65,14 @@ The above implies that in the common case of agnostic hypothesis learning, where
 Realizability. Suppose $D$ is realizable wrt $\mcH$, so that there exists an $f\in\mcH$ such that for almost any $(x,y)$ sampled from $D$, $f(x)=y$. Then all statements above hold but with $\sqrt{\varepsilon}$ instead of $\varepsilon$.
 
 
+\subsection{Growth Function Bounds}
+
+Sauer's Lemma implies that VC dimension bounds the growth function: in a graph of the logarithm of the growth function vs $m$, growth is linear since $\Pi_\mcH(n)=n$ for $n\le m$. Then for $n>m$, growth is at most logarithmic, i.e., $\log\Pi_\mcH=O(\log m)$. With Massart's Lemma we have wp $1-\delta$:
+$$
+\varepsilon\le O\pa{\sqrt{\frac{\log\Pi_\mcH(m)-\log\delta}{m}}}
+$$
+Since the above would be large if $\log\Pi_\mcH(m)\simeq m$, it is clear why Sauer's Lemma enables the essential relationship between learnability and complexity.
+
 \subsection{Rademacher bounds}
 
 With $R_m$ either the empirical or expected Rademacher complexity over the sample for a given $h,\ell$ we have again wp $1-\delta$:
@@ -66,9 +81,8 @@ $$
 $$
 $R_m$ may be NP-hard to compute, depending on $\mcH$. This tells us Rademacher complexity could only be a useful improvement over VC-bounds, asymptotically, if we have an efficient approximation for the empirical Rademacher complexity or some knowledge of $D$ as required to compote the true Rademacher complexity.
 
-TODO. NP-hardness? More computational learning theory.
+\section{Hardness of Learning}
 
-TODO. Rademacher and Gaussian Complexities: Risk Bounds and Structural Results by Bartlett and Mendelson.
+Rademacher and Gaussian Complexities: Risk Bounds and Structural Results by Bartlett and Mendelson.
 
-TODO. Growth function as rademacher/VC bridge. Graph of (log Growth func) vs m linear then logarithmic past d. Note no nuance in number of shatterable sets, just that one exists [missing direction for analysis?]
 \end{document}
