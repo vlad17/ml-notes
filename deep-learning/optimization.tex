@@ -26,11 +26,18 @@ $$\frac{1}{B}\sum_{i=1}^B\nabla_\vtheta L\pa{f\pa{\vx^{(\sigma_i)}, \vtheta}, y^
 
 \section{Conditioning}
 
-An ill-conditioned Hessian can result in poor optimization. At any given step a twice-differentiable loss will have the following improvement with local Hessian $H$ and gradient $\vg$ assuming step size $\epsilon$:
+An ill-conditioned Hessian can result in poor optimization (Fig.~\ref{fig:illcond}). At any given step a twice-differentiable loss will have the following improvement with local Hessian $H$ and gradient $\vg$ assuming step size $\epsilon$:
 $$
 \epsilon^2 \vg^\top H\vg-\epsilon \vg^\top\vg
 $$
 Monitoring both of the terms above (which can be done efficiently) during training can help with identifying training issues.
+
+\begin{figure}[!h]
+\centering
+{\includegraphics[width=\textwidth]{ill-condition.pdf}}
+\caption{From Dr. Goodfellow's DL book lecture notes, Chapter 8.}
+\label{fig:illcond}
+\end{figure}
 
 \section{Non-convexity}
 
@@ -38,7 +45,13 @@ $J$ is almost always non-convex in the NN case. This implies that local minima (
 
 LMs, however, may not always be the root of the problem. Many LMs are induced by symmetry (highly connected nets have combinatorially many symmetries). Recent research shows that LMs concentrate around the GM (\nurl{https://arxiv.org/abs/1412.0233}{Choromanska et al 2014}), so many of these LMs are equivalent to a good solution anyway. Goodfellow claims that most of the time (thanks to early stopping, for instance), most DNN optimizations don't arrive at a critical point of any kind.
 
-A more pertinent problem is that of saddle points (which tend to be much more populous than LMs): locations where the gradient vanishes but the Hessian has both positive and negative eigenvalues (\nurl{https://arxiv.org/abs/1406.2572}{Dauphin et al 2014}). The issue is that along one direction (the linear subspace of positive eigenvectors), the saddle appears to be a LM, and it can take many steps to to get close enough to the bottom of the saddle to locate the direction of negative eigenvalue in the Hessian.
+A more pertinent problem is that of saddle points (which tend to be much more populous than LMs): locations where the gradient vanishes but the Hessian has both positive and negative eigenvalues (\nurl{https://arxiv.org/abs/1406.2572}{Dauphin et al 2014}). The issue is that along one direction (the linear subspace of positive eigenvectors), the saddle appears to be a LM, and it can take many steps to to get close enough to the bottom of the saddle to locate the direction of negative eigenvalue in the Hessian (Fig.~\ref{fig:saddle}).
+\begin{figure}[!h]
+\centering
+{\includegraphics[width=\textwidth]{saddle-bad.pdf}}
+\caption{From Dr. Goodfellow's DL book lecture notes, Chapter 8.}
+\label{fig:saddle}
+\end{figure}
 
 Wide, flat objective regions, ``plateaus,'' are another threat: one that is difficult to circumvent altogether. Momentum is an approach to solve some versions of this problem.
 
