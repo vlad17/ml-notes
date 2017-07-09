@@ -32,9 +32,9 @@ Let the gap between the generalization and sample error be $\varepsilon$.
 
 \section{Complexity Measures}
 
-The empirical Rademacher complexity $\hat{R}_S$ assumes a fixed sample $S$ from $D^m$. It relates complexity of a function class $\mcG$ containing vectorized functions $g\in \mcG$ which take elements $z=(x, y)$ and return costs through the correlation of $\mcG$ with noise. Let $\vsigma\sim \Uniform\pa{\pm 1}^m$ and $\vz\sim\Uniform\pa{S}$. Rademacher complexity is then the average empirical one.
+The empirical Rademacher complexity $\hat{R}_S$ assumes a fixed sample $S$ from $D^m$. It relates complexity of a function class $\mcG$ containing vectorized functions $g\in \mcG$ which take elements $z_i=(x_i, y_i)$ in $S$ and return costs through the correlation of $\mcG$ with noise. Let $\vsigma\sim \Uniform\pa{\pm 1}^m$. Rademacher complexity is then the average empirical one.
 $$
-\hat{R}_S(\mcG)=\E_\vsigma\E_\vz \sup_g {g(\vz)\cdot \vsigma},\;\;\; R_m(\mcG)=\E_S\hat{R}_S(\mcG)
+\hat{R}_S(\mcG)=\E_\vsigma \sup_g \frac{1}{m}\sum_{i=1}^m{g(z) \sigma_i},\;\;\; R_m(\mcG)=\E_S\hat{R}_S(\mcG)
 $$
 
 VC dimension accomplishes a similar task for binary classification by rating the complexity of a hypothesis class $\mcH$. Let hypotheses $\mcH\ni h:\mcX\rightarrow \mcY=\ca{\pm 1}$ be applied elementwise over a vector of inputs $\vx$. First we define the growth function $\Pi_\mcH:\N\rightarrow\N$, which defines the maximum number of distinctions a hypothesis class can make over all sets of points in the input space:
