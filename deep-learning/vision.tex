@@ -1,0 +1,75 @@
+\documentclass{article}
+
+\title{Neural Networks and Computer Vision}
+\author{Vladimir Feinberg}
+
+\input{../defs}
+\usepackage{animate}
+
+\begin{document}
+
+\maketitle
+
+We review techniques for computer vision with DNNs. Content is mostly from Dr. Goodfellow's \nurl{http://www.deeplearningbook.org/contents/convnets.html}{Deep Learning Book}, but also taken from \nurl{https://www.coursera.org/learn/neural-networks}{Dr. Hinton's Coursera Class}, lecture week 5.
+
+DNN vision techniques rely critically on convolutional neural nets (CNNs). Note that the techniques here can generally be applied to other inputs with grid topology, possibly of 1 dimension (like time series: joint angle data for a robot or audio data) or more than two (such as 3D fMRI imaging). Multiple channels (such as colors, or later feature maps) can just be viewed as separate image maps or new dimensions in the data.
+
+\section{Visual Difficulties}
+
+Visual difficulties we'd like to avoid include segmentation (teasing apart an object from its background and other object), deformation, lighting, and viewpoint.
+
+\section{Convolution}
+
+Convolution is a linear operation that replaces a fully-connected layer in a neural network. Thus, whereas a fully-connected layer with a vector input $\vx$ and activation $f$ may look like $f(W\vx+\vb)$ for weight $W$ and bias $\vb$, a convolutional layer would behave like $f(\vw *\vx)$. In this context, the weight $\vw$ is referred to as a kernel, and $f$ is typically a rectifier followed by a pooling operation. It is common for multiple kernels to be applied to the same $\vx$, the pooled results of which form the output of the layer as feature maps. The terminology follows similarly when replacing the vectors $\vx,\vw$ with arbitrary tensors $\mathsf{X},\mathsf{W}$; convolutions are well-defined on them.
+
+Convolution can be viewed as a linear operation. A 1D convolution is multiplication by a circulant matrix, a 2D convolution is multiplication by a doubly-circulant block matrix, and so on (\nurl{https://dsp.stackexchange.com/questions/35373/convolution-as-a-doubly-block-circulant-matrix-operating-on-a-vector}{example derivation}). Thus, indeed convolution is a form of parameter sharing and sparse interactions. Convolutions are typically implemented as cross-correlations. Even though this loses the commutativity property, these networks are just as expressive since we can just transpose the kernel. For small kernel sizes, convolution can be implemented much more efficiently than with their associated matrix multiplies.
+
+Modifications or common enhancements to convolution (see \nurl{https://arxiv.org/abs/1603.07285}{Dumoulin and Visin 2016}, Fig.~\ref{fig:conv}):
+\begin{itemize}
+\item Padding. Various paddings add zeros around the inputs and result in different output sizes. These dictate the role that partially applied filters at the boundary will play.
+\item Strides. A stride of greater than one skips applications of the kernel filter, which can be viewed as a form of regularization through downsampling. Along a similar vein, diluted convolutions apply the kernel itself at strides along the input. A transposed form of convolution, deconvolution, reverses this process, upsampling compressed input (\nurl{http://www.matthewzeiler.com/pubs/cvpr2010/cvpr2010.pdf}{Zeiler 2010}).
+\item Detectors. These are the nonlinearities applied after our linear convolutional transform.
+\item Degrees of parameter sharing. Unshared convolutions learn a new kernel for each application of the kernel to an input feature map, these have no sharing and are called locally connected layers. Tiled convolutions rotate through a small set of kernels as a middle ground proposed by \nurl{https://papers.nips.cc/paper/4136-tiled-convolutional-neural-networks}{Ngiam et al 2010}, but they're usually replaced by having many parallel regular convolutional layers now.
+\end{itemize}
+
+
+\begin{figure}[!h]
+\centering
+\animategraphics[autoplay,loop,width=0.5\textwidth]{1}{padding-movie/theano-pad-}{0}{35}
+\caption{Demonstration of a convolutional layer with padding, no strides, and no dilation retrieved from \nurl{http://deeplearning.net/software/theano/tutorial/conv_arithmetic.html}{Theano docs}.}
+\label{fig:conv}
+\end{figure}
+
+\begin{center}
+
+\end{center}
+
+\section{Pooling}
+
+Pooling is typically applied after a convolutional layer/stage. It may be a nonlinear operation which is applied to a local neighborhood of the input, like a convolution. For various types of pooling and when to use them, see \nurl{http://www.di.ens.fr/willow/pdfs/icml2010b.pdf}{Boureau et al 2010}. Max-pools, for instance, encourage invariance between adjacent kernel outputs, since only one of them needs to be activated to activate the associated max pool.
+
+Pools have a specified pool width (determining the size of the neighborhood that is pooled) and stride, which has the same effect as kernel stride.
+
+Pooling typically reduces image width, so in cases where we would like to classify input pixels themselves, one solution is to simply produce an output at a lower resolution than the input (Fig.~\ref{fig:pinheiro}).
+
+\begin{figure}[!h]
+\centering
+{\includegraphics[width=\textwidth]{pinheiro.pdf}}
+\caption{Architecture of segmentation architecture from Fig.~1 of \nurl{https://arxiv.org/abs/1506.06204}{Pinheiro et al 2015})}
+\label{fig:pinheiro}
+\end{figure}
+
+Pooling isn't always necessary (\nurl{https://arxiv.org/abs/1412.6806}{Springenberg et al 2014}), and maxout-like cross-channel pooling is an interesting response (\nurl{https://arxiv.org/abs/1510.00921}{Liu et al 2015}).
+
+\section{Initialization}
+
+Random kernel initialization is surprisingly good, so much so that \nurl{https://cs.stanford.edu/~acoates/papers/coatesleeng_aistats_2011.pdf}{Coates et al 2011} even states that a network trained only on the last layer can be used as a selection method for CNN architectures.
+
+\nurl{http://www.robotics.stanford.edu/~ang/papers/nipsdlufl10-RandomWeights.pdf}{Saxe et al 2010} explores unsupervised initialization approaches.
+
+\section{Common Architectural Families}
+
+These change very frequently and it's more useful to just study common families of networks. \nurl{https://adeshpande3.github.io/adeshpande3.github.io/The-9-Deep-Learning-Papers-You-Need-To-Know-About.html}{See overview post, here.}
+
+\end{document}
+% LocalWords: Dumoulin Visin Boureau Ngiam

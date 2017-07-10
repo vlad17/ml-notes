@@ -50,6 +50,10 @@ Training is typically performed with first-order optimization of $J(\vtheta)$; t
 \noindent
 \textbf{Maxout} (\nurl{https://arxiv.org/abs/1302.4389}{Goodfellow et al 2013}, \nurl{https://arxiv.org/abs/1312.6211}{Goodfellow et al}). A maxout layer is a generalized ReLU $g$ with input dimension $n$ and fixed $p$ and $k$ as hyperparameters has fixed subsets $G^{(i)}=\set{ik+j}{j\in[p]}$ such that $g(\vz)_i=\max_{j\in G^{(i)}}z_j$. In addition to being more theoretically expressive (allowing for fewer units in the next layer), maxout enables units to be driven by several ``filters'' (activations in the previous layer), preventing catastrophic forgetting. Moreover, maxout is complimentary to dropout.
 
+\section{Cost Functions}
+
+Use cross-entropy with multi-class problems: good gradients even when wrong output.
+
 \section{Regularization}
 
 At a high level, regularization changes the objective from usual loss $J(\vtheta)$ to loss plus weight penalty $J(\vtheta)+\Omega(\vtheta)$ or loss plus constraints; it is effective in moving overfit models of high capacity to those of appropriate capacity for the problem: lower variance for a bit higher bias.

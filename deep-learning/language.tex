@@ -1,0 +1,25 @@
+\documentclass{article}
+
+\title{Neural Networks and Natural Language}
+\author{Vladimir Feinberg}
+
+\input{../defs}
+
+\begin{document}
+
+\maketitle
+
+We review techniques for natural language processing (NLP) with DNNs. Content is mostly from \nurl{http://www.deeplearningbook.org/contents/}{Dr. Goodfellow's Deep Learning Book}, but also taken from \nurl{https://www.coursera.org/learn/neural-networks}{Dr. Hinton's Coursera Class}, lecture week 4.
+
+\section{Class Prediction}
+
+With many word outputs, softmax penalties make extremely sparse gradients if each word is a class. Resolve this by moving the output class into the input, and output a single scalar probability when parameterized. This is the serial architecture, used for predicting the next word in a sequence (Fig.~\ref{fig:serial}).
+\begin{figure}[!h]
+\centering
+{\includegraphics[width=0.75\textwidth]{hinton-serial.pdf}}
+  \caption{The serial architecture, which folds output complexity into input complexity, from Hinton's Coursera course lecture slides, week 4, slide 25.}
+\label{fig:serial}
+\end{figure}
+The serial architecture takes a long time to find candidates which are assessed by the model as likely, and it can be improved to consider fewer candidates (\nurl{http://www.cs.toronto.edu/~fritz/absps/andriytree.pdf}{Mnih and Hinton 2009}).
+
+\end{document}
