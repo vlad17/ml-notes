@@ -1,6 +1,6 @@
 \documentclass{article}
 
-\title{Feed-Forward Networks}
+\title{Introduction to Deep Learning}
 \author{Vladimir Feinberg}
 
 \input{../defs}
@@ -11,48 +11,55 @@
 
 \section{Introduction}
 
-Many-layer feed-forward networks, or deep neural networks (DNNs), are the simplest type of artificial neural network. For a given network architecture, a feed-forward network forms a family of possibly nonlinear functions. This family defines a hypothesis class for empirical risk minimization. These networks have been incredibly successful in supervised ML settings.
+Many-layer neural networks networks, or deep neural networks, constitute a diverse form of machine learning strategies, which span a broad spectrum of unsupervised, semi-supervised, reinforced, and supervised learning. Inspired by biology, this class of methods is broadly referred to as artificial neural networks (ANNs) or deep learning. Occasionally the term deep neural network comes up, but deep is a relative term useful for distinguishing between two networks. I'll refrain from using such terminology because it creates a false dichotomy in certain situations.
 
-These notes follow Goodfellow's \nurl{http://www.deeplearningbook.org/contents/mlp.html}{Deep Learning Book}. As mentioned there, there are two essential components to DNNs:
+At the highest level, for a given network architecture, an ANN forms a family of possibly nonlinear functions. Such functions may be mappings from a possibly variable-length tensor to another possibly variable-length tensor of real values.
+
+An early, simple example of ANNs is the feed-forward neural network (FFNN), which focuses on fixed-size input and output tensors. This family defines a hypothesis class for empirical risk minimization (ERM) in supervised learning.
+
+These notes follow Goodfellow's \nurl{http://www.deeplearningbook.org/contents/mlp.html}{Deep Learning Book}. As mentioned there, there are two essential components responsible and necessary for the success ANNs:
 \begin{enumerate}
 \item Expressiveness through depth: iterative compositions of linear functions followed by activations can efficiently model mostly continuous functions (specifics below).
 \item Tractable learning: compositions of simple functions as a graph allow for linear-time evaluation, and, critically, linear-time gradients via back-propagation.
 \end{enumerate}
 
-Interestingly, these two frequently-cited facts give rise to two perplexing questions about DNNs, which don't seem to yet have a good answer:
+Interestingly, these two frequently-cited facts give rise to two perplexing questions about ANNs, which don't seem to yet have a good answer:
 \begin{enumerate}
 \item If DNNs are so expressive, then isn't their VC dimension extremely large? Wouldn't this make them extremely prone to overfitting, to the point that they would be unusable? Perhaps DNNs can model ``real distributions'' well, so the distribution-independent analysis of VC-based statistical learning theory is insufficient. How can we justify the previous sentence? (\nurl{https://arxiv.org/abs/1611.03530}{Zhang et al 2017}, \nurl{https://openreview.net/pdf?id=rJv6ZgHYg}{Krueger et al 2017})
-\item Why exactly is learning so tractable? Efficient derivatives aren't good enough in a non-convex enviornment: we know we'll reach a local min, but what makes a local min good? (\nurl{https://arxiv.org/abs/1602.04915}{Lee et al 2016}, \nurl{https://arxiv.org/abs/1703.00887}{Jin et al 2017}, \nurl{https://arxiv.org/abs/1412.0233}{Choromanska et al 2014})
+\item Why exactly is learning so tractable? Efficient derivatives aren't good enough in a non-convex enviornment: we know we'll reach a local min, but what makes a local min good? (\nurl{https://arxiv.org/abs/1602.04915}{Lee et al 2016}, \nurl{https://arxiv.org/abs/1703.00887}{Jin et al 2017}, \nurl{https://arxiv.org/abs/1412.0233}{Choromanska et al 2014}, \nurl{https://arxiv.org/abs/1705.08292}{Wilson et al 2017})
 \end{enumerate}
 
 \section{Definition}
 
-A vanilla multi-layer perceptron (MLP) $f$ of depth $d$ is a a composition of $d$ vector-valued functions:
+An ANN $f$ of depth $d$ is a a composition of $d$ vector-valued functions:
 $$
 f(\vx)=f^{(d)}\circ f^{(d-1)}\circ\cdots\circ f^{(2)}\circ f^{(1)}\pa{\vx}
 $$
 
-Note that the input and output dimension of each $f^{(i)}$ may differ; the maximum such dimension is the width of the network. For MLPs, each $f$ is the composition of a vectorized activation function $g$ and an affine function. The dimensionality of the affine functions and the choice of activation are hyperparameters.
+Note that the input and output dimension of each $f^{(i)}$ may differ; the maximum such dimension is the width of the network. Each sub-function $f^{(i)}$, or layer, may differ, but has some known and well-structured parameterization. ANN methods then typically diverge with the training algorithm and what they consider their inputs and outputs to be. These iterative compositions of more fundamental layer-wise operations construct what is accurately labeled by \nurl{http://karpathy.github.io/neuralnets/}{Dr. Karpathy} as ``real valued circuits,'' where simple building blocks construct complex output behaviors through tractable operations.
+
+For instance, a FFNN treats inputs $\vx$ as those inputs from a supervised learning problem, and attempts to find a mapping $f$ between observed pairs $(\vx, y)$. A multi-layer perceptron (MLP), a type of FFNN, is the composition of a vectorized activation function $g$ and an affine function. The dimensionality of the affine functions and the choice of activation are hyperparameters.
 
 $$
 f^{(i)}(\vx)=g\pa{W^{(i)}\vx+\vb^{(i)}}
 $$
-$W^{(i)},\vb^{(i)}$ define parameters for $f$. The activation $g$ is usually a parameter-free (but perhaps not hyperparameter-free) nonlinearity. The MLP differs from other DNNs in that it is fully connected (all $W^{(i)}$ are unconstrained). A network whose $W^{(i)}$ matrices correspond to convolutions is a CNN, for instance, and refers to a much more restricted family of functions.
+$W^{(i)},\vb^{(i)}$ define parameters for $f$. The activation $g$ is usually a parameter-free (but perhaps not hyperparameter-free) nonlinearity. The MLP differs from other ANNs in that it is fully connected (all $W^{(i)}$ are unconstrained, so there may be arbitrary linear relationships between the output of $f^{(i-1)}$ and the input to $g$). A network whose $W^{(i)}$ matrices correspond to convolutions is a convolutional neural network (CNN) and refers to a much more restricted family of functions.
 
-A cost function $J(\vtheta)$ must be defined over the vector of aggregate parameters $\vtheta$. MLE informs the shape of $J$ in most cases: for $(\vx,\vy)$ distributed according to some data distribution, the log likelihood is the cross entropy $\E p_\text{model}(\vy|\vx,\vtheta)$. With $p_\text{model}(\vy|\vx,\vtheta)=N(f_\vtheta(\vx),I)$, for instance, MLE is equivalent to minimizing MSE. This kind of approach has the DNN specify the parameters for an output distribution, instead of predicting the output directly: this enables us to encode additional statistical knowledge about the inputs.
+Other networks, such as recurrent neural networks (RNNs) handle variable-length inputs.
+
+A cost function $J(\vtheta)$ must be defined over the vector of aggregate parameters $\vtheta$. MLE informs the shape of $J$ in most cases: for $(\vx,\vy)$ distributed according to some data distribution, the log likelihood is the cross entropy $\E p_\text{model}(\vy|\vx,\vtheta)$. With $p_\text{model}(\vy|\vx,\vtheta)=N(f_\vtheta(\vx),I)$, for instance, MLE is equivalent to minimizing MSE. This kind of approach has the ANN specify the parameters for an output distribution, instead of predicting the output directly: this enables us to encode additional statistical knowledge about the inputs.
 
 Training is typically performed with first-order optimization of $J(\vtheta)$; this leverages back-propagation for efficient derivatives.
 
 \section{Activations}
 
+Activations like $g$ above are an important design choice for all ANNs. General well-performing ones are listed, though problem-specific considerations will take priority.
+\\\\
+\noindent
 \textbf{ReLU} (\nurl{http://proceedings.mlr.press/v15/glorot11a.html}{Glorot et al 2011}). The ReLU $g(\vx)=\max\pa{\vx,\vzero}$ induces activation sparsity, which is more biologically plausible. Their use improves accuracy when compared to smoother activations in practice, and their linear regime keeps magnitude scaling behavior reasonable as we traverse the net, which is a boon to optimization.
 \\\\
 \noindent
 \textbf{Maxout} (\nurl{https://arxiv.org/abs/1302.4389}{Goodfellow et al 2013}, \nurl{https://arxiv.org/abs/1312.6211}{Goodfellow et al}). A maxout layer is a generalized ReLU $g$ with input dimension $n$ and fixed $p$ and $k$ as hyperparameters has fixed subsets $G^{(i)}=\set{ik+j}{j\in[p]}$ such that $g(\vz)_i=\max_{j\in G^{(i)}}z_j$. In addition to being more theoretically expressive (allowing for fewer units in the next layer), maxout enables units to be driven by several ``filters'' (activations in the previous layer), preventing catastrophic forgetting. Moreover, maxout is complimentary to dropout.
-
-\section{Cost Functions}
-
-Use cross-entropy with multi-class problems: good gradients even when wrong output.
 
 \section{Regularization}
 
