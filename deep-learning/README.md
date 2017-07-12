@@ -1,6 +1,7 @@
 # Deep Learning
 
 * [Introduction and overview](intro.pdf)
+* [Regularization](regularization.pdf)
 * [Backpropagation](backprop.pdf)
 * [Optimization](optimization.pdf)
 * [Vision](vision.pdf) and [Natural Language](language.pdf) techniques
