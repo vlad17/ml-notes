@@ -9,20 +9,20 @@
 
 \maketitle
 
-This document contains notes on optimization of DNNs; i.e., the ERM task for a prescribed family of neural networks. Content is mostly from \nurl{http://www.deeplearningbook.org/contents/optimization.html}{Goodfellow's Deep Learning Book}. In the optimization chapter Dr. Goodfellow warns that over the past 30 years of machine learning advances in training speed have mostly been made from making a net that's easier to optimize, not by focusing on the optimization algorithm.
+This document contains notes on optimization of ANNs; i.e., the ERM task for a prescribed family of neural networks. Content is mostly from \nurl{http://www.deeplearningbook.org/contents/optimization.html}{Goodfellow's Deep Learning Book}. In the optimization chapter Dr. Goodfellow warns that over the past 30 years of machine learning advances in training speed have mostly been made from making a net that's easier to optimize, not by focusing on the optimization algorithm.
 
 \section{Setting}
 
-To cover a broad NN setting, which, in addition to deep neural networks (DNN) includes recurrent neural networks (RNN), we assume that we wish to minimize empirical risk:
+To cover a broad NN setting (both FFNNs, RNNs, and unsupervised networks), we assume that we wish to minimize empirical risk:
 $$
-J(\vtheta)=\frac{1}{m}\sum_{i=1}^mL\pa{f\pa{\vx^{(i)}, \vtheta}, y^{(i)}} + \Omega(\vtheta)
+J(\vtheta)=\frac{1}{m}\sum_{i=1}^mL\pa{z^{(i)}, \vtheta} + \Omega(\vtheta)
 $$
-Above, $L$ is a fixed, differentiable loss function, as is the regularizer $\Omega$, which is also assumed to be one of several canonical forms. Next, $f$ is a neural network, and therefore a real-valued circuit. Altogether this and backpropagation implies that we have efficient evaluation of $f$ and $\nabla f$ through backprop, as well as some second-order information if desired through Hessian-vector products $\pa{\nabla^2 f}\vv=\nabla\pa{\vv^\top\nabla f}$ (\nurl{http://uhra.herts.ac.uk/handle/2299/4335}{Christianson 1992}).
+Above, $L$ is a fixed, differentiable loss function, as is the regularizer $\Omega$, which is also assumed to be one of several canonical forms. $L$ is dependent on an ANN, $f$, a real-valued circuit. Altogether this and backpropagation implies that we have efficient evaluation of $f$ and $\nabla f$ through backprop, as well as some second-order information if desired through Hessian-vector products $\pa{\nabla^2 f}\vv=\nabla\pa{\vv^\top\nabla f}$ (\nurl{http://uhra.herts.ac.uk/handle/2299/4335}{Christianson 1992}). Loss is dependent on examples $z^{(i)}$, whatever they may be in our supervised or unsupervised use case.
 
 \section{Stochastic Gradients}
 
 Since $J$ above decomposes easily, we frequently use a stochastic gradient with $B\ll m$ examples,
-$$\frac{1}{B}\sum_{i=1}^B\nabla_\vtheta L\pa{f\pa{\vx^{(\sigma_i)}, \vtheta}, y^{(i)}},$$ for random samples $\sigma_i$ uniformly taken from the dataset. Using this for stochastic gradient descent (SGD) as opposed to full gradient descent (GD) enables more efficient derivatives.
+$$\frac{1}{B}\sum_{i=1}^B\nabla_\vtheta L\pa{z^{(\sigma_i)}, \vtheta},$$ for random samples $\sigma_i$ uniformly taken from the dataset. Using this for stochastic gradient descent (SGD) as opposed to full gradient descent (GD) enables more efficient derivatives.
 
 \section{Conditioning}
 
@@ -43,7 +43,7 @@ Monitoring both of the terms above (which can be done efficiently) during traini
 
 $J$ is almost always non-convex in the NN case. This implies that local minima (LM) reached are not necessarily global. However, a global minimum (GM) is not necessary: just a LM close enough to it.
 
-LMs, however, may not always be the root of the problem. Many LMs are induced by symmetry (highly connected nets have combinatorially many symmetries). Recent research shows that LMs concentrate around the GM (\nurl{https://arxiv.org/abs/1412.0233}{Choromanska et al 2014}), so many of these LMs are equivalent to a good solution anyway. Goodfellow claims that most of the time (thanks to early stopping, for instance), most DNN optimizations don't arrive at a critical point of any kind.
+LMs, however, may not always be the root of the problem. Many LMs are induced by symmetry (highly connected nets have combinatorially many symmetries). Recent research shows that LMs concentrate around the GM (\nurl{https://arxiv.org/abs/1412.0233}{Choromanska et al 2014}), so many of these LMs are equivalent to a good solution anyway. Goodfellow claims that most of the time (thanks to early stopping, for instance), most ANN optimizations don't arrive at a critical point of any kind.
 
 A more pertinent problem is that of saddle points (which tend to be much more populous than LMs): locations where the gradient vanishes but the Hessian has both positive and negative eigenvalues (\nurl{https://arxiv.org/abs/1406.2572}{Dauphin et al 2014}). The issue is that along one direction (the linear subspace of positive eigenvectors), the saddle appears to be a LM, and it can take many steps to to get close enough to the bottom of the saddle to locate the direction of negative eigenvalue in the Hessian (Fig.~\ref{fig:saddle}).
 \begin{figure}[!h]
@@ -87,28 +87,38 @@ See my \nurl{https://vlad17.github.io/2017/06/19/neural-network-optimization-met
 
 \section{Techniques}\label{sec:techniques}
 
-\noindent
-\textbf{Batch Size}. Note that variance in the gradient is reduced sublinearly in batch size (from the standard error of the mean formula). However, very small batches may damage gradient accuracy to the point where noise dominates gradient signal at the end of training (though, with early stopping, this may not be a large problem)---a common strategy is to increase batch size during training. Second-order methods may require larger batches since the inverse Hessian is sensitive to fluctuation.
-\\
-\noindent
-\textbf{Batch Normalization (BN)} (\nurl{https://arxiv.org/abs/1502.03167}{Ioffe and Szegedy}, \nurl{https://arxiv.org/abs/1603.09025}{Cooijmans et al 2017}). Goodfellow draws BN inspiration from mitigation of higher-order affects: suppose we have a $d$-layer-deep network with 1 input neuron and 1 hidden layer per unit with no activation, so that $y=x\prod_{i=1}^dw_i$. A $k$-th order partial derivative on the loss between variables, say, $\ca{w_i}_{i=1}^k$ will have, for a step size $\eta$, an effect size proportional to $\eta^k\prod_{i=k + 1}^{d}\abs{w_i}$ according to Taylor series. Then for small $k$ and $w_i>1$ we may find large noise in SGD steps due to an exponential dependence on $d$. To reduce this noise, we can standardize the activations of each layer according to the minibatch mean and variance for each hidden unit activation. At test time, a whole-training averaged mean and variance vector for every BN layer is used. Somewhat counterintuitively, a learned layer mean shift and variance shift can be added (see \nurl{https://github.com/vlad17/ml-notes/blob/master/deep-learning/backprop.pdf}{backprop notes} for BN formulation). This approach is fairly general and has seen use in RNN setting as well.
-\\
-\noindent
-\textbf{Greedy and unsupervised pre-training} (\nurl{https://papers.nips.cc/paper/3048-greedy-layer-wise-training-of-deep-networks}{Bengio et al 2007}, \nurl{https://arxiv.org/abs/1412.6597}{Paine et al 2014}). Greedy pre-training is a form of initialization where a feed-forward DNN is trained by first training a shallow network to completion, then appending new layers after lower layers are trained. This greedy form of optimization isn't optimal from a training loss perspective, but in addition to speeding up convergence it can be viewed as a form of regularization. However, it has fallen out of favor as other modern techniques (ReLU, dropout, BN) have been developed. A more modern approach that has seen some success has been in the case where much unsupervised data is available is borrowing features from generative learners, like Autoencoders or GANs.
-\\
-\noindent
-\textbf{FitNets} (\nurl{https://arxiv.org/abs/1511.05641}{Chen et al 2016}, \nurl{https://arxiv.org/abs/1412.6550}{Romero et al 2015}). FitNets and network re-use techniques can enable faster training by teaching a larger network to replicate the outputs of the layers in a smaller network. This kind of bootstrapping lets larger networks find useful representations for prediction. The smaller network should be short and wide, whereas the large one should be deep and narrow. In this way we can force some kind of compression of the knowledge of the shallow network.
-\\
-\noindent
-\textbf{Layer-sequential Unit-variance (LSUV)} (\nurl{https://arxiv.org/abs/1511.06422}{Mishkin and Matas 2015}). Tested out on feed-forward networks with results comparable to BN, greedy pre-training, and other initialization schemes, LSUV offers a cheap initialization procedure which effectively does a single round of BN at initialization time. There's not a lot of background on LSUV use, nor its extensions to RNNs.
-\\
-\noindent
-\textbf{Polyak Averaging} (\nurl{ttps://arxiv.org/abs/1107.2490}{Xu 2011}). For a sequence of iterates during training $\ca{\vtheta_i}_{i=1}^t$, Polyak averaging can be viewed as a regularization method inspired by convex optimization. While in the convex case an arithmetic average is preferred, Goodfellow recommends an exponential average for the convex case $\bar{\vtheta}_i=\alpha \bar{\vtheta}_{i-1}+(1-\alpha)\vtheta_{i}$.
-\\
-\noindent
-\textbf{Curriculum learning} (\nurl{https://arxiv.org/abs/1410.4615}{Zaremba and Sutskever 2014}). A stochastic curriculum of training examples generally ordered from easy to hard but with some mixing has proven essentially in some hard-to-learn RNNs, as compared to minibatch SGD over the entire dataset).
-\\
-\noindent
-\textbf{Weight Normalization (WN)} (\nurl{https://arxiv.org/abs/1602.07868}{Salimans and Kingma 2016}). Inspired by BN's reparameterization approach to solving the problem of pathological curvature, weight normalization suggests parameterizing each neuron's weight $\vw$ as $\vw=\frac{g}{\norm{\vv}}\vv$ where $g,\vv$ are free parameters. This decoupling forces gradient updates to $\vv$ to be orthogonal to the current value of $\vw\parallel\vv$. The orthogonality increases the norm of $\vv$, and this effect is exacerbated by noisy gradients, which creates a self-stabilizing effect since then $\vv$ will be more resistant to change. Moreover, the authors find empirically that the noise in the gradient is frequently parallel to $\vw$, so projecting it away helps improve learning robustness. WN coupled with mean-only BN improves on a variety of feed-forward and RNN tasks. Moreover, WN is a much lighter addition than BN.
+Many techniques have been developed to make ANN optimization easier.
+
+\subsection{Batch Size}
+
+(\nurl{http://dl.acm.org/citation.cfm?id=2623612}{Li et al 2014}). Note that variance in the gradient is reduced sublinearly in batch size (from the standard error of the mean formula). However, very small batches may damage gradient accuracy to the point where noise dominates gradient signal at the end of training (though, with early stopping, this may not be a large problem)---a common strategy is to increase batch size during training. Second-order methods may require larger batches since the inverse Hessian is sensitive to fluctuation.
+
+\subsection{Batch Normalization (BN)}
+
+(\nurl{https://arxiv.org/abs/1502.03167}{Ioffe and Szegedy}, \nurl{https://arxiv.org/abs/1603.09025}{Cooijmans et al 2017}). Goodfellow draws BN inspiration from mitigation of higher-order affects: suppose we have a $d$-layer-deep network with 1 input neuron and 1 hidden layer per unit with no activation, so that $y=x\prod_{i=1}^dw_i$. A $k$-th order partial derivative on the loss between variables, say, $\ca{w_i}_{i=1}^k$ will have, for a step size $\eta$, an effect size proportional to $\eta^k\prod_{i=k + 1}^{d}\abs{w_i}$ according to Taylor series. Then for small $k$ and $w_i>1$ we may find large noise in SGD steps due to an exponential dependence on $d$. To reduce this noise, we can standardize the activations of each layer according to the minibatch mean and variance for each hidden unit activation. At test time, a whole-training averaged mean and variance vector for every BN layer is used. Somewhat counterintuitively, a learned layer mean shift and variance shift can be added (see \nurl{https://github.com/vlad17/ml-notes/blob/master/deep-learning/backprop.pdf}{backprop notes} for BN formulation). This approach is fairly general and has seen use in RNN setting as well.
+\subsection{Greedy and unsupervised pre-training}
+
+(\nurl{https://papers.nips.cc/paper/3048-greedy-layer-wise-training-of-deep-networks}{Bengio et al 2007}, \nurl{https://arxiv.org/abs/1412.6597}{Paine et al 2014}). Greedy pre-training is a form of initialization where a FFNN is trained by first training a shallow network to completion, then appending new layers after lower layers are trained. This greedy form of optimization isn't optimal from a training loss perspective, but in addition to speeding up convergence it can be viewed as a form of regularization. However, it has fallen out of favor as other modern techniques (ReLU, dropout, BN) have been developed. A more modern approach that has seen some success has been in the case where much unsupervised data is available is borrowing features from generative learners, like Autoencoders or GANs.
+\subsection{FitNets}
+
+(\nurl{https://arxiv.org/abs/1511.05641}{Chen et al 2016}, \nurl{https://arxiv.org/abs/1412.6550}{Romero et al 2015}). FitNets and network re-use techniques can enable faster training by teaching a larger network to replicate the outputs of the layers in a smaller network. This kind of bootstrapping lets larger networks find useful representations for prediction. The smaller network should be short and wide, whereas the large one should be deep and narrow. In this way we can force some kind of compression of the knowledge of the shallow network.
+\subsection{Layer-sequential Unit-variance (LSUV)}
+
+(\nurl{https://arxiv.org/abs/1511.06422}{Mishkin and Matas 2015}). Tested out on FFNNs with results comparable to BN, greedy pre-training, and other initialization schemes, LSUV offers a cheap initialization procedure which effectively does a single round of BN at initialization time. There's not a lot of background on LSUV use, nor its extensions to RNNs.
+
+\subsection{Polyak Averaging}
+
+(\nurl{ttps://arxiv.org/abs/1107.2490}{Xu 2011}). For a sequence of iterates during training $\ca{\vtheta_i}_{i=1}^t$, Polyak averaging can be viewed as a regularization method inspired by convex optimization. While in the convex case an arithmetic average is preferred, Goodfellow recommends an exponential average for the convex case $\bar{\vtheta}_i=\alpha \bar{\vtheta}_{i-1}+(1-\alpha)\vtheta_{i}$.
+
+\subsection{Curriculum learning}
+
+(\nurl{https://arxiv.org/abs/1410.4615}{Zaremba and Sutskever 2014}). A stochastic curriculum of training examples generally ordered from easy to hard but with some mixing has proven essentially in some hard-to-learn RNNs, as compared to minibatch SGD over the entire dataset).
+\subsection{Weight Normalization (WN)}
+
+(\nurl{https://arxiv.org/abs/1602.07868}{Salimans and Kingma 2016}). Inspired by BN's reparameterization approach to solving the problem of pathological curvature, weight normalization suggests parameterizing each neuron's weight $\vw$ as $\vw=\frac{g}{\norm{\vv}}\vv$ where $g,\vv$ are free parameters. This decoupling forces gradient updates to $\vv$ to be orthogonal to the current value of $\vw\parallel\vv$. The orthogonality increases the norm of $\vv$, and this effect is exacerbated by noisy gradients, which creates a self-stabilizing effect since then $\vv$ will be more resistant to change. Moreover, the authors find empirically that the noise in the gradient is frequently parallel to $\vw$, so projecting it away helps improve learning robustness. WN coupled with mean-only BN improves on a variety of FFNN and RNN tasks. Moreover, WN is a much lighter addition than BN.
+
+\nurl{https://www.reddit.com/r/MachineLearning/comments/66obrb/d_weight_normalization_vs_layer_normalization_has/}{Reddit overview of normalization techniques}.
 
 \end{document}
+
+% LocalWords: Reddit
