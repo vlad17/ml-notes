@@ -69,7 +69,17 @@ Random kernel initialization is surprisingly good, so much so that \nurl{https:/
 
 \section{Common Architectural Families}
 
-These change very frequently and it's more useful to just study common families of networks. \nurl{https://adeshpande3.github.io/adeshpande3.github.io/The-9-Deep-Learning-Papers-You-Need-To-Know-About.html}{See overview post, here.}
+These change very frequently and it's more useful to just study common families of networks. See this \nurl{https://adeshpande3.github.io/adeshpande3.github.io/The-9-Deep-Learning-Papers-You-Need-To-Know-About.html}{overview post}. Missing from that post but selected as important by Dr. Goodfellow is the \nurl{https://www.ncbi.nlm.nih.gov/pubmed/12201451}{spatial transducer network}.
+
+\section{Preprocessing}
+
+\begin{itemize}
+\item Normalize data input channels from integer pixel values $[0,255]$ to floats on $[0,1]$.
+\item Train on many cropped versions of the data and have classifiers vote (can this be re-interpreted as parallel CNNs, and if so how does sharing affect this technique?)
+\item Denoise with respect to some cannoncial form of the data (rotations, skew). This can enable smaller models but some caution should be used. It is sometimes better to let the models figure out the cannonical form for themselves.
+\item Global contrast normalization (GCN) standardizes pixel inputs; local contrast normalization (LCN) scopes deviation to a window (helps make edges stand out). GCN reduces pressure on the model to handle different scales of input intensity.
+\item Random perturbations to input such as color changes or translations or rotations can help augment the dataset for better generalization (\nurl{http://yann.lecun.com/exdb/publis/pdf/lecun-98.pdf}{LeCun et al 1998b}, \nurl{https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks}{Krizhevsky et al 2012})
+\end{itemize}
 
 \end{document}
-% LocalWords: Dumoulin Visin Boureau Ngiam
+% LocalWords: Dumoulin Visin Boureau Ngiam autoplay Theano
