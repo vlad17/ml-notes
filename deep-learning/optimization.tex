@@ -24,6 +24,8 @@ Above, $L$ is a fixed, differentiable loss function, as is the regularizer $\Ome
 Since $J$ above decomposes easily, we frequently use a stochastic gradient with $B\ll m$ examples,
 $$\frac{1}{B}\sum_{i=1}^B\nabla_\vtheta L\pa{z^{(\sigma_i)}, \vtheta},$$ for random samples $\sigma_i$ uniformly taken from the dataset. Using this for stochastic gradient descent (SGD) as opposed to full gradient descent (GD) enables more efficient derivatives.
 
+Frequently, this random sampling is performed without replacement, by shuffling the dataset once and then performing sequential reads on the data. This is not the same as an independent sample with replacement from the dataset, as is typically assumed. For analysis see \nurl{https://arxiv.org/abs/1603.00570}{Shamir 2016} and \nurl{https://arxiv.org/abs/1502.04759}{Wright 2015}.
+
 \section{Conditioning}
 
 An ill-conditioned Hessian can result in poor optimization (Fig.~\ref{fig:illcond}). At any given step a twice-differentiable loss will have the following improvement with local Hessian $H$ and gradient $\vg$ assuming step size $\epsilon$:
