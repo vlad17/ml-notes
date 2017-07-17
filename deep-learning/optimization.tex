@@ -67,29 +67,13 @@ Cliffs may cause a misstep (onto the cliff) to cause a far overshoot, sending th
 \end{figure}
 
 
-\section{Initialization}
-
-Parameters should not be initialized uniformly so as to break symmetry between hidden units; otherwise, the parameters will remain the same during training. This motivates random initialization. Biases, however, are typically constants, heuristically chosen.
-
-Weights are typically Gaussian or uniform, but scale is important. Large scale, which breaks symmetry strongly, must be balanced with stability of the learning algorithm. Heuristics do exist:
-
-\begin{enumerate}
-\item ReLU activations, since they're linear, suggest that that the scale of the output for a basic ReLU MLP with $\norm{y}\sim \norm{\vx}\prod_i\norm{W^{(i)}}$. In general, the scale of weights should be treated as a hyperparameter. Importantly, loss (such as softmax) not scale-invariant; keep an eye out for initialization.
-\item (\nurl{http://proceedings.mlr.press/v9/glorot10a.html}{Glorot and Bengio 2010}). Normed initialization suggests that a fully connected layer initializes an $n\times m$ weight matrix entrywise with $\Uniform\pa{-u, u}$ where $u=\sqrt{\frac{6}{m+n}}$. This approach intends to keep gradient variance the same across layers.
-\item (\nurl{https://arxiv.org/abs/1312.6120}{Saxe et al 2013}, \nurl{https://arxiv.org/abs/1412.6558}{Susillo 2014}). Orthogonal matrix initialization with a scaling factor dependent on layer activation is motivated by making hidden units track a varied set of functions, resulting in training time independent of depth (if nonlinearities are the identity).
-\item Output layer bias should be initialized to the marginal statistics of observations.
-\item Certain initialization schemes may be compatible with positive constant bias initialization, which lets gradients start on the linear part of a ReLU.
-\item (\nurl{https://research.google.com/pubs/pub45473.html}{Jozefowicz et al 2015}). If a unit acts as a control gate for letting other information pass (like a forget gate in an LSTM), then bias should be initialized as positive there.
-\item More advanced initialization strategies, like greedy pre-training and LSUV, are discussed in Section~\ref{sec:techniques}, below.
-\end{enumerate}
-
 \section{Optimization Methods}
 
 See my \nurl{https://vlad17.github.io/2017/06/19/neural-network-optimization-methods.html}{blog post}.
 
-\section{Techniques}\label{sec:techniques}
+\section{Techniques}
 
-Many techniques have been developed to make ANN optimization easier.
+Many techniques have been developed to make ANN optimization easier. Many of these are based on finding 
 
 \subsection{Batch Size}
 
@@ -98,15 +82,10 @@ Many techniques have been developed to make ANN optimization easier.
 \subsection{Batch Normalization (BN)}
 
 (\nurl{https://arxiv.org/abs/1502.03167}{Ioffe and Szegedy}, \nurl{https://arxiv.org/abs/1603.09025}{Cooijmans et al 2017}). Goodfellow draws BN inspiration from mitigation of higher-order affects: suppose we have a $d$-layer-deep network with 1 input neuron and 1 hidden layer per unit with no activation, so that $y=x\prod_{i=1}^dw_i$. A $k$-th order partial derivative on the loss between variables, say, $\ca{w_i}_{i=1}^k$ will have, for a step size $\eta$, an effect size proportional to $\eta^k\prod_{i=k + 1}^{d}\abs{w_i}$ according to Taylor series. Then for small $k$ and $w_i>1$ we may find large noise in SGD steps due to an exponential dependence on $d$. To reduce this noise, we can standardize the activations of each layer according to the minibatch mean and variance for each hidden unit activation. At test time, a whole-training averaged mean and variance vector for every BN layer is used. Somewhat counterintuitively, a learned layer mean shift and variance shift can be added (see \nurl{https://github.com/vlad17/ml-notes/blob/master/deep-learning/backprop.pdf}{backprop notes} for BN formulation). This approach is fairly general and has seen use in RNN setting as well.
-\subsection{Greedy and unsupervised pre-training}
 
-(\nurl{https://papers.nips.cc/paper/3048-greedy-layer-wise-training-of-deep-networks}{Bengio et al 2007}, \nurl{https://arxiv.org/abs/1412.6597}{Paine et al 2014}). Greedy pre-training is a form of initialization where a FFNN is trained by first training a shallow network to completion, then appending new layers after lower layers are trained. This greedy form of optimization isn't optimal from a training loss perspective, but in addition to speeding up convergence it can be viewed as a form of regularization. However, it has fallen out of favor as other modern techniques (ReLU, dropout, BN) have been developed. A more modern approach that has seen some success has been in the case where much unsupervised data is available is borrowing features from generative learners, like Autoencoders or GANs.
 \subsection{FitNets}
 
 (\nurl{https://arxiv.org/abs/1511.05641}{Chen et al 2016}, \nurl{https://arxiv.org/abs/1412.6550}{Romero et al 2015}). FitNets and network re-use techniques can enable faster training by teaching a larger network to replicate the outputs of the layers in a smaller network. This kind of bootstrapping lets larger networks find useful representations for prediction. The smaller network should be short and wide, whereas the large one should be deep and narrow. In this way we can force some kind of compression of the knowledge of the shallow network.
-\subsection{Layer-sequential Unit-variance (LSUV)}
-
-(\nurl{https://arxiv.org/abs/1511.06422}{Mishkin and Matas 2015}). Tested out on FFNNs with results comparable to BN, greedy pre-training, and other initialization schemes, LSUV offers a cheap initialization procedure which effectively does a single round of BN at initialization time. There's not a lot of background on LSUV use, nor its extensions to RNNs.
 
 \subsection{Polyak Averaging}
 
