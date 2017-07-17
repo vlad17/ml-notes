@@ -1,6 +1,6 @@
 \documentclass{article}
 
-\title{Neural Networks and Computer Vision}
+\title{Convolutional Neural Networks}
 \author{Vladimir Feinberg}
 
 \input{../defs}
@@ -10,9 +10,9 @@
 
 \maketitle
 
-We review techniques for computer vision with DNNs. Content is mostly from Dr. Goodfellow's \nurl{http://www.deeplearningbook.org/contents/convnets.html}{Deep Learning Book}, but also taken from \nurl{https://www.coursera.org/learn/neural-networks}{Dr. Hinton's Coursera Class}, lecture week 5.
+A convolution is a mathematical operation that operates as layer in an ANN. Content is mostly from Dr. Goodfellow's \nurl{http://www.deeplearningbook.org/contents/convnets.html}{Deep Learning Book}, but also taken from \nurl{https://www.coursera.org/learn/neural-networks}{Dr. Hinton's Coursera Class}, lecture week 5.
 
-DNN vision techniques rely critically on convolutional neural nets (CNNs). Note that the techniques here can generally be applied to other inputs with grid topology, possibly of 1 dimension (like time series: joint angle data for a robot or audio data) or more than two (such as 3D fMRI imaging). Multiple channels (such as colors, or later feature maps) can just be viewed as separate image maps or new dimensions in the data.
+Convolutional neural nets (CNNs) are principally used for computer vision, but they can be viewed as a broader form of parameter sharing that's applicable to many domains. In particular, CNNs find ``local patterns'' in grid topologies, possibly of 1 dimension (like time series: joint angle data for a robot or audio data) or more than two (such as 3D fMRI imaging). Multiple channels (such as colors, or later feature maps) can just be viewed as separate image maps or new dimensions in the data.
 
 \section{Visual Difficulties}
 
@@ -29,7 +29,7 @@ Modifications or common enhancements to convolution (see \nurl{https://arxiv.org
 \item Padding. Various paddings add zeros around the inputs and result in different output sizes. These dictate the role that partially applied filters at the boundary will play.
 \item Strides. A stride of greater than one skips applications of the kernel filter, which can be viewed as a form of regularization through downsampling. Along a similar vein, diluted convolutions apply the kernel itself at strides along the input. A transposed form of convolution, deconvolution, reverses this process, upsampling compressed input (\nurl{http://www.matthewzeiler.com/pubs/cvpr2010/cvpr2010.pdf}{Zeiler 2010}).
 \item Detectors. These are the nonlinearities applied after our linear convolutional transform.
-\item Degrees of parameter sharing. Unshared convolutions learn a new kernel for each application of the kernel to an input feature map, these have no sharing and are called locally connected layers. Tiled convolutions rotate through a small set of kernels as a middle ground proposed by \nurl{https://papers.nips.cc/paper/4136-tiled-convolutional-neural-networks}{Ngiam et al 2010}, but they're usually replaced by having many parallel regular convolutional layers now.
+\item Degrees of parameter sharing. Unshared convolutions learn a new kernel for each application of the kernel to an input feature map, these have no sharing and are called locally connected layers. Tiled convolutions rotate through a small set of kernels as a middle ground proposed by \nurl{https://papers.nips.cc/paper/4136-tiled-convolutional-neural-networks}{Le et al 2010}, but they're usually replaced by having many parallel regular convolutional layers now.
 \end{itemize}
 
 
@@ -63,9 +63,11 @@ Pooling isn't always necessary (\nurl{https://arxiv.org/abs/1412.6806}{Springenb
 
 \section{Initialization}
 
+\subsection{Random Kernel Intialization}
+
 Random kernel initialization is surprisingly good, so much so that \nurl{https://cs.stanford.edu/~acoates/papers/coatesleeng_aistats_2011.pdf}{Coates et al 2011} even states that a network trained only on the last layer can be used as a selection method for CNN architectures.
 
-\nurl{http://www.robotics.stanford.edu/~ang/papers/nipsdlufl10-RandomWeights.pdf}{Saxe et al 2010} explores unsupervised initialization approaches.
+\nurl{http://www.robotics.stanford.edu/~ang/papers/nipsdlufl10-RandomWeights.pdf}{Saxe et al 2010} finds that architectures with random weight initialization in CNNs can be further improved with unsupervised pretraining. See the initialization document for details.
 
 \section{Common Architectural Families}
 
@@ -80,6 +82,8 @@ These change very frequently and it's more useful to just study common families 
 \item Global contrast normalization (GCN) standardizes pixel inputs; local contrast normalization (LCN) scopes deviation to a window (helps make edges stand out). GCN reduces pressure on the model to handle different scales of input intensity.
 \item Random perturbations to input such as color changes or translations or rotations can help augment the dataset for better generalization (\nurl{http://yann.lecun.com/exdb/publis/pdf/lecun-98.pdf}{LeCun et al 1998b}, \nurl{https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks}{Krizhevsky et al 2012})
 \end{itemize}
+
+http://ischlag.github.io/2016/04/05/important-ILSVRC-achievements/
 
 \end{document}
 % LocalWords: Dumoulin Visin Boureau Ngiam autoplay Theano
