@@ -11,7 +11,7 @@
 
 We review techniques for natural language processing (NLP) with DNNs. Content is mostly from \nurl{http://www.deeplearningbook.org/contents/}{Dr. Goodfellow's Deep Learning Book}, but also taken from \nurl{https://www.coursera.org/learn/neural-networks}{Dr. Hinton's Coursera Class}, lecture week 4.
 
-\section{Class Prediction}
+\section{Word Prediction}
 
 With many word outputs, softmax penalties make extremely sparse gradients if each word is a class. Resolve this by moving the output class into the input, and output a single scalar probability when parameterized. This is the serial architecture, used for predicting the next word in a sequence (Fig.~\ref{fig:serial}).
 \begin{figure}[!h]
@@ -22,6 +22,15 @@ With many word outputs, softmax penalties make extremely sparse gradients if eac
 \end{figure}
 The serial architecture takes a long time to find candidates which are assessed by the model as likely, and it can be improved to consider fewer candidates (\nurl{http://www.cs.toronto.edu/~fritz/absps/andriytree.pdf}{Mnih and Hinton 2009}).
 
+\section{Text Classification}
 
+Text classification deals with taking usually variable-length sequences of text, and extracting a label (such as spam/not-spam or a topic).
 
+Though variable-length text parsing does require an RNN, a component of this RNN may be convolutional. A grid topology may be induced by concatenating embedding vectors for a sentence into a matrix, and treating that as an image. See \nurl{http://www.wildml.com/2015/11/understanding-convolutional-neural-networks-for-nlp/}{this blog} for details. Though convolutions may not capture relationships outside of their fixed width, they still may be useful as lower-level feature detectors.
+\begin{figure}[!h]
+\centering
+{\includegraphics[width=0.75\textwidth]{kim2014.pdf}}
+  \caption{Figure 1 from \nurl{https://arxiv.org/abs/1408.5882}{Kim 2014} demonstrates how matrices of word embeddings can be used for sentence classification}
+\label{fig:serial}
+\end{figure}
 \end{document}
