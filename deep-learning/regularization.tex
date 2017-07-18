@@ -68,6 +68,8 @@ Bagging uses votes of several models: $k$ uncorrelated models will tend to have 
 \label{fig:dropout}
 \end{figure}
 
+\textbf{Dropconnect} (\nurl{http://cs.nyu.edu/~wanli/dropc/}){Li et al 2013}). Generalizes dropout by applying it to edges rather than hidden units. It's not as commonly used as dropout, but it has a more mathematically sound explanation of how its inference procedure mimics ensembles.
+
 \section{Adversarial Training}
 
 (\nurl{https://arxiv.org/abs/1412.6572}{Goodfellow 2014}). Tiny changes in input can result in large differences in output, showing that the learned manifold for a classification category is too sensitive to perturbations in directions that it shouldn't be. Adversarial training forces nets to overcome this.
