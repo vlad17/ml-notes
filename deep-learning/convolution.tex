@@ -24,6 +24,13 @@ Convolution is a linear operation that replaces a fully-connected layer in a neu
 
 Convolution can be viewed as a linear operation. A 1D convolution is multiplication by a circulant matrix, a 2D convolution is multiplication by a doubly-circulant block matrix, and so on (\nurl{https://dsp.stackexchange.com/questions/35373/convolution-as-a-doubly-block-circulant-matrix-operating-on-a-vector}{example derivation}). Thus, indeed convolution is a form of parameter sharing and sparse interactions. Convolutions are typically implemented as cross-correlations. Even though this loses the commutativity property, these networks are just as expressive since we can just transpose the kernel. For small kernel sizes, convolution can be implemented much more efficiently than with their associated matrix multiplies.
 
+Some nuance is required to deal with channels. A 2D image with width $w$ and height $h$ might have three RGB values at each pixel, so its input is $w\times h\times 3$. A convolutional layer with $k$ kernels applied to a greyscale image might also result in $k$ output feature maps of size $w\times h$. Given a 3D volume of 2D images, with size $w\times h\times d$, what does it mean to apply a 2D convolution with $k$ kernels?
+\begin{itemize}
+\item Usually, this ``full convolution'' refers to using $kd$ filters total, such that the $j$-th output layer, is the sum of $d$ independent kernels applied to each of the $d$ 2D inputs. For all $j\in[k]$, this gives our full volume output. Then, if our kernel size is $s$, the total number of parameters in this layer is $s^2kd$ (assuming no bias is added after convolution - per-kernel bias is very redundant in full convolutions).
+\item A $1\times 1$ convolution, then, reduces to a matrix multiply from the space of the input channels to that of the output channels (i.e., it creates a linear relationship between the input and output).
+  \item  Separable convolutions (\nurl{https://arxiv.org/abs/1610.02357}{Chollet et al 2016} have only $d$ regular kernels for each of the input feature maps, which run a convolution. Then a full convolution with $1\times 1$ kernels (which has $kd$ scalars total) is run. Thus, separable convolutions are much slimmer. More complicated filter connections do exist, but are sparingly used. See \nurl{https://medium.com/technologymadeeasy/the-best-explanation-of-convolutional-neural-networks-on-the-internet-fbb8b1ad5df8}{this overview} and \nurl{https://stats.stackexchange.com/questions/180850/how-are-filters-and-activation-maps-connected-in-convolutional-neural-networks}{this LeNet analysis}.
+\end{itemize}
+
 Modifications or common enhancements to convolution (see \nurl{https://arxiv.org/abs/1603.07285}{Dumoulin and Visin 2016}, Fig.~\ref{fig:conv}):
 \begin{itemize}
 \item Padding. Various paddings add zeros around the inputs and result in different output sizes. These dictate the role that partially applied filters at the boundary will play.
@@ -69,10 +76,6 @@ Random kernel initialization is surprisingly good, so much so that \nurl{https:/
 
 \nurl{http://www.robotics.stanford.edu/~ang/papers/nipsdlufl10-RandomWeights.pdf}{Saxe et al 2010} finds that architectures with random weight initialization in CNNs can be further improved with unsupervised pretraining. See the initialization document for details.
 
-\section{Common Architectural Families}
-
-These change very frequently and it's more useful to just study common families of networks. See this \nurl{https://adeshpande3.github.io/adeshpande3.github.io/The-9-Deep-Learning-Papers-You-Need-To-Know-About.html}{overview post}. Missing from that post but selected as important by Dr. Goodfellow is the \nurl{https://www.ncbi.nlm.nih.gov/pubmed/12201451}{spatial transducer network}.
-
 \section{Preprocessing}
 
 \begin{itemize}
@@ -83,7 +86,16 @@ These change very frequently and it's more useful to just study common families 
 \item Random perturbations to input such as color changes or translations or rotations can help augment the dataset for better generalization (\nurl{http://yann.lecun.com/exdb/publis/pdf/lecun-98.pdf}{LeCun et al 1998b}, \nurl{https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks}{Krizhevsky et al 2012})
 \end{itemize}
 
-http://ischlag.github.io/2016/04/05/important-ILSVRC-achievements/
+\section{Common Architectural Approaches}
+
+\nurl{https://arxiv.org/abs/1512.00567}{Szegedy et al 2015} give several general strategies for CNN design:
+\begin{enumerate}
+\item Avoid representation bottlenecks. MLPs should gently decrease in hidden layer size (though representation complexity is more nuanced than just width). Correspondingly, for CNNs, use high-dimensional embeddings as outputs of CNN layers. In other words, the number of convolution kernels should increase to maintain information density (with the advantage being that the kernels will tease out individual features). This doesn't conflict with the first item of advice, since a convolutional layer doesn't have as much representational density as a fully connected one.
+\item Convolutions can be preceded by low-dimensional embeddings, since strong local correlation in inputs can be compressed.
+\item Width and depth should be balanced: optimal performance to compute is achieved by increasing both in parallel rather than one a lot.
+\end{enumerate}
+
+An excellent overview of individual techniques proposed in CNN architecture can be found in a \nurl{https://adeshpande3.github.io/adeshpande3.github.io/The-9-Deep-Learning-Papers-You-Need-To-Know-About.html}{blog post by Adit Deshpande}.
 
 \end{document}
 % LocalWords: Dumoulin Visin Boureau Ngiam autoplay Theano
