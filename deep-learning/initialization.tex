@@ -16,7 +16,7 @@ Parameters should not be initialized uniformly so as to break symmetry between h
 
 Weights are typically Gaussian or uniform, but scale is important. Large scale, which breaks symmetry strongly, must be balanced with stability of the learning algorithm. ReLU activations, since they're linear, suggest that that the scale of the output for a basic ReLU MLP with $\norm{y}\sim \norm{\vx}\prod_i\norm{W^{(i)}}$. In general, the scale of weights should be treated as a hyperparameter. Importantly, loss (such as softmax) not scale-invariant; keep an eye out for initialization.
 
-Output layer bias should be initialized with the marginal statistics of the training data. Certain initialization schemes may be compatible with positive constant bias initialization, which lets gradients start on the linear part of a ReLU. (\nurl{https://research.google.com/pubs/pub45473.html}{Jozefowicz et al 2015}). If a unit acts as a control gate for letting other information pass (like a forget gate in an LSTM), then bias should be initialized as positive there.
+Output layer bias should be initialized with the marginal statistics of the training data. Certain initialization schemes may be compatible with positive constant bias initialization, which lets gradients start on the linear part of a ReLU, but it is unclear if this yields improvement over zero bias initialization. (\nurl{https://research.google.com/pubs/pub45473.html}{Jozefowicz et al 2015}). If a unit acts as a control gate for letting other information pass (like a forget gate in an LSTM), then bias should be initialized as positive there.
 
 \section{Uniform Random Initialization}
 
