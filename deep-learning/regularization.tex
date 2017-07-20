@@ -42,7 +42,7 @@ $L^1$ regularization is equivalent to Bayesian MAP if weights have $\Laplace(0, 
 \label{fig:earlystop}
 \end{figure}
 
-Early stopping can thus be viewed as an efficient way of regularizing weights just the right amount for the problem at hand, whereas we might have to cross-validate multiple settings of $\alpha$ to find an appropriate value for the $\alpha$ hyperparameter. Nonetheless, early stopping still suffers from generalization issues of overfitting to the validation set, see discussions in \nurl{http://www.tandfonline.com/doi/abs/10.1080/00207179508921605}{Sjöberg and Ljung 1995} and \nurl{http://www.mitpressjournals.org/doi/abs/10.1162/089976699300016557}{Cataltepe et al 1999}.
+Early stopping can thus be viewed as an efficient way of regularizing weights just the right amount for the problem at hand, whereas we might have to cross-validate multiple settings of $\alpha$ to find an appropriate value for the $\alpha$ hyperparameter. Nonetheless, early stopping still suffers from generalization issues of overfitting to the validation set, see discussions in \nurl{http://www.tandfonline.com/doi/abs/10.1080/00207179508921605}{Sj\"{o}berg and Ljung 1995} and \nurl{http://www.mitpressjournals.org/doi/abs/10.1162/089976699300016557}{Cataltepe et al 1999}.
 
 \section{Dataset Augmentation and Manifold Learning}
 
@@ -68,7 +68,7 @@ Bagging uses votes of several models: $k$ uncorrelated models will tend to have 
 \label{fig:dropout}
 \end{figure}
 
-\textbf{Dropconnect} (\nurl{http://cs.nyu.edu/~wanli/dropc/}){Li et al 2013}). Generalizes dropout by applying it to edges rather than hidden units. It's not as commonly used as dropout, but it has a more mathematically sound explanation of how its inference procedure mimics ensembles.
+\textbf{Dropconnect} (\nurl{http://cs.nyu.edu/~wanli/dropc/}{Li et al 2013}). Generalizes dropout by applying it to edges rather than hidden units. It's not as commonly used as dropout, but it has a more mathematically sound explanation of how its inference procedure mimics ensembles.
 
 \section{Adversarial Training}
 
