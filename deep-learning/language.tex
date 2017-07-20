@@ -13,7 +13,7 @@ We review techniques for natural language processing (NLP) with DNNs. Content is
 
 \section{Word Prediction}
 
-With many word outputs, softmax penalties make extremely sparse gradients if each word is a class. Resolve this by moving the output class into the input, and output a single scalar probability when parameterized. This is the serial architecture, used for predicting the next word in a sequence (Fig.~\ref{fig:serial}).
+With many word outputs, softmax penalties make extremely sparse gradients if each word is a class. Resolve this per \nurl{https://research.google.com/pubs/pub44876.html}{Mikolov et al 2013} by moving the output class into the input, and output a single scalar probability when parameterized. This is the serial architecture, used for predicting the next word in a sequence (Fig.~\ref{fig:serial}).
 \begin{figure}[!h]
 \centering
 {\includegraphics[width=0.75\textwidth]{hinton-serial.pdf}}
