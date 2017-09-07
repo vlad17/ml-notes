@@ -49,7 +49,7 @@ Other networks, such as recurrent neural networks (RNNs) handle variable-length 
 
 A cost function $J(\vtheta)$ must be defined over the vector of aggregate parameters $\vtheta$. MLE informs the shape of $J$ in most cases: for $(\vx,\vy)$ distributed according to some data distribution, the log likelihood is the cross entropy $\E p_\text{model}(\vy|\vx,\vtheta)$. With $p_\text{model}(\vy|\vx,\vtheta)=N(f_\vtheta(\vx),I)$, for instance, MLE is equivalent to minimizing MSE. This kind of approach has the ANN specify the parameters for an output distribution, instead of predicting the output directly: this enables us to encode additional statistical knowledge about the inputs.
 
-Training is typically performed with first-order optimization of $J(\vtheta)$; this leverages back-propagation for efficient derivatives.
+Training is typically performed with first-order optimization of $J(\vtheta)$; this leverages back-propagation for efficient derivatives. For a derivation of backpropagation in common architectures, see \nurl{https://github.com/tomepel/Technical_Book_DL}{these technical notes}.
 
 \section{Activations}
 
