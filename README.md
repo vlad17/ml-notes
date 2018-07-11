@@ -10,7 +10,7 @@ Prerequisites:
 Topics:
 
 * [Idiosyncrasies](idiosyncrasies.pdf)
-* Theoretical Statistics (Information Theory and Estimation Theory)
+* Theoretical Statistics ([just check Sinho Chewi's Statistics 210A and 210B notes](https://chewisinho.github.io/)).
 * [Statistical learning theory](statistical-learning/README.md)
 * [Common models (and their considerations) for ERM-based supervised learning](supervised/README.md)
 * [Bayesian-motivated unsupervised learning](unsupervised/README.md)
