@@ -15,6 +15,7 @@ Topics:
 * [Common models (and their considerations) for ERM-based supervised learning](supervised/README.md)
 * [Bayesian-motivated unsupervised learning](unsupervised/README.md)
 * [Deep Learning](deep-learning/README.md)
+* [Elements of Causal Inference](element-causal-inference/README.md)
 * Optimization concerns
 * RKHS and kernel methods [overview](https://en.wikipedia.org/wiki/Reproducing_kernel_Hilbert_space)
 
