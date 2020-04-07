@@ -1,0 +1,280 @@
+Reference Notes on Elements Causal Inference
+
+* Neyman-Rubin vs Pearl
+
+Note that there exists another type of causal model outside of the
+one discussed in this guide, the [[https://en.wikipedia.org/wiki/Rubin_causal_model][Rubin Causal Model]].
+
+These frameworks are equivalent. The Rubin causal model provides some
+more "graph-free" methods like propensity score matching or importance weighting,
+but they're not really graph free. The assumptions for those methods can
+be encoded as assumptions about the SCM graph, and generally there's not really
+much of a difference between these two ways of looking at it in practice:
+
+Neyman-Rubin expresses graphical constraints with moment conditions.
+
+* Structural Causal Models
+
+An *SCM* is finite directed graph over variables, equipped with functional assignments
+from parents to children, \[A\gets f(B, N_A), B\gets N_B\]. Each term has as part of its input noise terms
+that contain exogenous effects from the system. That is, these capture unmeasured uncertainties,
+but they're assumed to be independent of one another.
+
+Typically, it is assumed to be a DAG. In this case, the distribution entailed by the SCM is unique
+and can be computed by performing samples of the noises and assignments in topological order.
+
+If the graph is not a DAG then there may be zero, one, or many distributions that match the functional
+equalities in the SCM almost surely. See [[https://github.com/vlad17/ml-notes/blob/9b3a57302ae63a1647e56e979c781c9d85ef547d/elements-of-causal-inference/Chapter%203.ipynb][here]] for an explicit construction.
+
+The rest of this document assumes SCMs are DAGs.
+
+** SCM graph structure and distribution
+
+What is the relationship between distributions and the graph structure of the underlying
+SCM generating the data?
+
+In full generality, many SCM graphs can generate the same distribution (Proposition 4.1, ECI).
+Backing out what the directed graph looks like given observations from a distribution amounts to solving
+
+ - (A) is there a relationship between these two variables? (conditional independence testing)
+ - (B) which causal direction does this relationship go?
+ - (C) are there hidden variables inducing relationships between two variables?
+
+Restricting the allowed functional assignments enables structure identifiability ([[SCM Examples]])
+
+** Graph Structure and Probability
+
+Any graph defines the set of conditional independences uniquely through
+[[http://bayes.cs.ucla.edu/BOOK-2K/d-sep.html][d-separation]] (its opposite is d-connection).
+
+It only ever makes sense to talk about graphs that encode at least a superset of the conditional
+dependencies of a distribution. Formally, a distribution is Markov wrt
+a graph if it factorizes according to its parental structure. Equivalently (ECI Theorem 6.22)
+ - each variable is independent of its non-descendants given its parents
+ - d-separation of two nodes implies independence with respect to that distribution
+
+I.e., for distributions that are Markov with respect to a graph, that graph guarantees to capture
+its conditional independences.
+
+Note the above describes "soundness", i.e., graph d-separation implies probability independence
+for Markov distribution.
+
+There is a converse, "completeness", which isn't as strong as we'd like (if a distribution is Markov
+then the graph captures all its conditional independencies), but rather if a graph has two nodes
+d-connected then there's a Markov distribution where they're dependent).
+
+This gives rise to the following concepts:
+
+ - Structural minimality: all parents are "active" in that the functional assignment of the SCM
+   cannot be written as a function that doesn't accept one of the parents as an argument.
+ - Causal minimality: all parents are "active" in that there is no subgraph with respect to which
+   the distribution is Markovian.
+ - Faithfulness: any independence in the distribution is reflected in the graph.
+
+We have the chain of implications Faithful => Causally Minimal => Structurally minimal.
+
+These implications are [[https://github.com/vlad17/ml-notes/blob/9b3a57302ae63a1647e56e979c781c9d85ef547d/elements-of-causal-inference/Chapter%206.ipynb][strict]], there are counterexamples of causally minimal but not faithful and
+structurally minimal but not causally minimal graph/distribution pairs.
+
+In general, these counterexamples require contrived cancellations to occur, and in practice are
+negligble.
+
+** Independence-based testing structure learning
+
+[[https://arxiv.org/abs/1202.3757][Faithfulness and Markov]] properties determine graph structure up to v-structures,
+but are brittle and perform poorly, even with lots of samples.
+
+If you can take advantage of some structure in your problem, do so, or there's functional
+tools to take advantage of. But you generally don't want to be in the business of coming up
+with causal graphs from data. 
+
+* Interventions: do-Calculus
+
+Formal axiomaticization of the probibalistic calculus of interventions.
+
+Formalizes the "intervention operation" on an SCM where you sever parent edges and generate
+a new distribution based on the intervention.
+
+** Axioms
+
+3 axioms of do-calculus define what the do-operation does (which can informally
+be thought of as "severing" inbound edges and "setting" the variable it's affecting
+to its interventional distribution).
+
+Consider a SCM with graph \[\mathcal{G}\]. Denote by \[\mathcal{G}_{\overline{A}}\] the graph with node \[A\] inbound edges severed
+and by \[\mathcal{G}_{\underline{A}}\] the graph with outbound edges of \[A\] severed. Use the same notation for sets of nodes \[A\].
+
+Below, \[X,Y,Z\] are sets of nodes.
+
+1. Observational Insertion
+
+\[p(Y|\mathrm{do}(X), Z, W) = p(Y|\mathrm{do}(X), W)\] when \[Y\perp \!\!\! \perp Z|W,X\] in \[\mathcal{G}_{\overline{X}}\]
+
+2. Action/Observation Exchange
+
+\[p(Y|\mathrm{do}(X), \mathrm{do}(Z), W) = p(Y|\mathrm{do}(X), Z, W)\] when \[Y\perp \!\!\! \perp Z|W,X\] in \[\mathcal{G}_{\overline{X}\underline{Z}}\]
+
+3. Action Insertion
+
+\[p(Y|\mathrm{do}(X), \mathrm{do}(Z), W) = p(Y|\mathrm{do}(X), W)\] when \[Y\perp \!\!\! \perp Z|W,X\] in \[\mathcal{G}_{\overline{X}\overline{Z_*}}\]
+
+where \[Z_*=Z\setminus N(W)\] and \[N(W)\] is the set of neighborhing vertices to \[W\]
+
+*** Exception in Action Insertion
+
+Here's an example. Let \[X\] be the empty set and suppose we have a graph
+like \[Y\rightarrow P\rightarrow Z,W\] and there's another edge \[Z\rightarrow W\] (where \[P\] is a parent of both \[Z\] and \[W\]).
+
+We want to leave the edge \[P\rightarrow Z\] for the independence check
+(i.e., d-separation check) because the conditional probabilities may
+differ since there are some path from \[Z\rightarrow W\], which changes what it
+means for \[W\] to equal a particular value, affecting the conditional distribution
+of \[Y\] given that value.
+
+
+* Causal Effects
+
+(Proposition 6.13, ECI) Equivalent definitions of total causal effect from \[X\] to \[Y\]:
+ - There are two point interventions on \[X\] resulting in distinct distributions of \[Y\]
+ - A point intervention on \[X\] results in a differing distribution of \[Y\] than its observational one.
+ - \[X,Y\] are not independent for any soft intervention of \[X\] with full support.
+
+There must be a directed path from \[X\] to \[Y\] for there to be TCE but that's not sufficient
+[[https://github.com/vlad17/ml-notes/blob/9b3a57302ae63a1647e56e979c781c9d85ef547d/elements-of-causal-inference/Chapter%206.ipynb][due to cancellation]].
+
+For real-valued outcomes, total causal effect can be quantified with ACE.
+
+** ACE / ATE
+
+Typically we're interested in the average causal/treatment effect,
+which asks \[\mathbb{E}[Y|\mathrm{do}(X=1)]-\mathbb{E}[Y|\mathrm{do}(X=0)]\],
+which is different from \[\mathbb{E}[Y|X=1]-\mathbb{E}[Y|X=0]\]. \[Z\] is a valid adjustment set when it holds that
+\[\mathbb{E}[Y|\mathrm{do}(X)]=\sum_{Z} p(Z)\mathbb{E}[Y|X, Z]\]. Such sets are:
+
+ - Parents of \[X\].
+ - Any set that blocks all d-connected paths from \[X\] to \[Y\] that start like \[X\leftarrow\cdots\] (backdoors)
+   and doesn't include any descendants of \[X\]
+
+These sets can be exhaustively characterized, too, see ECI Proposition 6.41 (iii). Adjustment sets
+are precisely those sets that:
+
+contain no descendants of any node on a directed path from X to Y and block
+all non-directed paths from X to Y.
+
+** Natural and controlled effects
+
+\[X\] often times effects \[Y\] through other variables. This additional information can be
+used for more nuanced descriptions of effect, namely natural direct/indirect effect and controlled
+direct effect (no such thing as controlled indirect effect, that's just the total causal effect
+of a mediator). See [[https://github.com/vlad17/books/blob/master/book-of-why/chapters8-10.pdf][these notes]] for details.
+
+* Counterfactuals
+
+A counterfactual fixes the distribution of exogenous effects. An SCM \[\mathcal{C}\] over some set of variables \[V\]
+including \[X\] and noise terms \[N\] induces a joint distribution which includes the noise terms.
+
+A counterfactual SCM \[\mathcal{C}|X=x\] is the same SCM, but with noise terms changed to their
+distribution conditional on the event \[X=x\]. See ECI Section 6.4.
+
+Counterfactuals can be used for estimating probabilities of sufficiency and necessity,
+
+* SCM Examples
+
+** Linear Gaussian SCM
+
+With linear assignments of parents and Gaussian noise, [[https://github.com/vlad17/ml-notes/blob/9b3a57302ae63a1647e56e979c781c9d85ef547d/elements-of-causal-inference/Chapter%207.ipynb][Problem 7.13 of ECI]] states that
+the set of graphs that could entail a joint distribution of random variables
+is exactly the set of graphs with respect to which the distribution is Markov.
+
+That is to say, the graphs whose independence relationships are respected by the marginal
+distribution (where, for Gaussians, two variables are independent if their covariance is zero)
+could all be generating the joint.
+
+Further, not allowing for edges with 0 weight, in essence demanding faithfulness,
+we'd end up with a unique skeleton and set of injunctions.
+
+** Linear non-Gaussian Additive Noise Models
+
+With linear assignments and non-Gaussian noise
+, which is mostly appealing to physicists,
+allow for structure recovery.
+
+** Additive Noise Models
+
+ANMs all have assignments of the form \[X\gets f(\mathrm{pa}(X))+N_X\]
+and their close friends post-nonlinear ANMs have assignments like \[X\gets \phi( f(\mathrm{pa}(X))+N_X)\]
+where \[\phi\] is a bijection.
+
+For continuous space, such models are identifiable up to smoothness conditions (Section 4.1.4, 4.8 ECI).
+
+For discrete space, in two variables [[https://arxiv.org/abs/0911.0280][approaches exist]] but seem to scale linearly in
+[[http://eda.mmci.uni-saarland.de/pubs/2018/acid-budhathoki,vreeken.pdf][domain size]]; perhaps it is possible to apply them intelligently.
+
+** Linear Invertible
+
+Information-geometric approaches can identify structure for invertible SCMs, i.e., those
+where the parent-to-child relationships are bijections. If \[Y=AX+N\] for vector valued \[Y, X, N\],
+then if \[A\] is invertible then in general the causal direction between \[(X, Y)\] is identifiable.
+
+** Overview
+
+Table 7.1 looks through Gaussian noise inference.
+
+* Markov Equivalence Class
+
+If two graphs define the same set of distributions that are Markov with respect to themselves,
+then they are Markov equivalent.
+
+Two graphs are markov equivalent iff they have the same undirected skeleton and share
+immoralities (v-structures \[X\rightarrow Y\leftarrow Z\]).
+
+This defines the completed partial DAG (CPDAG), which is the mixed undirected/directed graph
+induced by the above, and generally represents the set of conditional indpendences for a single
+Markov Equivalence Class.
+
+* Dealing with Hidden Variables
+
+Chapter 9, even more equivalence classes than CPDAG (MAG, PAG, etc.). See Table 9.1.
+
+* Average Causal Effect Estimation
+
+** Covariate adjustment
+
+/Assuming/ we have access to a valid adjustment set, as described in the [[ACE / ATE]] section,
+it suffices to regress with the appropriate adjustment set
+to determine ACE. This is essentially backdoor criterion.
+
+Similar mechanisms for covariate adjustment include propensity score matching and weighting,
+and these can all be combined for so-called doubly-robust estimates (they're [[https://arxiv.org/abs/0804.2958][not actually]] going to
+end up being more robust)
+
+** Instrumental Variable Regression
+
+/Assuming/ that there is a variable \[V\] that influences \[Y\] only through \[X\], i.e.,
+\[V\rightarrow X\rightarrow Y\], instrumental variable regression can estimate ACE.
+
+** Front door criterion
+
+/Assuming/ that there is a variable \[M\] such that \[X\] only influences \[Y\] through \[M\], and \[M\]
+has a known ACE, then we can use the front door criterion for \[X\]'s ACE.
+
+** Overview
+
+[[https://www.stat.cmu.edu/~cshalizi/402/lectures/23-causal-estimation/lecture-23.pdf][Overview]] of all three methods above.
+
+Recall our basic model assumptions for the SCM to be even
+defined needs noise to be exogenous (the SCM defines all relevant variables,
+there are no hidden confounders). This is for the SCM. Some variables can be latent (hidden
+from observation, as long we can still perform the steps required above, e.g., IV regression
+doesn't require that we see X's confounders)
+
+From an efficiency standpoint, recall we're interested in ATE, ultimately, but we have to
+estimate intermediate things like \[\mathbb{E}[Y|X,Z]\]; efficiency is going to be determined by
+a *positivity* condition, which comes in many flavors for the different methods:
+
+ - For covariate adjustment, \[\mathbb{P}\{X|Z\}\] needs to be sufficiently large
+ - For instrumental variable regression, it's \[\mathrm{var}(\mathbb{E}[X|Z])\]
+
+Positivity is basically a measure of, "to what degree do there exist natural experiments" in the
+joint distribution of the data. We need such natural experiments to estimate effect under different
+covariate settings.
