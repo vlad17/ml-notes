@@ -16,6 +16,7 @@ Topics:
 * [Bayesian-motivated unsupervised learning](unsupervised/README.md)
 * [Deep Learning](deep-learning/README.md)
 * [Elements of Causal Inference](element-causal-inference/README.md)
+* [Linear Regression Analysis](linear-regression-analysis/README.md)
 * Optimization concerns
 * RKHS and kernel methods [overview](https://en.wikipedia.org/wiki/Reproducing_kernel_Hilbert_space)
 
