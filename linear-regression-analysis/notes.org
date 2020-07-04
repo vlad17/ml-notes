@@ -260,3 +260,60 @@ Theorem 4.3 generalizes 4.1 to linearly dependent designs and constraints throug
 projections.
 
 ** 5 Confidence Intervals and Regions
+
+**** 5.1 Simultaneous Interval Estimation
+
+We are interested in estimating CIs for linear transformations \[\mathbf{a}_j^\top\boldsymbol\beta\].
+
+We'd like to do this simultaneously for a set of linear transforms \[\mathcal{A}=\{\mathbf{a}_1,\cdots,\mathbf{a}_k\}\] where
+the rank of this set is \[d\].
+
+This applies to:
+ - inference, when \[\mathbf{a}_j\] are standard basis vectors and \[d=k=p\]
+ - mean prediction, when \[\mathbf{a}_j\] are standard basis vectors and \[k\gg d=p\]
+ - other specialized hypotheses, which can have different dimensionality.
+
+It's insufficient to simply use the t-intervals from the marginal distribution of \[\hat\beta_j\],
+for instance, because the probability of at least one failure of \[(1-\alpha)\]-CI coverage among
+\[k\] will look closer to \[k\alpha\] for small \[\alpha,k\].
+
+Since \[\hat{\boldsymbol\beta}\sim N(\beta, \sigma^2(X^\top X)^{-1})\], given that we can estimate
+\[\mathbb{E}S^2=\sigma^2\], \[A\hat{\boldsymbol\beta}\] follows a multivariate t-distribution, where
+\[A^\top\] consists of column vectors from \[\mathcal{A}\].
+
+Given this setup, we have several solutions for simultaneity:
+
+ - Bonferonni :: Use \[\alpha/k\] CIs, appealing to union bound.
+ - Maximum Modulus (MM) :: Useful computation accounting for \[\mathrm{cov}(\hat\beta_0,\hat\beta_1)\] for \[k=2\], based on max-of-t-distributions
+ - S-method :: Bound simultaneous CI for \[\mathbf{h}^\top\boldsymbol\beta\] for all \[\mathbf{h}\in \mathcal{C}(A)\].
+
+MM also applies to larger \[k\] for independent \[\mathbf{a}_j^\top\boldsymbol\beta\], but this
+requires hypothesis testing on eigenvectors of \[X^\top X\], which is not really typical. One can still
+use MM for non-independent t-distributions (the usual case), because the maximum decreases
+as correlations increase.
+
+S-method is really neat: it constructs an ellipse around \[\beta\] directly and bounds the
+Rayleigh quotient of \[A\boldsymbol\beta\]. There's an important reduction from
+\[\mathcal{A}\] to just its basis, as well.
+
+The S-method's generality (full linear space CI coverage) makes it great for prediction settings
+where we estimate CIs for \[k\gg p\], but it's not good for inference settings with \[d\approx k\],
+where MM performs better (narrower CIs).
+
+That said, it's unclear to me why you wouldn't want a Monte-Carlo like method to account for the
+nonzero correlations between our linear transforms. This should in principle allow much narrower
+CIs.
+
+**** 5.2 Confidence Bands for the Regression Surface
+**** 5.3 Prediction Intervals and Bands for the Response
+
+For CIs for the response, rather than the mean of the response, we simply observe
+that \[Y(\mathbf{x}_0)=\mathbf{x}_0^\top\boldsymbol\beta + \varepsilon\], so we need to increase
+variance accordingly.
+
+I wonder what we give up by using this fixed-X model for prediction: in the anti-causal setting
+\[Y\rightarrow X\] the marginal distribution of \[X\] contains information about \[Y|X\] which
+we're explicitly ignoring by using a fixed-X setup. This is, in principle, something ML methods
+can take advantage of.
+
+**** 5.4 Enlarging the Regression Matrix
