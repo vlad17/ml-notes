@@ -304,6 +304,37 @@ That said, it's unclear to me why you wouldn't want a Monte-Carlo like method to
 nonzero correlations between our linear transforms. This should in principle allow much narrower
 CIs.
 
+***** Monte Carlo Inference
+
+Suppose we have a full rank OLS setup \[Y=X\boldsymbol\beta+\boldsymbol\varepsilon\] with
+ \[\boldsymbol\varepsilon\sim N(\mathbf{0},\sigma^2 I)\], known variance for simplicity.
+
+Say we're interested in the simultaneous CIs of \[A\boldsymbol\beta\], where wlog by the S-method
+trick \[A\] has full crank.
+
+In the case for known variance, why don't we use \[\hat{\boldsymbol\beta}-\boldsymbol\beta\sim N(0,\sigma^2(X^\top X)^{-1})\] directly?
+
+Let \[D^{1/2}\] be the diagonal matrix containing the inverse standard deviation of each element
+of \[A(\hat{\boldsymbol\beta}-\boldsymbol\beta)\].
+
+Then consider \[\mathbf{z}=D^{-1/2}A(\hat{\boldsymbol\beta}-\boldsymbol\beta)\], which then follows
+the known distribution \[N(\mathbf{0},D^{-1/2}A^\top (X^\top X)^{-1} AD^{-1/2})\].
+
+We can compute the inverse survival function of \[\max_i\left|z_i\right|\] somewhat easily with monte carlo
+by sampling normals and looking at the upper \[\alpha\] quantile; this gives the maximum of normals
+correlated exactly how we expect \[A(\hat{\boldsymbol\beta}-\boldsymbol\beta)\] to be.
+
+This yields a max-of-z-scores \[m_\alpha\]; then our CIs for \[\mathbf{a}_j^\top\boldsymbol\beta\]
+are given by \[\mathbf{a}_j^\top\hat{\boldsymbol\beta}\pm D_{jj}^{1/2}m_\alpha\]
+
+For unknown variance, I'm sure the above can be studentized in some way,
+and it seems extensions should be possible to heterskedastic settings.
+
+Perhaps this is very expensive, so it was not suggested in the book (which was, after all, published in 1977).
+
+This would be essentially an extension of [[https://www.jstor.org/stable/1266931?seq=1][Hahn 1972]].
+
+
 **** 5.2 Confidence Bands for the Regression Surface
 **** 5.3 Prediction Intervals and Bands for the Response
 
