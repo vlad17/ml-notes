@@ -1,0 +1,350 @@
+* Linear Regression Analysis
+
+** 3 Linear Regression: Estimation and Distribution Theory
+
+*** 3.6
+
+Orthogonal designs minimize the variance of your final coefficients (regardless of error distribution, only assuming spherical errors).
+
+See Chapter 3, Part e, Exercise 3. Follows by Cramer's Rule.
+
+Use orthogonal designs to find optimal experiments. See Chapter 3, Part e, Exercise 3.
+
+*** 3.7
+
+Augmenting linear regression models with additional covariates can be done through orthogonalization.
+
+Basically, if you have \[Y\sim X\beta+\varepsilon\] with the OLS estimate,
+let 
+\[P=(X^\top X)^{-1}X^\top\] be the projection matrix and \[R=I-P\] be the
+residual operator.
+
+Then to fit the new model \[Y\sim X\beta+Z\gamma+\varepsilon\], you project out \[X\] from
+both the signal and the new covariates:
+
+\[\hat\gamma = MZ^\top RY=(ZR^\top RZ)^{-1}(RZ)^\top RY\]
+
+where \[M=Z^\top RZ\] and we rely on symmetry and idempotence of \[R\]. Then the
+OLS fit of \[\gamma\] in the augmented model, \[\hat\gamma\] is the OLS fit
+of the projected out setting of residuals \[RY\] on covariates \[RZ\].
+
+Then the adjusted \[\hat\beta\] in the augmented model excludes the variance
+explained by \[\hat\gamma\], i.e., we use the OLS solution \[\hat\beta=P(Y-Z\hat\gamma)\],
+where without the \[Z\hat\gamma\] term we have the plain old OLS for the smaller
+model \[Y\sim X\beta+\varepsilon\]
+
+
+*** 3.8 Estimation with Linear Restrictions
+
+Given a least squares problem where we also know linear constraints that the output must satisfy, i.e., \[A\beta=c\],
+then we can adjust the least squares solution using Lagrange multipliers to get
+
+\[\hat\beta'=\hat\beta+(X^\top X)^{-1}A^\top(A(X^\top X)^{-1}A^\top)^{-1}(c-A\hat\beta)\]
+
+where \[\hat\beta\] is the OLS estimate. An example use here is if you measure the angles of a triangle with the same
+measuring tool.
+
+
+*** 3.9 Design Matrix of Less than Full Rank
+
+For less-than-full-rank designs \[X\], \[\beta\] is not identifiable (since distinct values can give rise to the same observations).
+
+Restricting to linear subspaces by adding constraints on \[\beta\] can help, as can dropping columns.
+
+With the rank less than full rank, we can still estimate linear some functions of \[\beta\] with linear
+estimators. In particular, linear reductions
+\[\mathbf{a}^\top \boldsymbol\beta\] are estimable iff \[\mathbf{a}\in\mathcal{C}(X^\top)\], since any linear estimator is of the form \[\mathbf{b}^\top Y\]
+which is \[\mathbf{b}^\top X \boldsymbol\beta\] in expectation.
+
+
+Interestingly, Question 4 of Exercises 3i then implies that 
+\[\mathbf{a}\in\mathcal{C}(X^\top)\] iff \[\mathbf{a}\] is a unit eigenvector
+of \[X^\top X (X^\top X)^{-}\] where \[A^{-}\] is any generalized matrix inverse.
+
+*** 3.10 Generalized Least Squares
+
+For a least-squares model defined by \[\mathbb{E}[Y]= X\boldsymbol\beta\] and \[\mathrm{var}(Y)= V\],
+by applying the transformation \[V^{-1/2}\], which exists assuming
+positive definiteness (else, after rotation, one of the \[Y\] values
+is a constant), we recover a transformed OLS model.
+
+The transformed OLS model has all our original BLUE (best linear unbiased estimator)
+guarantees. The least squares estimate for the non-homoskedastic case
+can be derived from this, it's just
+
+\[\boldsymbol\beta^*=(X^\top V^{-1} X)^{-1}X^\top V^{-1} Y\]
+
+*** 3.11 Centering and Scaling the Explanatory Variables
+
+Centering and scaling explanatory variables doesn't affect the model RSS or any identifiability
+properties, because the relationship with \[X\] and \[\hat\beta\] is one-to-one.
+
+But centered variables (except the intercept) do result in \[\hat\beta_0=\overline{Y}\].
+
+Similarly, centered and scaled variables \[X^*\] (i.e., each column has unit norm and the average of
+its values should be 0, starting from the design \[X\]) have a simplified projection matrix form,
+where the original model \[Y= X\boldsymbol\beta+\boldsymbol\varepsilon= X^*\boldsymbol\gamma+\boldsymbol\varepsilon\]
+where \[\hat{\boldsymbol\gamma}=R^{-1}X^{*\top}Y\], where \[R\] is the correlation matrix of \[X\].
+
+
+*** 3.12 Bayesian Estimation
+
+Frequentist confidence intervals (based on Student's t) can be derived for an OLS model by using a uniform
+(improper) prior for \[\boldsymbol\beta,\log\sigma\] and computing the marginal posterior over \[\boldsymbol\beta\]
+by marginalizing \[\sigma\]. This is an interesting coincidence and a neat alternative interpretation.
+
+A more informed prior is specified using a conjugate prior for computational ease,
+starting with a Normal distribution and ending with one in the posterior (when conditioned on the scale)
+for \[\boldsymbol\beta\] and keeping   \[\sigma^2\] inverse Gamma.
+
+When you marginalize the scale, you recover a Student's t distribution over coefficients.
+ 
+
+*** 3.13 Robust Regression
+
+Different sensitivity measures help us evaluate properties of regression algorithms.
+We'll use the fixed effects model where \[\mathbb{E}[Y]=X\boldsymbol\beta\] but will allow
+varying kinds of errors and even interventions on some of the explanatory variables.
+
+All methods will apply to residuals \[e_i(\boldsymbol\beta)=\mathbf{x}^\top\boldsymbol\beta-y_i\],
+and may introduce and optimize over auxiliary nuisance parameters. First we review different sensitivity
+measures.
+
+ - response breakdown point :: the proportion of the response data that must be modified (by any amount) to result in arbitrary change in the learned coefficients.
+ - explanatory breakdown point :: as above, but proportion of explanatory rows
+ - influence curves :: consider the convex interpolation between a single pathological point and the empirical distribution, as the weight of the pathological point tends to zero what is its influence on the learned coefficients?
+
+A complimentary metric to the above robustness measures is *asymptotic relative efficiency*,
+under the OLS model with normal errors.
+
+The below is a summary table of discussed estimators in the chapter.
+
+
+
+| estimator         | IC                    | heavy tails | BP  |         ARE |
+|-------------------+-----------------------+-------------+-----+-------------|
+| OLS               | unbounded in both x,y | no          | 1/n |           1 |
+| LAD               | bdd in y not x        | yes         | 1/n |         43% |
+| Huber             | bdd in y not x        | yes         | 1/n | ~1 if tuned |
+| LMS               | bdd                   | yes         | 1/2 |          0% |
+| LTS               | bdd                   | yes         | 1/2 |          8% |
+| S-estimator       | probably not in x?    | probably    | 1/2 |        ~29% |
+| R-estimator       | bdd                   | yes         | 1/2 |          7% |
+| Mallows, LQD, LTD | not bdd               | probably    | 1/2 |        >50% |
+
+
+ - IC :: influence curve
+ - BP :: break point
+ - ARE :: asymptotic relative efficiency
+ - OLS :: ordinary least squares \[\sum_ie_i^2\]
+ - LAD :: least absolute deviation \[\sum_i\left|e_i\right|\]
+ - Huber :: a specific M-estimate of \[\sum_i\rho(e_i/s)\] with \[\rho\] interpolating between squared and absolute error in and outside the unit ball.
+ - LMS :: least median square \[\mathrm{median}_ie_i\]
+ - LTS :: least trimmed squares \[\sum_{i=1}^h e_{(i)}\] where \[e_{(i)}\] are ordered (ascending) residuals, typically only lowest, \[n/2\] terms
+ - GM :: generalized M-estimators and one-step GM estimators merged with TMS/ LTS give best of both worlds under covariate distribution assumptions
+ - S-estimators :: (biweight function in particular) solve obscure Huber-like polynomial
+ - R-estimators :: only use order information, and need to use absolute residuals for guarnatees
+ - Mallows, LQD, LTD :: various combinations of differences of residuals, tuned to not be affected by outliers
+
+Moment equations \[\sum_i\psi(e_i/s)\mathbf{x}_i=0\] where \[\psi=\rho'\] and \[\sum_i\chi(e_i/s)=0\] for some scale function \[\chi\]
+are generalizations of M-estimates that don't require a well-defined density to be defined.
+
+Not discussed above is some pathological "instability" criterion (Fig. 3.2) that seems to only be
+a worst-case scenario for LMS, LTS that isn't terribly realistic.
+
+Overall, pairwise residual approaches allow optimizing high BP while maintaining ARE, but don't do
+well from an IC perspective. This is consistent because IC is a "high-fidelity" measure of the impact
+of a small deviation, but BP allow arbitrary differences and expect arbitrary changes, so are a crude
+set of requirements.
+
+It would be interesting to combine moderate trimming LTS with Huber to get heavy tail resistance
+and bounded influence for x and y while maintaining ARE.
+
+** 4 Hypothesis Testing
+
+*** 4.1 Introduction
+
+*** 4.2 Likelihood Ratio Test
+
+Frame a hypothesis test comparing two nested models as assessing a wider linear regression and
+its residual sum of squares, and then a constrained model that meets a linearity condition
+\[A\boldsymbol\beta=\mathbf{c}\] (usually, \[A\] is partly an identity matrix and partly zero,
+and \[\mathbf{c}\] is zero).
+
+This can be fit with incremental OLS approaches (for the identity case) or Lagrange multipliers
+from the last chapter.
+
+*** 4.3 F-test
+
+The test statistic of a likelihood ratio (the ratio of the fitted model's normal distributions
+on the observed values) is not convenient, but equivalent to an F-statistic, which is
+just a ratio of \[\chi^2\] variables via a transformation.
+
+This can be expressed conveniently as a ratio of the residual sum of squares (RSS).
+See Theorem 4.1 for an exposition under general linear constraints from [[4.2 Likelihood Ratio Test]].
+
+From the exercises, the only neat computational observation is that if the saturated (full) model
+has projection matrix \[P\] for its OLS fit and the reduced (nested) model has a projection \[P_H\]
+which arises from the constrained OLS, then necessarily we have \[P_HP=PP_H=P_H\] with both matrices
+idempotent.
+
+[[4.5 Canonical Form of H]] discusses wider applications.
+
+*** 4.4 Multiple Correlation Coefficient
+
+Nothing terribly cool here, just that if \[R\] is correlation between \[Y,\hat Y\] then
+by Thm. 4.2., \[R^2=1-(n-1)\mathrm{RSS}/S^2\].
+
+Then for the general Thm. 4.1 setting \[F=\frac{R^2-R_H^2}{1-R^2}\cdot\frac{n-p}{q}\].
+
+*** 4.5 Canonical form for H
+
+\[F_{q, n-p}\] is the positive distribution of the ratios of independent \[\chi^2_q/q\] and
+\[\chi^2/(n-p)\] variables.
+
+It is equivalent to an [[4.2 Likelihood Ratio Test][LRT]] b/c for Gaussian errors the test functions are the same.
+
+Note there isn't a multivariate or two-sided UMP test here, so when we design tests here we look
+for weaker criteria like asymptotic minimax optimality.
+
+Given a general model \[Y=X\boldsymbol\beta+\boldsymbol\varepsilon\], \[\boldsymbol\varepsilon\sim N(0, \sigma^2 I)\],
+where \[\boldsymbol\beta\in\mathbb{R}^p\] and a nested hypothesis \[H:A\boldsymbol\beta=\mathbf{c}\],
+over \[q\le p\le n\] non-redundant constraints, Theorem 4.1 describes how to set up the hypothesis test,
+by leveraging idempotent, symmetric projection matrices \[P,P_H\] for the OLS and OLS-with-constraints
+models, where they observe the nestedness \[PP_H=P_HP=P_H\].
+
+Thus  \[\underbrace{\mathrm{RSS}_H}_{\chi^2_{n-p-q}}-\underbrace{\mathrm{RSS}}_{\chi^2_{n-p}}\] is itself an independent \[\chi^2_q\] rv.
+
+Then the statistic \[F=\frac{\mathrm{RSS}_H-\mathrm{RSS}}{\mathrm{RSS}}\cdot \frac{n-p}{q}\] is \[F_{q, n-p}\]-distributed. We also have simplifications
+
+\[\mathrm{RSS}_H-\mathrm{RSS}=\|\hat Y-\hat Y_H\|^2=(\hat{\boldsymbol\beta}-\hat{\boldsymbol\beta_H})^\top X^\top X(\hat{\boldsymbol\beta}-\hat{\boldsymbol\beta}_H)=(A\hat{\boldsymbol\beta}-\mathbf{c})^\top(A^\top (X^\top X)^{-1} A)^{-1}(A\hat{\boldsymbol\beta}-\mathbf{c})\]
+
+and
+
+\[\mathrm{RSS}=\|Y-\hat Y\|^2=Y^\top (I-P)Y\]
+
+By canonicalization, for \[\mathbf{c}=\mathbf{0}\] and \[q<p\] for \[A=\left(\begin{matrix}A_1&A_2\end{matrix}\right)\]
+where \[A_2\] is \[q\times q\] with rank \[q\], breaking up \[\boldsymbol\beta=\left(\begin{matrix}\boldsymbol\beta_1\\ \boldsymbol\beta_2\end{matrix}\right)\]
+\[X=\left(\begin{matrix}X_1&X_2\end{matrix}\right)\] conformably, we can set \[\boldsymbol\beta_2=-A_2^{-1}A_1\boldsymbol\beta_1\].
+
+This lets us define \[P_H\] directly as the RSS of the equivalent model under \[H\], \[Y=X_H\boldsymbol\gamma+\boldsymbol\varepsilon\],
+where \[X_H=X_1-X_2A_2^{-1}A_1\]. Compare this to the method of orthogonal projections in Section 3.8.2 and
+the Pythagorean law application of equation (3.44). Pretty neat matrix equality.
+
+Examples 4.4-4.6 have some typical derivations of tests, especially for the common marginal hypothesis
+case. Here's another.
+
+**** Chapter 4, Part d, Exercise 2
+
+\[n_i\] observations \[Y^{(i)}=W^{(i)}\boldsymbol\gamma^{(i)}+\boldsymbol\varepsilon^{(i)}\] for \[i\in[2]\]
+and \[\boldsymbol\varepsilon=\begin{pmatrix}\boldsymbol\varepsilon^{(1)}&\boldsymbol\varepsilon^{(2)}\end{pmatrix}\sim N(0, \sigma^2 I)\]. Let's create a test that \[Y^{(i)}\] came from the same linear model.
+
+\[H:\boldsymbol\gamma^{(1)}=\boldsymbol\gamma^{(2)}\]. Then the full model is
+\[Y=\begin{pmatrix}Y^{(1)}&Y^{(2)}\end{pmatrix}=X\boldsymbol\gamma+\boldsymbol\varepsilon\] where \[\boldsymbol\gamma=\begin{pmatrix}\boldsymbol\gamma^{(1)}\\\boldsymbol\gamma^{(2)}\end{pmatrix}\] and \[X=\begin{pmatrix}W^{(1)}&0\\0&W^{(2)}\end{pmatrix}\].
+
+But our constraint for \[H\] can be expressed as \[\begin{pmatrix}I&-I\end{pmatrix}\boldsymbol\gamma=\mathbf{0}\] so by
+canonicalization \[X_H=\begin{pmatrix}W^{(1)}\\W^{(2)}\end{pmatrix}\]. Then our statistic based on projection
+matrices from design matrices will satisfy the null distribution:
+
+\[\frac{Y^\top(P_X-P_{X_H})Y}{Y^\top(I-P)Y}\cdot\frac{n_1+n_2-2p}{p}\sim F_{p, n_1+n_2-2p}\]
+
+
+*** 4.6 Goodness-of-fit Test
+
+This chapter presents a neat technique for repeat observations:
+use tied normal means we can average across observations.
+
+*** 4.7 F-test and Projection Matrices
+
+Theorem 4.3 generalizes 4.1 to linearly dependent designs and constraints through
+projections.
+
+** 5 Confidence Intervals and Regions
+
+**** 5.1 Simultaneous Interval Estimation
+
+We are interested in estimating CIs for linear transformations \[\mathbf{a}_j^\top\boldsymbol\beta\].
+
+We'd like to do this simultaneously for a set of linear transforms \[\mathcal{A}=\{\mathbf{a}_1,\cdots,\mathbf{a}_k\}\] where
+the rank of this set is \[d\].
+
+This applies to:
+ - inference, when \[\mathbf{a}_j\] are standard basis vectors and \[d=k=p\]
+ - mean prediction, when \[\mathbf{a}_j\] are standard basis vectors and \[k\gg d=p\]
+ - other specialized hypotheses, which can have different dimensionality.
+
+It's insufficient to simply use the t-intervals from the marginal distribution of \[\hat\beta_j\],
+for instance, because the probability of at least one failure of \[(1-\alpha)\]-CI coverage among
+\[k\] will look closer to \[k\alpha\] for small \[\alpha,k\].
+
+Since \[\hat{\boldsymbol\beta}\sim N(\beta, \sigma^2(X^\top X)^{-1})\], given that we can estimate
+\[\mathbb{E}S^2=\sigma^2\], \[A\hat{\boldsymbol\beta}\] follows a multivariate t-distribution, where
+\[A^\top\] consists of column vectors from \[\mathcal{A}\].
+
+Given this setup, we have several solutions for simultaneity:
+
+ - Bonferonni :: Use \[\alpha/k\] CIs, appealing to union bound.
+ - Maximum Modulus (MM) :: Useful computation accounting for \[\mathrm{cov}(\hat\beta_0,\hat\beta_1)\] for \[k=2\], based on max-of-t-distributions
+ - S-method :: Bound simultaneous CI for \[\mathbf{h}^\top\boldsymbol\beta\] for all \[\mathbf{h}\in \mathcal{C}(A)\].
+
+MM also applies to larger \[k\] for independent \[\mathbf{a}_j^\top\boldsymbol\beta\], but this
+requires hypothesis testing on eigenvectors of \[X^\top X\], which is not really typical. One can still
+use MM for non-independent t-distributions (the usual case), because the maximum decreases
+as correlations increase.
+
+S-method is really neat: it constructs an ellipse around \[\beta\] directly and bounds the
+Rayleigh quotient of \[A\boldsymbol\beta\]. There's an important reduction from
+\[\mathcal{A}\] to just its basis, as well.
+
+The S-method's generality (full linear space CI coverage) makes it great for prediction settings
+where we estimate CIs for \[k\gg p\], but it's not good for inference settings with \[d\approx k\],
+where MM performs better (narrower CIs).
+
+That said, it's unclear to me why you wouldn't want a Monte-Carlo like method to account for the
+nonzero correlations between our linear transforms. This should in principle allow much narrower
+CIs.
+
+***** Monte Carlo Inference
+
+Suppose we have a full rank OLS setup \[Y=X\boldsymbol\beta+\boldsymbol\varepsilon\] with
+ \[\boldsymbol\varepsilon\sim N(\mathbf{0},\sigma^2 I)\], known variance for simplicity.
+
+Say we're interested in the simultaneous CIs of \[A\boldsymbol\beta\], where wlog by the S-method
+trick \[A\] has full crank.
+
+In the case for known variance, why don't we use \[\hat{\boldsymbol\beta}-\boldsymbol\beta\sim N(0,\sigma^2(X^\top X)^{-1})\] directly?
+
+Let \[D^{1/2}\] be the diagonal matrix containing the inverse standard deviation of each element
+of \[A(\hat{\boldsymbol\beta}-\boldsymbol\beta)\].
+
+Then consider \[\mathbf{z}=D^{-1/2}A(\hat{\boldsymbol\beta}-\boldsymbol\beta)\], which then follows
+the known distribution \[N(\mathbf{0},D^{-1/2}A^\top (X^\top X)^{-1} AD^{-1/2})\].
+
+We can compute the inverse survival function of \[\max_i\left|z_i\right|\] somewhat easily with monte carlo
+by sampling normals and looking at the upper \[\alpha\] quantile; this gives the maximum of normals
+correlated exactly how we expect \[A(\hat{\boldsymbol\beta}-\boldsymbol\beta)\] to be.
+
+This yields a max-of-z-scores \[m_\alpha\]; then our CIs for \[\mathbf{a}_j^\top\boldsymbol\beta\]
+are given by \[\mathbf{a}_j^\top\hat{\boldsymbol\beta}\pm D_{jj}^{1/2}m_\alpha\]
+
+For unknown variance, I'm sure the above can be studentized in some way,
+and it seems extensions should be possible to heterskedastic settings.
+
+Perhaps this is very expensive, so it was not suggested in the book (which was, after all, published in 1977).
+
+This would be essentially an extension of [[https://www.jstor.org/stable/1266931?seq=1][Hahn 1972]].
+
+
+**** 5.2 Confidence Bands for the Regression Surface
+**** 5.3 Prediction Intervals and Bands for the Response
+
+For CIs for the response, rather than the mean of the response, we simply observe
+that \[Y(\mathbf{x}_0)=\mathbf{x}_0^\top\boldsymbol\beta + \varepsilon\], so we need to increase
+variance accordingly.
+
+I wonder what we give up by using this fixed-X model for prediction: in the anti-causal setting
+\[Y\rightarrow X\] the marginal distribution of \[X\] contains information about \[Y|X\] which
+we're explicitly ignoring by using a fixed-X setup. This is, in principle, something ML methods
+can take advantage of.
+
+**** 5.4 Enlarging the Regression Matrix
