@@ -348,3 +348,49 @@ we're explicitly ignoring by using a fixed-X setup. This is, in principle, somet
 can take advantage of.
 
 **** 5.4 Enlarging the Regression Matrix
+
+** 6 Straight-line Regression
+
+*** 6.1 The Straight Line
+
+We have the two-variable model \[Y=\beta_0+\beta_1 x + \varepsilon\], 
+which allows us to compute exact simultaneous CIs using correlated
+t-distributions directly.
+
+The x-intercept can be analyzed as the ratio of two correlated normal variables,
+there exist both convenient or exact forms of CIs.
+
+The Working-Hotelling confidence band can be applied to the entire line
+to provide simultaneous CIs across the full range using the Scheffe's method.
+This won't give straight lines, but is more narrow in applicable ranges (and
+is narrowest at the point \[\overline{x},\overline{Y}\]).
+
+An approach by [[https://www.jstor.org/stable/1269524?seq=1][Wynn and Bloomfield]] allows one to narrow the bands further for specific
+ranges; this is a neat extension of the Scheffe method, and doesn't require
+complex re-derivation for analyzing interval CIs like other mentioned approaches,
+and it tends to be narrower anyway.
+
+*** 6.2 Straight Line through the Origin
+
+Of course, this simplifies the CI for the slope to a simple t-interval, but
+the entire band across the full x range is now also defined by the same
+t-interval by homogeneity.
+
+*** 6.3 Weighted Least Squares for the Straight Line
+
+With known weights, this reduces to the original model per the usual transform.
+
+With unknown weights, one can use the MLE and rely on asymptotics or
+solve with least squares and get more conservative intervals.
+
+It seems strange to me to use unknown, mean-dependent weights. They don't talk
+much about it or why one would really want this or be in this setting, but
+[[https://www.jstor.org/stable/2983809?seq=1][Williams 1959]] is the reference.
+
+From Exercises 1, Part b here, we get a setting for known weights:
+gamma-distributed or poisson-distributed positive-only regression
+(if we're regressing sums or counts, or instance, then it might make sense
+ to scale variance by mean squared or mean, respectively).
+
+
+
