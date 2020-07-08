@@ -348,3 +348,35 @@ we're explicitly ignoring by using a fixed-X setup. This is, in principle, somet
 can take advantage of.
 
 **** 5.4 Enlarging the Regression Matrix
+
+
+*** 6 Straight-line Regression
+**** 6.1 The Straight Line
+**** 6.2 Straight Line through the Origin
+**** 6.3 Weighted Least Squares for the Straight Line
+**** 6.4 Comparing Straight Lines
+Use a higher-dimensional normal means model to simplify a comparison
+across multiple lines into the form of a linear test.
+
+**** 6.5 Two-Phase Linear Regression
+
+If a one-covariate linear regression undergoes a change of phase,
+then this can be modelled directly by appropriately encoding the change of
+phase directly into the model.
+
+I.e., instead of 
+
+\[Y=\begin{cases}\alpha_0+\alpha_1x+\varepsilon & x<\gamma\\\beta_0+\beta_1x+\varepsilon&x\ge \gamma\end{cases}\]
+
+with a continuity condition that \[\alpha_0+\alpha_1\gamma=\beta_0+\beta_1\gamma\], one could instead
+fit
+
+\[Y=\varpepsilon+\theta+\begin{cases}\beta_1 (x-\gamma) & x<\gamma\\\beta_2(x-\gamma) & x\ge \gamma\end{cases}\]
+
+so that we don't have redundant parameters.
+
+For a complete answer to the problem see [[https://onlinelibrary.wiley.com/doi/10.1002/0471725315.ch9][Seber and Wild 1989]], Chapter 9.3.
+
+**** 6.6 Local Linear Regression 
+
+** 7 Polynomial Regression
