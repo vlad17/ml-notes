@@ -411,7 +411,7 @@ I.e., instead of
 with a continuity condition that \[\alpha_0+\alpha_1\gamma=\beta_0+\beta_1\gamma\], one could instead
 fit
 
-\[Y=\varpepsilon+\theta+\begin{cases}\beta_1 (x-\gamma) & x<\gamma\\\beta_2(x-\gamma) & x\ge \gamma\end{cases}\]
+\[Y=\varepsilon+\theta+\begin{cases}\beta_1 (x-\gamma) & x<\gamma\\\beta_2(x-\gamma) & x\ge \gamma\end{cases}\]
 
 so that we don't have redundant parameters.
 
@@ -420,3 +420,71 @@ For a complete answer to the problem see [[https://onlinelibrary.wiley.com/doi/1
 **** 6.6 Local Linear Regression 
 
 ** 7 Polynomial Regression
+*** 7.1 Polynomials in One Variable
+
+Naively applying least squares to the model \[y\sim \boldsymbol\beta^\top\mathrm{poly}(x)\]
+where \[\mathrm{poly}(x)_i=x^i\] for single-variable polynomial regression
+may work mathematically to reuse the same machinery but results in a Vandermonde
+design which in turn has an ill-conditioned Hilbert \[X^\top X\] Gram matrix.
+
+Since LS is not practically feasible, stable solutions are needed.
+Indeed, the desired approach is to construct an orthogonal basis dynamically,
+with \[\phi(x)\] replacing \[\mathrm{poly}\] above such that \[\phi(x)_i=\phi_i(x)\]
+with \[\{\phi_i\}_i\] an orthogonal basis with respect to the norm defined by 
+the covariates themselves. For our simple two-variable dataset \[\{x_i,y_i\}\],
+define the product \[\langle f, g\rangle=\sum_if(x_i)g(x_i)\]. This can be dynamically constructed using
+the recurrence
+
+\[\phi_0=1\], \[\phi_1(x)=2(x-a_1)\], \[\phi_{r+1}(x)=2(x-a_{r+1})\phi_r(x)-b_r\phi_{r-1}(x)\]
+
+Such a basis takes \[O(nk)\] time to construct for degree \[k\], since the polynomials can be defined
+through their values at the points or coefficients. Moreover, the Gram matrix
+\[\phi(\mathbf{x})^\top\phi(\mathbf{x})\] is diagonal, so the system can be efficiently
+solved.
+
+The Chebyshev basis can be used to represent \[\phi_k\], which comes with its own
+set of recurrence relations in terms of Chebyshev coefficients in the text.
+The primary win here is that you can perform inference outside of the training
+set efficiently, too. See [[https://en.wikipedia.org/wiki/Clenshaw%E2%80%93Curtis_quadrature][Clenshaw 1960]].
+
+To add constraints to the construction, see, e.g., [[https://ieeexplore.ieee.org/document/1099532][Payne 1970]], [[https://academic.oup.com/imamat/article-abstract/1/2/164/656295][Clenshaw and Hayes 1965]]
+
+*** 7.2 Piecewise Polynomial Fitting
+
+Regular polynomials may have very slowly decreasing RSS as degree increases
+or systemic residuals.
+
+This is especially the case when dealing with functions that are piecewise
+varying across stages.
+
+Splines of order \[M\] with \[K\] knots \[\boldsymbol\xi_k\] for \[k\in[K]\] are:
+
+ - order \[M-1\] polynomials on each piece \[\xi_k, \xi_{k+1}\]
+ - globally \[\mathcal{C}^{M-2}\]
+
+I.e., continuity up to the last order at knots. Repeat knots lower breakpoint
+continuity constraints.
+
+For visual purposes, [[https://web.stanford.edu/~hastie/ElemStatLearn/][ESL - Splines]], \[M=4\] or cubic splines typically suffice.
+
+While splines admit a parsimonious \[K+M\] parameter representation, it's
+unstable to compute. A redundant \[K+2M\] representation allows for a stable,
+recursive formula.
+
+Various forms of regularization are possible, but we're essentially
+entering ML territory, with methods becoming heuristic and reliance on CV
+for seleciton.
+
+*** 7.3 Polynomial Regression in Several Variables
+
+This section considers extensions to both splines and polynomials
+to higher dimensions, but the curse of dimensionality is not considered.
+
+Approaches mentioned here are either tensor decomposition or exponential-in-dim
+methods that naively extend lower-dimensional approaches.
+
+** 8 Analysis of Variance
+
+*** 8.1 Introduction
+
+*** 8.2 One-way Classification
