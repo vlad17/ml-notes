@@ -488,3 +488,33 @@ methods that naively extend lower-dimensional approaches.
 *** 8.1 Introduction
 
 *** 8.2 One-way Classification
+
+The main reason ANOVA works (more efficient test at whether all means for
+separate populations are equal the full pairwise implication), i.e.,
+can efficiently reject \[H_0:\mu_1=\mu_2=\cdots=\mu_n\] is framing in terms
+of contrasts, or linear transformations of the means. Transforming the
+problem into \[H_0:\mu_1-\mu_n=\mu_2-\mu_n=\cdots\=0\], we can equivalently
+ask if the vector of the above mean differences is uniformly 0.
+
+This holds under all linear transformations being, so Scheffé's method is
+appropriate.
+
+Specializations for particular contrasts rather than all are available too.
+
+Balanced designs help simplify the intervals, but don't afford significant
+efficiency gains because of it (balanced means every group has same number
+of participants).
+
+However, per Miscellaneous Exercises 7, balanced designs DO get rid of
+interaction effects, which is helpful.
+
+The F-test assumptions are the same as OLS.
+
+Balanced tests absolve (partly) normality and homogeneity requirements for
+the F-test. That said [[https://www.jstor.org/stable/2332579][Welch's test]] directly allows heteroscedasticity,
+which seems to be a set of approximations given the stochastically estimated
+noise [[https://math.stackexchange.com/questions/1746329/proof-and-precise-formulation-of-welch-satterthwaite-equation][for sample variances]].
+
+Heteroscedasticity checks (though they shouldn't be run to decide on
+whether to use Welch's) can be done by looking at Levene's test, which
+has a robust version based on median and LAD.
