@@ -493,7 +493,7 @@ The main reason ANOVA works (more efficient test at whether all means for
 separate populations are equal the full pairwise implication), i.e.,
 can efficiently reject \[H_0:\mu_1=\mu_2=\cdots=\mu_n\] is framing in terms
 of contrasts, or linear transformations of the means. Transforming the
-problem into \[H_0:\mu_1-\mu_n=\mu_2-\mu_n=\cdots\=0\], we can equivalently
+problem into \[H_0:\mu_1-\mu_n=\mu_2-\mu_n=\cdots=0\], we can equivalently
 ask if the vector of the above mean differences is uniformly 0.
 
 This holds under all linear transformations being, so Scheffé's method is
