@@ -518,3 +518,95 @@ noise [[https://math.stackexchange.com/questions/1746329/proof-and-precise-formu
 Heteroscedasticity checks (though they shouldn't be run to decide on
 whether to use Welch's) can be done by looking at Levene's test, which
 has a robust version based on median and LAD.
+
+*** 8.3 Two-Way Classification (Unbalanced)
+
+Two-way ANOVA can be equivalently modeled by an OLS setting
+with indicators for two possibly multi-level factors (which can
+all be dummy coded). The model includes interaction terms.
+
+I.e., for \[I\] levels on the first and \[J\] levels on the second,
+the design matrix here has \[1 + I + J + IJ\] terms, which is of course
+overparameterized (there are \[IJ\] mean parameters and a single variance
+parameter). The overparameterization can be dealt with with many different
+ways, either by coding contrasts or using constraints. The constraint
+is that all population means are the same across the same main effect.
+
+The presence of interaction terms signifies that there is a "difference
+in differences": there is no interaction (across any of the levels) when the
+term \[(\mu_{i_1j_1}-\mu_{i_1j_2})-(\mu_{i_1j_2}-\mu_{i_2j_2})\] is uniformly
+\[0\] across any two levels \[i_1,i_2\] of \[I\] and \[j_1,j_2\] of \[J\]. This set of constraints can, wlog,
+be taken "relative to" base values \[i_1,j_1=1\] so it's actually just
+\[(I-1)(J-1)\] independent constraints total.
+
+This "difference in differences" is what gets tested for interaction coefficients.
+
+Then there are several procedures when trying to fit a model in this setting:
+first the grand mean (intercept) is tested against zero. Assuming this
+succeeds, then there are several approaches.
+
+Type I ANOVA. Test for significance of including the first factor in the model,
+next the other factor, and finally interactions. This test has the advantage
+of creating independent RSS tests (which we can see by the usual \[\chi^2\]
+analysis of the residual OLS fit operators that are idempotent matrices \[(I-P)\]
+for each fit.
+
+Type II ANOVA. Two tests for main effects given other main effect and interactions.
+Not independent, but symmetric. Final Type I ANOVA model depends on ordering.
+Dubious, since the models compared here are not nested, but in principle
+this is possible, if a factor is "activated" by another.
+
+Type III ANOVA. Tests for significance of each of the two main effects and
+the single interaction effect give the rest (the other main and the interaction, or
+the two mains). Also not independent, but nested.
+
+To be frank, using the above methods blindly seems cargo-culty. If you're coming
+in with a hypothesis, then just test that hypothesis.
+
+*** 8.4 Two-Way Classification (Balanced)
+
+Math simplifies
+
+*** 8.5 Two-Way Classification (One Observation per Mean)
+
+Under-defined, b/c you have \[IJ\] observations but \[IJ + 1\] unknowns.
+
+Usually, only an additive model is assumed here, since this setting
+mostly appears for RCTs. Other richer interactions can be modelled with
+lower-rank representations of the interaction matrix in multilevel settings.
+
+*** 8.6 Higher-Way Classifications with Equal Numbers per Mean
+
+Higher-order ANOVAs generalize the notion of differences in differences.
+
+Below are more my notes for this topic, I think the recursive case is simpler
+than going through 3-way and 4-way manually like this book does.
+
+For a factor \[A\], and some response \[Y\], define the delta operator
+\[\Delta_AY=\mathbb{E}[Y|A]-\mathbb{E}[Y|\lnot A]\]. In other words, the lift of \[A\]. This gives the coefficient
+for \[A\] in a binary factor and is the effect tested for in one-way ANOVA.
+(for multilevel, it's all relative to some base null factor value).
+
+The delta \[\Delta_AY\] is itself a random variable, so we can ask
+\[\Delta_B\Delta_AY=\mathbb{E}[\mathbb{E}[Y|A]-\mathbb{E}[Y|\lnot A]|B]-\mathbb{E}[\mathbb{E}[Y|A]-\mathbb{E}[Y|\lnot A]|\lnot B]\]
+which boils down to \[(\mathbb{E}[\mathbb{E}[Y|A, B]-\mathbb{E}[\mathbb{E}[Y|A, \lnot B])-(\mathbb{E}[\mathbb{E}[Y|\lnot A, B]-\mathbb{E}[\mathbb{E}[Y|\lnot A, \lnot B])\], the
+difference in differences. This is equal to \[\Delta_A\Delta_B Y\] (the
+delta operator is generally commutative).
+
+This, for OLS, also corresponds to the appropriate corresponding interaction
+coefficient for \[A,B\].
+
+Higher-order ANOVAs, over \[k\] factors \[F_1,\cdots,F_k\] are correspondingly linear models, which have
+means of the recursive difference-in-differences \[\Delta_{F_1}\cdots\Delta_{F_k}Y\] as OLS parameters.
+
+*** 8.8 Analysis of Covariance
+
+Again, just reduce to the OLS model to come up with a hypothesis.
+ANCOVA is when you do ANOVA but also throw continuous covariates in there
+in addition to the factors.
+
+Chapter 8 Part e Excercise 1 is interesting, because it can use the Theorem 3.6
+partial fit result to perform regular ANOVA followed by OLS residual fitting
+of the covariates.
+
+** 9 Departures from Underlying Assumptions
