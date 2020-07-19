@@ -569,7 +569,8 @@ Math simplifies
 
 *** 8.5 Two-Way Classification (One Observation per Mean)
 
-Under-defined, b/c you have \[IJ\] observations but \[IJ + 1\] unknowns.
+Under-defined, b/c you have \[IJ\] observations but \[IJ + 1\] unknowns
+(means for every cell in the 2-way table and the overall variance).
 
 Usually, only an additive model is assumed here, since this setting
 mostly appears for RCTs. Other richer interactions can be modelled with
@@ -591,7 +592,7 @@ The delta \[\Delta_AY\] is itself a random variable, so we can ask
 \[\Delta_B\Delta_AY=\mathbb{E}[\mathbb{E}[Y|A]-\mathbb{E}[Y|\lnot A]|B]-\mathbb{E}[\mathbb{E}[Y|A]-\mathbb{E}[Y|\lnot A]|\lnot B]\]
 which boils down to \[(\mathbb{E}[\mathbb{E}[Y|A, B]-\mathbb{E}[\mathbb{E}[Y|A, \lnot B])-(\mathbb{E}[\mathbb{E}[Y|\lnot A, B]-\mathbb{E}[\mathbb{E}[Y|\lnot A, \lnot B])\], the
 difference in differences. This is equal to \[\Delta_A\Delta_B Y\] (the
-delta operator is generally commutative).
+delta operator is commutative).
 
 This, for OLS, also corresponds to the appropriate corresponding interaction
 coefficient for \[A,B\].
