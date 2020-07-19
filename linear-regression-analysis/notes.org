@@ -394,11 +394,11 @@ gamma-distributed or poisson-distributed positive-only regression
 (if we're regressing sums or counts, or instance, then it might make sense
  to scale variance by mean squared or mean, respectively).
 
-**** 6.4 Comparing Straight Lines
+*** 6.4 Comparing Straight Lines
 Use a higher-dimensional normal means model to simplify a comparison
 across multiple lines into the form of a linear test.
 
-**** 6.5 Two-Phase Linear Regression
+*** 6.5 Two-Phase Linear Regression
 
 If a one-covariate linear regression undergoes a change of phase,
 then this can be modelled directly by appropriately encoding the change of
@@ -417,7 +417,7 @@ so that we don't have redundant parameters.
 
 For a complete answer to the problem see [[https://onlinelibrary.wiley.com/doi/10.1002/0471725315.ch9][Seber and Wild 1989]], Chapter 9.3.
 
-**** 6.6 Local Linear Regression 
+*** 6.6 Local Linear Regression 
 
 ** 7 Polynomial Regression
 *** 7.1 Polynomials in One Variable
@@ -488,7 +488,7 @@ methods that naively extend lower-dimensional approaches.
 *** 8.1 Introduction
 
 *** 8.2 One-way Classification
-
+    
 The main reason ANOVA works (more efficient test at whether all means for
 separate populations are equal the full pairwise implication), i.e.,
 can efficiently reject \[H_0:\mu_1=\mu_2=\cdots=\mu_n\] is framing in terms
