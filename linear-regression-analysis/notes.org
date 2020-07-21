@@ -611,3 +611,27 @@ partial fit result to perform regular ANOVA followed by OLS residual fitting
 of the covariates.
 
 ** 9 Departures from Underlying Assumptions
+*** 9.1 Introduction
+*** 9.2 Bias
+
+Underfitting occurs when you're missing covariates relative to the new model.
+
+I.e., fitting \[Y\sim X\beta+\varepsilon\] but the true model is \[Y\sim X\beta + Z\gamma+\varepsilon\]
+
+ - Fitted model becomes what you'd expect if you regress the missing covariates on the present ones
+ - Bias term for the OLS predictor \[\hat\beta\] is \[(X^\top X)^{-1}X^\top Z\gamma\]
+ - The variance estimator \[S^2\] becomes an overestimate
+ - \[\mathrm{var}\hat\beta\] remains correct.
+
+Overfitting occurs when additional regressors are added. This inflates the \[\mathrm{var}\hat\beta\],
+but variance of noise and the estimate are unbiased.
+
+The fact that during underfitting variance stays the same allows for creating a test for underfit,
+see [[https://www.jstor.org/stable/2984219?seq=1][Ramsey 1989]].
+
+*** 9.3 Incorrect Variance Matrix
+
+In this scenario, homoskedasticity is violated but WLS is not used instead of OLS.
+
+The coefficients remain unbiased but variance for both the coefficients and the noise
+(and thus the fit) can become biased in either direction.
