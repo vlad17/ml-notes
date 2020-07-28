@@ -635,3 +635,65 @@ In this scenario, homoskedasticity is violated but WLS is not used instead of OL
 
 The coefficients remain unbiased but variance for both the coefficients and the noise
 (and thus the fit) can become biased in either direction.
+
+*** 9.4 Effect of Outliers
+
+The previous section [[3.13 Robust Regression]] covered OLS alternatives
+and evaluation measures. This section looks precisely on a single point's
+effect on the OLS fit.
+
+For a projection matrix \[P\], let the projected fit \[\hat Y = PY\] so that
+\[\hat y_i=p_{ii}y_i+\sum_{j\neq i}p_{ij} y_j\]. Assuming centered covariates, per (3.53),
+\[p_{ii}=n^{-1}+(n-1)^{-1}\|\mathbf{x}_i-\overline{\mathbf{x}}\|_{S_{xx}}^2\|\ge n^{-1}\], where \[S_{xx}\] is the sample
+variance-covariance of the covariates and the corresponding norm
+\[\|\mathbf{x}\|_A^2=\mathbf{x}^\top A^{-1}\mathbf{x}\].
+
+Further, since \[P^2=P\] it's clear \[p_{ii}\le 1\] as \[\sum_{j}p_{ij}^2\ge p_ii^2\ge p_i\].
+
+This gives \[p_{ii}\] in the range \[[n^{-1}, 1]\], where the Mahalanobis distance
+defined by the gaussian \[N(\overline{\mathbf{x}}, S_{xx})\] determines
+high-leverage points. Points low in the Gaussian density defined above
+are high-leverage, having \[p_{ii}\approx 1\], and thus \[\partial_{y_i}\hat y_i\approx 1\]
+so that high-leverage points have their fit more or less directly influenced
+by the y value at that point.
+
+*** 9.5 Robustness of the F-Test to Non-normality
+
+The F-test can be used for both equality of variance and equality of means.
+
+For variances, the test is very sensitive to non-normality, but not so for means.
+
+How can this be the case for the same distribution?
+
+This boils down to being really careful about what we mean about sensitivity.
+It's not directly stated in the chapter, but the robustness referred to here is
+really robustness not under the alternative, but under some "pretend null"
+where, e.g., the variance is equal between two samples, but the error distribution
+is some mean-0 non-normal distribution. Similarly, for the mean equality, the "pretend null"
+is that the means are equal but the noise is some mean-0 non-normal distribution.
+
+This chapter does not analyze some alternative hypothesis for these two cases; that's to
+ill-defined.
+
+However, in the above sense (that the test still works, namely has a reasonable Type-I rate,
+under a pretend null that's not exactly normal but otherwise correct), the robustness
+properties hold.
+
+The reason boils down to the different projection matrices.
+
+For equality of variance, our setup is that we have a sample of iid \[X_i\] of size \[f_1\]
+and similarly for \[Y_i\] of size \[f_2\]. The \[F=S_X^2/S_Y^2\] is the ratio of two
+\[\chi^2_{f_i}\]-distributed population variance estimators. Expressed under the standard OLS model,
+this corresponds to a single global \[Y=\begin{pmatrix}X_1\\X_2\end{pmatrix}\beta+\varepsilon\],
+where \[X_1=\begin{pmatrix}1_{f_1}&0\end{pmatrix}\] is a \[f_1\times 2\] matrix corresponding to the
+\[X_i\] observations and similarly for \[X_2=\begin{pmatrix}0&1_{f_2}\end{pmatrix}\] of the \[Y_i\].
+Then the corresponding projection matrices \[P_1,P_2\] give rise to the aforementioned F-statistic.
+Interestingly, here we have \[P_1P_2=0\].
+
+Then for means ...
+
+The different projection matrix relationships give rise to different robustness properties.
+
+For variance (Atiqullah analysis)
+
+For means (Box and Wilson analysis)
