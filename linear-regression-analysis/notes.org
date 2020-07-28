@@ -690,10 +690,33 @@ where \[X_1=\begin{pmatrix}1_{f_1}&0\end{pmatrix}\] is a \[f_1\times 2\] matrix 
 Then the corresponding projection matrices \[P_1,P_2\] give rise to the aforementioned F-statistic.
 Interestingly, here we have \[P_1P_2=0\].
 
-Then for means ...
+Then for means, our setup is similar, but instead the design matrix compares splitting means
+to having the same one, so it is a \[f_1+f_2\times 3\] matrix of the form 
+\[X_1=\begin{pmatrix}1_{f_1}&0\\ 0&1_{f_2}\end{pmatrix}\] under the alternative and
+\[X_2=\begin{pmatrix}1_{f_1+f_2}&0\end{pmatrix}\] under the null. Note that now, each model is considered separately, whereas above
+we relied on the same OLS model. Here, we have another \[F=\frac{Y^\top (P_1 - P_2) Y}{Y^\top P_1 Y}\] following
+an \[F\] distribution, but here of degrees of freedom \[1,f_1+f_2 - 2\] (this test, unlike equality of
+variances, can be naturally extended to having multiple groups of comparison with equal means).
+Note that here \[(P_1-P_2)P_1\neq 0\].
 
 The different projection matrix relationships give rise to different robustness properties.
 
-For variance (Atiqullah analysis)
+For variance, [[https://www.jstor.org/stable/2983753?seq=1][Atiqullah 1962]] provides an analysis for F-statistics where projection matrices
+satisfy \[P_1P_2=0\] and under the null variances are equal. Then a condition called quadratic
+balance, met by balanced (and randomized, for other reasons) designs, yields robustness to
+non-normality, as measured by excess kurtosis \[\gamma_2=\mathbb{E}\left[\left(\frac{Y-\mathbb{E} Y}{\sigma}\right)^4\right]-3\],
+which is the fourth centered moment less the fourth centered moment of the Gaussian. In particular, we have
+the following theorem (9.2): for symmetric, idempotent projection matrices \[P_i\] with vanishing product,
+assume \[\mathbb{E}[Y^\top P_i Y]=\sigma^2 f_i\] and let the diagonal of \[P_i\] be \[\mathbf{p}_i\].
+If the shared excess kurtosis of each variate is \[\gamma_2\], and each \[Y_i\] further has shared
+variance, third, and fourth moments (but means can differ), then \[Z=\frac{1}{2}\log F\] is approximately normal,
+corresponding to \[F=\frac{Y^\top P_1 Y / f_1}{Y^\top P_2 Y / f_2}\] being approximately F-distributed
+with \[Z\] being independent of \[\gamma_2\] if \[f_1\mathbf{p}_2=f_2\mathbf{p}_1\] (quadratic balance).
 
-For means (Box and Wilson analysis)
+For means, [[http://www.biostat.jhsph.edu/~iruczins/teaching/140.752/read/papers/box.1962.pdf][Box and Watson 1962]] provide an analysis based on the 4th cumulant bound where
+the resulting F-statistic for the equality-of-means test above (but generalized to \[p\] groups,
+checking equality of all their individual means under the null, behaves like an F-distributed
+random variable, but with \[\delta (p - 1),\delta (f_1+f_2-1)\]. The shrink factor for degrees of freedom \[\delta\]
+is defined by \[\delta^{-1}=1+C_x\Gamma_y/n\], where \[C_x,\Gamma_y\] are 4th-cumulant based bounds
+that are each approximately 0 the closer the (multivariate) distribution of the covariates or
+noise is to the normal.
