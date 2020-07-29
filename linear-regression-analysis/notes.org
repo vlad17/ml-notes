@@ -720,3 +720,73 @@ random variable, but with \[\delta (p - 1),\delta (f_1+f_2-1)\]. The shrink fact
 is defined by \[\delta^{-1}=1+C_x\Gamma_y/n\], where \[C_x,\Gamma_y\] are 4th-cumulant based bounds
 that are each approximately 0 the closer the (multivariate) distribution of the covariates or
 noise is to the normal.
+
+*** 9.6 Effect of Random Explanatory Variables
+
+**** Structural Law
+
+The assumed OLS Model describes a stochastic (almost sure) structural law of the form
+\[\mathbb{E}[Y|X]=\beta^\top X +\varepsilon\] where the noise is exogenous, i.e., \[\mathbb{E}[\varepsilon|X]=0\].
+
+This corresponds to random covariates observed without error.
+
+The book refers to a special case that's way too narrow with \[\varepsilon=0\] exactly. But the book does
+describe the fact that if extra unrelated covariates are observed then we're not actually in trouble,
+as OLS will naturally feature select. The "feature selection" is not like lasso here but rather due to
+the CIs including 0. This seems like a silly way of dressing up the overfit discussion earlier; note that
+just like in the fixed effects case the variance will increase if extra variables are included.
+
+**** Functional Law
+
+Here, the assumed OLS model describes a fixed equality derived from a law \[\mathbb{E}[y]=\beta^\top \mathbb{E}[\mathbf{x}]\]
+(note no noise). Such relationships arise from random variables representing unbiased measurements of an underlying
+physical phenomenon. This is a fixed effects model with \[y=\beta^\top \mathbb{E}[\mathbf{x}]+\varepsilon\].
+
+Let \[\mathbf{u}=\mathbb{E}[\mathbf{x}]\] be the underlying covariates and write \[\mathbf{x}=\mathbf{u}+\Delta\] where by construction
+\[\mathbb{E}[\Delta]=0\]. Let \[\mathbf{var} \Delta= D\], say. Suppose we make several observations and stack the design 
+and outcomes as \[X,Y\] and proceed with naive OLS. Let \[U=\mathbb{E}[X]\] be the expected design.
+
+Naive OLS yields \[\hat\beta_\Delta = (X^\top X)^{-1} X^\top Y\]. By Equation (9.30),
+the bias \[\mathbf{b}\] is given by \[\mathbb{E}[\hat\beta_\Delta]=\beta-\mathbf{b}\] with \[mathbf{b}\approx \left(\frac{U^\top U}{n}+D\right)^{-1}D\beta\],
+which is of course unhelpful since it requires oracle knowledge.
+
+Interestingly, though, if we have an unbiased estimate \[\hat D\] of \[D\] then the book goes that
+we can get an unbiased estimate \[\hat{\mathbf{b}}=n(X^\top X)^{-1}\hat D \beta\].
+
+Going off-script a little (above is based on [[https://www.jstor.org/stable/2335377?seq=1][Davies and Hutton 1975]]), we note first that the bias estimator
+above is useless as it still depends on \[\beta\] which is what we're estimating. But since everything is linear
+and unbiased, note that \[\mathbb{E}\hat{\mathbf{b}}=\mathbf{b}\] so then \[\mathbb{E}[\hat\beta_\Delta]=\mathbb{E}[\beta+\hat{\mathbf{b}}]\]. Expanding our estimator, we have
+
+\[\mathbb{E}[\hat\beta_\Delta]=\mathbb{E}[I\beta + n(X^\top X)^{-1}\hat D \beta]=\mathbb{E}[I + n(X^\top X)^{-1}\hat D] \beta\] by linearity.
+
+Since \[\hat D, (X^\top X)^{-1}\] are both symmetric and PSD, so their product
+ (though possibly not symmetric) has [[https://math.stackexchange.com/a/113859/38471][positive eigenvalues]],
+and thus the matrix in the expectation on the RHS above is invertible.
+
+Then moving the matrix to the other side, we have
+
+\[\mathbb{E}[I + n(X^\top X)^{-1}\hat D]^{-1}\mathbb{E}[\hat\beta_\Delta]= \beta\]
+
+which we unfortunately can't just push into one expectation due to nonlinearity.
+See [[https://mathoverflow.net/a/307168][this MO answer]] for details. That said, it can be directly seen from the continuity of the matrix
+inverse and continuous mapping theorem that the psuedo-debiased (it's not actually unbiased)
+estimator \[\left(I + n(X^\top X)^{-1}\hat D\right)^{-1}\hat\beta_\Delta\] is consistent as an estimator of \[\beta\].
+
+In fact, it's basically an order-one method of moments estimator. So I bet that analysis applies here. The interesting
+part here is that matrix inverse is a known operation and we might be able to do better in estimating it than a generic
+nonlinear equation like method of moments usually does. You still end up having to know \[\hat D\], but in principle this
+is something you can estimate by repeatedly sampling the same "setting" \[U\]. I.e., if our experimental setup
+lets us sample \[U\] repeatedly, then we'd get multiple \[X\] (after which the regression could in principle even
+be carried out on the average \[X\] and the average \[Y\]).
+
+**** Other Cases
+
+The other cases don't seem too interesting. They include fixed, non-random errors (such as round-off) which
+can be analyzed as noiseless versions of the [[Functional Law]] description and random covariates measured with error
+(which is undetermined, as there are now two noises, one from the stochasticity of covariates and one from
+their error, but only one set of residuals to estimate average error). The last case can be resolved
+with assumptions about the relative sizes of each error source.
+
+One approach that wasn't mentioned but would be interesting to look into would be [[https://en.wikipedia.org/wiki/Total_least_squares][Total least squares]].
+
+*** 9.7 Collinearity
