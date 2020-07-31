@@ -832,3 +832,63 @@ the condition number of the design, then the resulting OLS applied to
 the perturbed inputs gives an estimator \[\hat{\beta}_\epsilon\] whose relative error is bounded by
 
 \[\frac{\|\hat\beta-\hat{\beta}_\epsilon\|}{\|\hat\beta\|}\le\frac{\kappa\epsilon}{1-\kappa\epsilon}\left(2+(1+\kappa)\frac{\|X\hat{\beta}_\epsilon-\mathbf{y}\|}{\|X\|_2\|\hat\beta\|}\right)\]
+
+** 10 Departures from Assumptions: Diagnosis and Remedies
+
+*** 10.1 Introduction
+
+There are a few common types of assumption mismatches with OLS. Consider
+the stochastic OLS setup where \[Y=X\cdot\beta + \varepsilon\]
+
+1. Nonlinearity of \[\mathbb{E}[Y|X]\]
+2. Heteroscedasticity, where \[\mathrm{var}(Y|X)\] is non-constant.
+3. Endogeneity \[\mathbb{E}[\varepsilon|X]\neq 0\]
+4. Non-independence of errors (between training examples)
+5. No pathological outliers
+
+With (2) heterogeneity, but known variance, (diagonal) WLS applies.
+
+With (4) error correlation, but the correlation between errors is known
+and the errors are Gaussian, WLS applies.
+
+When none of the above hold (we have linearity, homoskedasticity, exogeneity of error,
+independent errors, and no corruption of the sample),
+then the OLS estimator is unbiased, if inefficient in the non-Gaussian case.
+
+*** 10.2 Residuals and Hat Matrix Diagonals
+
+The hat matrix is the projection matrix \[P\]. In the OLS model, for residuals \[\mathbf{e}\]
+that \[\mathrm{var}\mathbf{e}=\sigma^2(I-P)\]. Thus we can assess the
+\[i\]-th residual under the null by inspecting the internally Studentized residual
+\[\frac{e_i}{S(1-h_i)^{1/2}}\], where \[S\] is the residual population standard deviation
+estimator and \[h_i=P_{ii}\].
+
+Theorem 10.1 describes an extension based on using the external estimator \[S(i)\] which
+uses all-but-the-\[i\]-th point to estimate residual variance, to support the
+single-outlier adversarial scenario (5). It can be computed easily using a rank-one
+update of the OLS fit.
+
+*** 10.3 Dealing with Curvature
+
+\[\mathrm{cov}(\mathbf{e}, \hat Y)=\sigma^2(I-P)P=0\], which can be promoted to independence under
+normality. 
+
+As a result, one can plot residuals against the sorted fitted values, and there should be no
+visible correlation in the plot (or any fixed subset of the plot). Thus residual plots give
+a strong visible mechanism for checking model fit.
+
+Note that the overall correlation is forced (by the fit itself) to be 0.
+
+This suggests a rudimentary automated mechanism for linearity testing against an alternative of
+a piecewise smooth fit, which would be a permutation test of some sort: under a true linear model,
+the maximum correlation of contiguous sub-blocks of \[\mathbf{e}\] with \[\hat Y\] for a given
+block length is known. If a contiguous subsection of the plot has a strong correlation, that's indicative
+of nonlinearity. I wonder how this performs against a more explicit test for such a spline model.
+Other approaches are described in this [[https://stats.stackexchange.com/questions/405961/is-there-formal-test-of-non-linearity-in-linear-regression][Cross Validated]] thread.
+
+TODO: do the exercises in python
+TODO: blog post for monte carlo testing, known variance law estimator, cross validated thread fit a spline vs random blocks.
+
+*** 10.4
+
+https://en.wikipedia.org/wiki/Heteroscedasticity
