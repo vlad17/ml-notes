@@ -790,3 +790,45 @@ with assumptions about the relative sizes of each error source.
 One approach that wasn't mentioned but would be interesting to look into would be [[https://en.wikipedia.org/wiki/Total_least_squares][Total least squares]].
 
 *** 9.7 Collinearity
+
+Since \[\mathrm{var}\hat\beta=\sigma^2(X^\top X)^{-1}\], it's no surprise that rank deficiency
+results in uncertainty.
+
+It also affects robustness. This chapter looks at both.
+
+**** Variance due to Covariate Collinearity
+
+Suppose we have centered, scaled covariates, so that
+\[X^\top X = \begin{pmatrix}n &0\\0&R_{xx}\end{pmatrix} = \begin{pmatrix}n &0 &0\\0 & 1 &\mathrm{r}^\top \\ 0 & \mathrm{r} & R_{22}\end{pmatrix}\]
+where \[R_{xx}\] is the matrix of covariate correlations and the right hand
+side is its block decomposition,such that \[r_i=\langle X_1, X_i\rangle \] for the vector \[\mathrm{r}\]
+Then by linear algebra \[\mathrm{var}\hat\beta_1=\sigma^2(1-\mathrm{r}^\top R_{22}^{-1}\mathrm{r})^{-1}\].
+
+This of course applies wlog to other covariates than the first.
+
+We can also see that \[R_1^2=\mathrm{r}^\top R_{22}^{-1}\mathrm{r})^{-1}\] is itself the coefficient
+of determination of regressing \[X_1\] on the rest of the columns of \[X\] by looking at the
+RSS of that virtual regression.
+
+More generically, we can define the variance inflation factor, for nonscaled
+coefficients, which is \[\mathrm{VIF}_j=\frac{\mathrm{var}\hat\beta_j}{\sigma^2}=s_j^2(1-R_j^2)^{-1}=s_j^2(X^\top X)^{-1}_{(j+1)(j+1)}\]
+where \[s_j^2\] is the (now non-unit) variance of the \[j\]-th coefficient, and we can see
+Cramer's rule at play!
+
+The book provides other approaches to variance analysis due to collinearity but
+I did not find thme that illuminating.
+
+**** Lower Robustness due to Covariate Collinearity
+
+Suppose we have an OLS setup \[\mathbf{y}=X\beta+\varepsilon\] but we
+replace \[X\] with \[X+\delta X\] and \[\mathbf{y}\] with \[\mathbf{y}+\delta \mathbf{y}\]
+(where \[\delta X, \delta \mathbf{y}\] should be though of as single variables,
+not products of variables. Further, these can be arbitrary perturbations,
+so it's *not* necessarily the case that \[\delta \mathbf{y} = (\delta X) \beta\].
+
+Per [[https://books.google.com/books/about/Accuracy_and_Stability_of_Numerical_Algo.html?id=7J52J4GrsJkC&source=kp_book_description][Higham 1996]] (page 392), if \[\|\delta X\|_2\le \epsilon \|X\|_2\] (by spectral norm)
+\[\|\delta \mathbf{y}\|\le\epsilon\|\mathbf{y}\|\], and \[\kappa \epsilon <1\], where \[\kappa=\frac{\sigma_{\max}(X)}{\sigma_{\min}(X)}=\sqrt{\frac{\lambda_{\max}(X^\top X)}{\lambda_{\min}(X^\top X)}}\] is
+the condition number of the design, then the resulting OLS applied to
+the perturbed inputs gives an estimator \[\hat{\beta}_\epsilon\] whose relative error is bounded by
+
+\[\frac{\|\hat\beta-\hat{\beta}_\epsilon\|}{\|\hat\beta\|}\le\frac{\kappa\epsilon}{1-\kappa\epsilon}\left(2+(1+\kappa)\frac{\|X\hat{\beta}_\epsilon-\mathbf{y}\|}{\|X\|_2\|\hat\beta\|}\right)\]
