@@ -889,9 +889,15 @@ Other approaches are described in this [[https://stats.stackexchange.com/questio
 Note that there are examples (the [[https://www.google.com/books/edition/_/k1esnwVBVSwC?hl=en&gbpv=0][Cook 2009]] work is referenced) where residual plots miss curvature
 because they are lower dimensional.
 
+Partial residual plots are proposed and argued against as lame.
+Box-cox transforms and GAMs are called out but not in great detail.
 
+One useful plot is the partial residual plot, which plots the residuals
+of the regression with \[x_j\] removed versus \[x_j\]. This can be shown
+to be linear precisely when the \[F_j\] statistic, for the corresponding
+coefficient in the original regression, is large.
 
-TODO: do the exercises in python
+[[./exercises-10.3.ipynb][Python exercises]]
 
 *** 10.4
 
