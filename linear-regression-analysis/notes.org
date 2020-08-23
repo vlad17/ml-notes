@@ -789,6 +789,8 @@ with assumptions about the relative sizes of each error source.
 
 One approach that wasn't mentioned but would be interesting to look into would be [[https://en.wikipedia.org/wiki/Total_least_squares][Total least squares]].
 
+[[https://en.wikipedia.org/wiki/Errors-in-variables_models][Error-in-variables models]] seems like a good search term here as well.
+
 *** 9.7 Collinearity
 
 Since \[\mathrm{var}\hat\beta=\sigma^2(X^\top X)^{-1}\], it's no surprise that rank deficiency
@@ -899,6 +901,143 @@ coefficient in the original regression, is large.
 
 [[./exercises-10.3.ipynb][Python exercises]]
 
-*** 10.4
+*** 10.4 Non-constant Variance and Serial Correlation
 
-https://en.wikipedia.org/wiki/Heteroscedasticity
+*NOTE, accounting for non-constant variance is not the same as accounting for non-independence.*
+
+A branch of modeling (multi-level modeling, or mixed effects modeling, with the linear case
+known as linear mixed models or LMM) deals with noise that violates independence assumptions
+between data points.
+
+For instance, suppose we are modeling blood pressure for individuals and we'd like to regress
+dietary factors against blood pressure. If we take multiple measurements for individuals
+on a given day, we could consider dietary factors as covariates, but would need to use
+a random effects model to account for random skew to blood pressure individuals may introduce
+(we can get more complicated with this example: we have possibly a full graphical model on our
+hands, where we could consider time since the individual was awake as a latent variable, etc.).
+
+Interestingly, REML fits are used for both heteroskedasticity and LMMs.
+
+**** Parameterized Variance
+
+One issue that may occur is that the per-datapoint variance
+\[\mathrm{var}(\varepsilon_i)=w\left(\mathbf{z}_i,\boldsymbol{\lambda}\right)\] may be
+a function of some other covariates \[\mathbf{z}_i\].
+
+Define variance terms as the un-studentized residuals.
+
+[[https://en.wikipedia.org/wiki/Breusch%E2%80%93Pagan_test][Breusch–Pagan]] allows for arbitrary exp-linear models defined by covariates
+\[\mathbf{z}\] for setting variance as the alternative for heteroskedasticity,
+[[https://www3.nd.edu/~rwilliam/stats2/l25.pdf][Class notes]] describe BP, see also [[https://en.wikipedia.org/wiki/Levene%27s_test][Wikipedia]] lists others.
+
+The gist is that the residuals \[\mathbf{e}\] after an OLS fit contain the
+information necessary to assess heteroskedasticity because of their
+relationship with the response variases through the hat matrix.
+
+Intuitively, \[\mathrm{var}(\mathbf{e})=\mathrm{var}((I-P)\boldsymbol\varepsilon)\] which is known
+since \[\mathrm{var}(\boldsymbol\varepsilon)\] is assumed diagonal for WLS. If \[\mathrm{var}(\varepsilon)=\sigma^2 I\] this lets
+ us derive \[\mathrm{var}(e_i)=(1-p_{ii})\sigma^2+\sum_{k\neq i}\frac{p_{ik}}{1-p_{ii}}\sigma^2=\sigma^2\] by idempotence of \[I-P\].
+But since \[P\] is known we could also check against a particular alternative \[\mathrm{var}(\boldsymbol\varepsilon)\].
+
+More formally, we can consider a score-based method to evaluate whether or not variance is
+constant against a parameterized alternative via score-based methods.
+
+***** A Maximization-Maximization Approach
+
+To make the hypothesis nested, suppose there exists a \[\boldsymbol\lambda_0\] such that
+\[w(\mathbf{z},\boldsymbol\lambda_0)=\sigma^2\] is a constant for all \[\mathbf{z}\]. Then our null hypothesis of constant variance
+becomes \[H_0:\boldsymbol\lambda=\boldsymbol\lambda_0\].
+
+Algorithm 10.2 shows that OLS in this form can be fit with coordinate descent on the
+maximum log-likelihood objective, which is the log likelihood of the data,
+\[\ell(\boldsymbol\beta,\boldsymbol\lambda)=\sum_{i}\log p_{\boldsymbol\beta,\boldsymbol\lambda}(y_i, \mathbf{x}_i, \mathbf{z}_i)\]
+with \[p_{\boldsymbol\beta,\boldsymbol\lambda}(y_i, \mathbf{x}_i, \mathbf{z}_i)\] the density under the model
+\[y_i\sim N(\boldsymbol\beta^\top\mathbf{x}_i, w(\mathbf{z}_i,\boldsymbol\lambda))\]. The \[\boldsymbol\beta\] term can be fit conditionally on \[\boldsymbol\lambda\]
+with WLS and then for fixed \[\boldsymbol\beta\], \[\boldsymbol\lambda\] can be found with some kind
+of smooth optimality condition. Iterating this yields a maximization-maximization algorithm,
+which finds a local optimum of the overall maximum likelihood objective.
+
+Some useful algebra (equations 10.30, 10.32) show that in the general case, for some constant \[c\]
+
+\[\ell(\boldsymbol\beta,\boldsymbol\lambda)=c-\frac{1}{2}\sum_{i=1}^n\log w_i+\frac{(y_i-\boldsymbol\beta^\top\mathbf{x}_i)^2}{w_i}\]
+
+where above \[w_i=w(\mathbf{z}_i,\boldsymbol\lambda)>0\]. With \[\Sigma\] the diagonal matrix of entries
+\[w_i^{-1}\], the WLS step is just a matter of computing \[\hat{\boldsymbol\beta}=(X^\top\Sigma^{-1}X)^{-1}X^\top\Sigma^{-1}\mathbf{y}\] (per
+Section 3.10 Generalized Least Squares, Exercises 1b, (3) for motivation).
+
+For fixed \[\boldsymbol\beta\], the \[\boldsymbol\lambda\] step is more interesting. For
+continuously differentiable \[w\], first order necessary conditions (FONC) require
+
+\[\mathbf{0}=\partial_{\boldsymbol\lambda}\ell(\boldsymbol\beta,\boldsymbol\lambda)=-\frac{1}{2}\sum_i\left(\frac{1}{w_i}-\frac{(y_i-\mathbf{x}_i^\top\boldsymbol\beta)^2}{w_i^2}\right)\partial_\lambda w_i\]
+
+But this by itself only gets us to a local maximum, whereas since we're relying on
+asymptotic maximum likelihood guarantees, we need a unique maximum for \[\ell\] (at least
+asympototically).
+
+This occurs under sufficient regularity, e.g., \[\ell\] being strictly concave.
+
+Some more practical conditions will depend on \[p_{\boldsymbol\beta,\boldsymbol\lambda}\]
+smoothness. In general, if \[\nabla_\theta,\mathbb{E}_\theta\] commute (where \[\theta=(\boldsymbol\beta,\boldsymbol\lambda)\]), then the Fisher
+information is equal to the score covariance, and thus the Hessian of the log-likelihood
+is negative semi-definite. This allows for second order sufficient conditions.
+Sufficient conditions for the Fisher equality are,
+for instance, continuity and integrability of the score \[\nabla_\theta p_\theta(y, \mathbf{x},\mathbf{z})\] with respect to \[\theta\]
+(see [[https://en.wikipedia.org/wiki/Leibniz_integral_rule#Measure_theory_statement][Measure theory version of Leibniz's rule]]). This is handily
+met by most well-behaved parameterized densities. Eventually, we'll need stronger
+conditions for maximum likelihood asymptotic normality anyway, for which a weak
+condition is Differentiability in Quadratic Mean (DQM). See [[https://web.stanford.edu/class/stats311/Lectures/lec-09.pdf][Fisher notes]] and [[https://www.stat.berkeley.edu/~bartlett/courses/2013spring-stat210b/notes/22notes.pdf][DQM notes]] for
+details.
+
+In any case, supposing the DQM condition, the FONC are sufficient for maximization,
+because of implied concavity, so we just have to solve the above equation.
+
+***** The Special Exp-Linear Variance Case
+
+For the special case \[w(\mathbf{z},\boldsymbol\lambda)=\exp(\boldsymbol\lambda^\top\mathbf{z})\], we can do the above. Page 285 in the book
+and Equation 10.34 summarize the updates. This derivation ends up being equivalent
+to Fisher scoring, which directly optimizes \[\ell\] with a Newton-Raphson approximation
+based on using the empirical score covariance \[\hat {\mathrm{var}}(\nabla_\theta p_\theta)\]
+for the current iterate \[\theta\] as if it was the true Hessian (in fact it's just an unbiased
+estimator for it). It's a descent direction (by positive semi-definiteness), so convergence is clear,
+but rate of convergence is more complicated. See [[http://hua-zhou.github.io/teaching/biostatm280-2017spring/slides/18-newton/newton.html][these notes]] for extended discussion.
+
+This, in turn, gives a direct asymptotic (likelihood ratio) test based on deviance, where
+\[\mathrm{LR}=-2\left(\ell(\hat{\boldsymbol\beta}_{\mathrm{OLS}}, \mathbf{1}\hat\sigma^2)-\ell(\hat{\boldsymbol\beta},\hat{\boldsymbol\lambda})\right)\]. Of course, there are corresponding asymptotically equivalent Wald and
+score tests for this ML setting (see [[http://thestatsgeek.com/2014/02/08/wald-vs-likelihood-ratio-test/][a blog post]] on picking between these).
+
+[[https://people.csail.mit.edu/xiuming/docs/tutorials/reml.pdf][REML]] tests are also available. [[https://rss.onlinelibrary.wiley.com/doi/10.2307/2988471][Lyon and Tsai 1996]] discuss tradeoffs.
+
+For linear regression, REML works by analyzing \[Q^\top\mathbf{y}\], where \[Q\] is an
+\[n\times (n-p)\] orthonormal basis orthogonal to \[X\] (and thus is the space supporting all
+random residuals). It doesn't contain any useful information about \[\beta\],
+which is the nuisance parameter here.
+
+By transforming the data to remove all traces of the column space of \[X\],
+the remaining data can be used for identifying a maximum likelihood estimate
+of \[\sigma^2\]. This approach improves bias.
+
+**** Methods Based on Replication
+
+If we have muliptle observations for each covariate value, and assume
+equal covariates have equal variances, then estimating variance directly
+is possible.
+
+Surprisingly, using the sample variance for each covariate group
+results in an inefficient estimator.
+
+It's better to use variances estimated from the residuals (of OLS) directly
+per [[https://academic.oup.com/biomet/article-abstract/75/1/35/352132?redirectedFrom=fulltext][Carroll and Cline]]. Then you can iterate with WLS.
+
+**** Variance is a Function of the Mean
+
+If \[\mathrm{var}(\varepsilon_i)=w(\mathbf{z}_i,\boldsymbol\beta)\], then
+a self-consistent estimator (one learned by iteration of WLS with \[w_i\]
+fixed and then resetting \[w_i=w(\mathbf{z}_i,\boldsymbol\beta)\] as
+a maximization-maximization procedure.
+
+In the case of \[\mathbf{z}=\mathbf{x}\] and \[w(\mathbf{z}_i,\boldsymbol\beta)=\exp(\boldsymbol\beta^\top\mathbf{x})\]
+this method has 100% ARE compared to WLS with known variances.
+
+Alternatively, if we know that \[w\] is an arbitrary increasing function \[f\]
+of the mean (not exponential), then we can transform the response
+to have constant variances. See Section 10.4.3 for examples.
