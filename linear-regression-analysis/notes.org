@@ -1041,3 +1041,187 @@ this method has 100% ARE compared to WLS with known variances.
 Alternatively, if we know that \[w\] is an arbitrary increasing function \[f\]
 of the mean (not exponential), then we can transform the response
 to have constant variances. See Section 10.4.3 for examples.
+
+*** 10.5 Departures From Normality
+
+Visually, can be diagnosed by a Q-Q plot of the residuals.
+This is preferred over a histogram because it provides more
+in-depth diagnosis: skew, heavy tails, and outliers are all immediately
+visible with little tuning for, e.g., bin size.
+
+**** Response Transformation
+
+The Box-Cox transformation is a modification applied to the response.
+It is parameterized by \[\lambda\] and transforms the response as follows:
+
+\[y^{(\lambda)}=\begin{cases}
+\frac{y^{\lambda}-1}{\lambda}&\lambda\neq 0\\
+\log y& \lambda=0
+\end{cases}\]
+
+This is only applicable to positive response data. The John-Draper
+transformations (and further, Yeo-Johnson) are more flexible.
+
+The interpretation and fit is straightforward: conditioned on \[\mathbf{x}\],
+the model is that \[y^{(\lambda)}\sim N(\mathbf{x}\cdot\boldsymbol\beta, \sigma^2)\].
+
+Then the density can be derived by a change of variables and the
+data is fit with a consistent set of estimators through maximum likelihood.
+
+**** Transform Both Sides
+
+The covariates may be transformed in similar ways as above,
+with a corresponding interpretation that the transformed variables
+yield a normal distribution in the response.
+
+*** 10.6 Detecting and Dealing with outliers
+
+As before, there is a differentiation in outliers which have large residuals
+and outliers that have high leverage (corresponding to high \[\mathrm{MD}\], or
+Mahalanobis distance).
+
+The main corresponding challenge to detecting a _single_ outlier is
+that high-leverage points may result in low residual fits, since it
+skews the fit in favor of itself.
+
+Multiple outliers (the last section) can conspire against you to
+make this situation even worse. A compendium of tests can find
+outliers in various forms.
+
+**** Direct Residual Analysis
+
+Externally studentized residuals \[\frac{e_i}{S(i)(1-h_i)^{1/2}}\], where \[S(i)\] is the residual
+population standard deviation derived from the exclusion of the \[i\]-th point
+from the dataset will detect low-leverage outliers.
+
+We must turn to measuring influence in some way (which requires excluding
+the point in question and re-fitting) to find other outliers.
+
+**** Identifying High-leverage Points
+
+High leverage points cannot be deduced from the original Mahalanobis distance,
+since they impact the distance themselves. A single point can be evaluated
+with re-fitting, but multiple points creates a challenge.
+
+In general, consider a robust Mahalanobis distance defined by the
+quadratic form
+
+\[\mathrm{MCD}(\mathbf{x})^2=
+(\mathbf{x}-T(X))^\top C(X)^{-1}(\mathbf{x}-T(X))
+\]
+
+where MCD stands for minimum covariance determinant and admits a fast
+algorithm called Fast MCD.
+
+[[https://wis.kuleuven.be/stat/robust/papers/2010/wire-mcd.pdf][MCD]] is not what the textbook here suggested, but it's the modern variant, with
+\[T\] being a robust center estimate and \[C\] being a robust covariance estimate.
+
+The linked work also describes choosing appropriate cutoff values.
+
+**** Leave-one-out Case Diagnostics
+
+Using rank-one updates we can predict the leave-one-out difference
+in fitted coefficients:
+
+\[\hat{\boldsymbol\beta}-\hat{\boldsymbol\beta}(i)=\frac{(X^\top X)^{-1}\mathbf{x}_ie_i}{1-h_i}\]
+
+where \[e_i\] is the \[i\]-th residual. Note that this presents a vector of
+changes for each data point.
+
+Each term can be standardized by normalizing the residual; in particular
+for the \[j\]-th component we would use
+
+\[\frac{\hat{\boldsymbol\beta}-\hat{\boldsymbol\beta}(i)}{S(i)\left((X^\top X)^{-1}\right)_{jj}}\]
+
+Rewriting the above, it can be expressed as \[\frac{c_j}{\|\mathbf{c}\|_2}\cdot \frac{t_i}{(1-h_i)^{1/2}}\]
+where \[\mathbf{c}\] is the \[i\]-th column of the catcher matrix \[C=(X^\top X)^{-1} X\] and
+\[t_i\] is the \[i\]-th internally studentized residual.
+
+If we wanted to wing a cutoff from here, recal that \[\hat{\boldsymbol\beta}=CY\]
+so a large ratio \[c_j/\|\mathbf{c}\|\] corresponds to a large influence
+of \[Y_i\] on \[\hat\beta_j\]. Coupled with the \[t\]-distributed
+term, which we rarely expect to be over 2, we can isolate
+the standardized leave-one-out fitted term as having undue influence
+if it's above \[2/\sqrt{n}\] (book's suggestion, kind of ignores hat matrix).
+
+**** Change in Fitted Values
+
+A similar analysis of \[\mathbf{x}_i^\top(\hat{\boldsymbol\beta}-\hat{\boldsymbol\beta(i)})\]
+leads us to corresponding terms for influence on the \[i\]-th fitted
+value by the \[i\]-th point, with a reasonable cutoff.
+
+**** Covariance Ratio
+
+Since the determinant of a matrix corresponds to the scale of the
+volume of level sets of ellipsoids in the corresponding inner product space,
+which in turn are probability masses, the determinant is an
+appropriate tool for measuring differences in covariance matrices.
+
+In particular, we have the covariance ratio, a ratio of determinants:
+
+\[\frac{\left|S(i)^2(X^\top X)^{-1}\right|}{\left|S^2(X^\top X)^{-1}\right|}\].
+
+Through a similar process as above, this is reduced to a function of studentized
+residuals, yielding a cutoff of ratios further than \[3p/n\] from \[1\] as
+conspicuous.
+
+**** Tests for Outliers
+
+(Note I skip a couple uninteresting outlier tests in my opinion).
+
+The outlier test for \[k\] particular points can be evaluated in the OLS
+setting with a shift model, i.e., the model
+
+\[\mathbf{y}=X\boldsymbol\beta+\begin{pmatrix}
+0\\
+I_k
+\end{pmatrix}\boldsymbol\gamma+\boldsymbol\varepsilon\]
+
+where the null hypothesis is \[\boldsymbol\gamma=0\]. As expected,
+this turns the individual Studentized residual tests (for single outliers)
+alluded to above into an F-test for multiple outliers.
+
+That said, this forms an interesting theoretical basis for extending tests
+above to multiple outliers simultaneously (this is done explicitly in
+the exercises).
+
+**** Multiple Outliers
+
+One simple approach is to extend the above leave-one-out approaches
+to multiple outliers, but there's an explosion in the set of subsets
+to consider as outliers, i.e., for \[d\] outliers, there
+are \[\binom{n}{d}\] possible outlier sets to evaluate.
+
+This is pretty lame, but there could possibly be manual approaches
+which try to identify approximately which subsets could be outliers.
+
+Perhaps some of the leave-one-out statistics mentioned above have a
+leave-\[d\]-out analogue that is submodular, or admits a competitive
+greedy solution (I'm just spitballing).
+
+One suggestion from the book is to use a robust regression and
+analyze the outliers of the robust regression directly. At this point,
+though, why not just use the robust regression directly?
+
+Pushing along the greedy direction, there are two essential failure modes
+for multiple outliers conspiring against you, summarized in Figure 10.8.
+
+In _masking_, multiple outliers near each other taint the leave-one-out
+estimators because high-leverage points remain near the original one.
+
+In _swamping_, non-outliers that are high-leverage can look artificially
+like outliers, because other outliers move the fit "from where it would
+have been" otherwise. In other words, if we removed the other outliers,
+then the former high-leverage point would've fit into the regression.
+
+From a greedy perspective, masking seems like a clustering/heierarchy issue:
+dealing with similar outliers simultaneously would prevent masking.
+
+Similarly, from a greedy perspective, swamping seems like a sequencing issue:
+if removing outlier A makes outlier B no longer an outlier, then outlier B
+is likely swamped by A. On the contrary, removing outlier B first
+would make outlier A more of an outlier.
+
+** 10.7 Diagnosing Collinearity
+
+
