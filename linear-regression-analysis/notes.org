@@ -1131,7 +1131,7 @@ changes for each data point.
 Each term can be standardized by normalizing the residual; in particular
 for the \[j\]-th component we would use
 
-\[\frac{\hat{\boldsymbol\beta}-\hat{\boldsymbol\beta}(i)}{S(i)\left((X^\top X)^{-1}\right)_{jj}}\]
+\[\mathrm{DFBETAS}_j=\delta_j^\top\frac{\hat{\boldsymbol\beta}-\hat{\boldsymbol\beta}(i)}{S(i)\left((X^\top X)^{-1}\right)_{jj}}\]
 
 Rewriting the above, it can be expressed as \[\frac{c_j}{\|\mathbf{c}\|_2}\cdot \frac{t_i}{(1-h_i)^{1/2}}\]
 where \[\mathbf{c}\] is the \[i\]-th column of the catcher matrix \[C=(X^\top X)^{-1} X\] and
@@ -1222,6 +1222,40 @@ if removing outlier A makes outlier B no longer an outlier, then outlier B
 is likely swamped by A. On the contrary, removing outlier B first
 would make outlier A more of an outlier.
 
-** 10.7 Diagnosing Collinearity
+*** 10.7 Diagnosing Collinearity
 
+Recall the correlation matrix \[R\] of the design, equivalent to 
+\[(X^*)^\top(X^*)\] where \[X^*\] is centered and scaled.
 
+Near-collinearity was found to be detectable by small eigenvalues
+or high \[\mathrm{VIF}\]s of \[R\].
+
+However, the computation of equation 10.62 shows an example where
+a particular column may have a large average value and small variation,
+i.e., a small coefficient of variation \[\mathrm{CV}_j=\frac{s_j}{|\overline{x}_j| \sqrt{n}}\].
+
+In this scenario, \[R\] is itself unstable, as is the hat matrix. To diagnose
+such scenarios, we can use the scaled but not centered matrix \[\breve{X}\],
+whose \[i\]-th column \[\breve {\mathbf{x}}_i=\mathbf{x}_i/\|\mathbf{x}_i\|\].
+
+**** Standardization, Centering, and Scaling
+
+This brings us to an important point on *standardization*.
+
+When should we center variables? Scale variables?
+
+Discussed [[./standardization-10.7.ipynb][in this notebook]].
+
+**** Remedies for Degeneracy
+
+Since standardization is of no help, if we have a degenerate system,
+as detected by a large condition number of \[\breve X\],
+how can we resolve the situation?
+
+TODO dropping a row
+
+TODO dropping columns
+
+collect more data if you don't think its degen
+
+ridge regression
