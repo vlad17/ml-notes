@@ -141,7 +141,7 @@ The below is a summary table of discussed estimators in the chapter.
  - Huber :: a specific M-estimate of \[\sum_i\rho(e_i/s)\] with \[\rho\] interpolating between squared and absolute error in and outside the unit ball.
  - LMS :: least median square \[\mathrm{median}_ie_i\]
  - LTS :: least trimmed squares \[\sum_{i=1}^h e_{(i)}\] where \[e_{(i)}\] are ordered (ascending) residuals, typically only lowest, \[n/2\] terms
- - GM :: generalized M-estimators and one-step GM estimators merged with TMS/ LTS give best of both worlds under covariate distribution assumptions
+ - GM :: generalized M-estimators and one-step GM estimators merged with LMS/LTS give best of both worlds under covariate distribution assumptions
  - S-estimators :: (biweight function in particular) solve obscure Huber-like polynomial
  - R-estimators :: only use order information, and need to use absolute residuals for guarnatees
  - Mallows, LQD, LTD :: various combinations of differences of residuals, tuned to not be affected by outliers
@@ -833,6 +833,8 @@ Per [[https://books.google.com/books/about/Accuracy_and_Stability_of_Numerical_A
 the condition number of the design, then the resulting OLS applied to
 the perturbed inputs gives an estimator \[\hat{\beta}_\epsilon\] whose relative error is bounded by
 
+***** Forward Stability of OLS
+
 \[\frac{\|\hat\beta-\hat{\beta}_\epsilon\|}{\|\hat\beta\|}\le\frac{\kappa\epsilon}{1-\kappa\epsilon}\left(2+(1+\kappa)\frac{\|X\hat{\beta}_\epsilon-\mathbf{y}\|}{\|X\|_2\|\hat\beta\|}\right)\]
 
 ** 10 Departures from Assumptions: Diagnosis and Remedies
@@ -1236,7 +1238,7 @@ i.e., a small coefficient of variation \[\mathrm{CV}_j=\frac{s_j}{|\overline{x}_
 
 In this scenario, \[R\] is itself unstable, as is the hat matrix. To diagnose
 such scenarios, we can use the scaled but not centered matrix \[\breve{X}\],
-whose \[i\]-th column \[\breve {\mathbf{x}}_i=\mathbf{x}_i/\|\mathbf{x}_i\|\].
+whose \[i\]-th column f\[\breve {\mathbf{x}}_i=\mathbf{x}_i/\|\mathbf{x}_i\|\].
 
 **** Standardization, Centering, and Scaling
 
@@ -1248,14 +1250,580 @@ Discussed [[./standardization-10.7.ipynb][in this notebook]].
 
 **** Remedies for Degeneracy
 
-Since standardization is of no help, if we have a degenerate system,
-as detected by a large condition number of \[\breve X\],
-how can we resolve the situation?
+Centering can help conditioning as explored in the notebook above.
 
-TODO dropping a row
+If a system is degenerate, it's a good time to ask whether inputs are
+collinear for a reason. Perhaps one of the variables is really a linear
+combination of the others in the underlying data-generating mechansim
+and isn't useful to add to the regression.
 
-TODO dropping columns
+Otherwise, consider collecting more data.
 
-collect more data if you don't think its degen
+The linked notebook from the [[Standardization, Centering, and Scaling]]
+section explores other remedies, including
 
-ridge regression
+ - removing problematic rows
+ - removing problematic columns
+ - ridge regression
+
+** 11 Computational Algorithms for Fitting a Regression
+
+*** 11.1 Introduction
+
+There essentially two techniques to linear regression fits.
+
+1. Compute the Gram \[X^\top X\], which is PSD, and solve the normal equation \[X^\top X \boldsymbol\beta = X^\top \mathbf{y}\].
+2. Decompose \[X\] directly and solve a simpler equation than (1).
+
+Where there are different types of approaches for (1) and (2). Approaches
+should be assessed on the basis of memory, accuracy, and efficiency. Modern times
+have changed priorities since this book was written: the number of flops
+used by a particular decomposition isn't very relevant to speed: a smaller
+memory footprint can often result in a faster algorithm due to better cache use.
+
+Per [[Standardization, Centering, and Scaling]], it's advantageous to
+standardize \[X\] prior to solving, and then back out the original
+coefficients. The rest of this chapter will assume we already standardized,
+and talk briefly about numerically stable standardization.
+
+Notably, we're dealing with \[p\le n\] cases. We would still like to be robust
+to degenerate designs, but this is a different set of large-scale regression
+problems than what most people mean by large-scale linear regression, which
+typically involves both \[p\] and \[n\] huge. For that, there's
+[[https://github.com/VowpalWabbit/vowpal_wabbit][Vowpal Wabbit]], [[https://www.csie.ntu.edu.tw/~cjlin/liblinear/][LIBLINEAR]], [[https://github.com/linkedin/photon-ml][Photon ML]]. In those (typically first-order) settings,
+variance estimates for coefficients are typically not well-posed.
+
+Here, with \[p \ll n\], they are. For inference, we're interested in all
+of the following:
+
+ - \[\boldsymbol\beta\] coefficients
+ - RSS \[S^2\]
+ - variance terms \[\mathrm{diag}(X^\top X)^{-1}\]
+
+And then for diagnostic purposes, we'd like
+
+ - hat matrix diagonals \[\mathbf{h}=\mathrm{diag}(P)\]
+ - fitted values \[\hat {\mathbf{y}}=P\mathbf{y}\]
+
+This isn't an in-depth intro to numerical analysis, which is best left to
+Higham's [[https://www.maths.manchester.ac.uk/~higham/asna/index.php][Accuracy and Stability of Numerical Algorithms, Second Edition]].
+I'll reference it throughout.
+
+*** 11.2 Direct Solution of the Normal Equations
+
+Decompositions of \[X^\top X\] require less flops and dramatically less
+memory than decompositions of \[X\] if \[p \ll n\], at the cost of essentially
+squaring the condition number. I.e., at a rough cut, if the accuracy of
+\[X\]-decomposition fits is \[u\] we'd expect the accuracy of normal
+equation solutions to be the much larger \[\sqrt{u}\].
+
+\[X^\top X\] is computed as \[\sum_i \mathbf{x}_i\mathbf{x}_i^\top\],
+an easily parallel and distributed computation. The simplicity of splitting
+up a sum of outer products across machines, which enables data partition,
+makes normal equation approaches simple, attractive approaches at scale.
+
+**** Gaussian Elimination (GE)
+
+GE is equivalent to LU decomposition, which decomposes \[X^\top X=L U\]
+for lower-triangular \[L\] and upper-triangular \[U\] by applying
+lower-triagular elementary operations \[E_i\] on the left of \[X^\top X\],
+which "zero out" each column below the diagonal, by subtracting out
+a scaled version of the \[i\]-th row from all the rows below it.
+
+Inductively, this leaves zeros in the lower triangle of what remains of
+the original matrix.
+In matrix form, \[E_i\] is the identity plus a bunch of scale factors
+in the \[i\]-th column below its diagonal. Writing \[\prod_i E_i^{-1} (\prod_iE_i X^\top X)\],
+we notice that since the inverse of lower triangular matrices is lower
+triangular and such matrices are closed over products, the above is exactly
+the \[LU\] decomposition.
+
+Then a triangular system can be inverted in a quadratic number of operations
+with back-solving (start with the row with one coefficient, "plug it in", etc.).
+
+Conditioning can be improved with pivoting, which permutes columns of the
+original Gram matrix such that the diagonal element used to subtract out
+the corresponding row is as large as possible (row pivoting may be used too).
+
+With this strategy, when there are no valid pivots (everything in the corresponding row
+and column is small), we have detected degeneracy.
+Note that this detection is itself subject to error, and while pivoting will
+generally detect bad conditioning robustly, it is not reliable to actually estimate
+the rank in all cases.
+
+Pivoted GE is uninteresting for solving a single normal equation, since the
+[[Cholesky Decomposition]] below is faster and just as stable, but a variant of
+GE known as sweeping (which is just a symmetrized variant of GE, see
+page 335, Section 11.2.1 and Section 11.6.2) computes the inverse of a matrix
+in place.
+
+The critical properties of sweeping are that it is
+
+ - reverisble (two sweeps on the same row is a no-op)
+ - commutative with other sweeps
+
+The sweeping operation applied to the augmented matrix \[X_A^\top X_A\] where \[X_A=\begin{pmatrix}
+X & \mathbf{y}\end{pmatrix}\]
+on all but the last column we are left with the incomplete
+inverse \[\begin{pmatrix}(X^\top X)^{-1} & \hat{\boldsymbol\beta}\\\hat{\boldsymbol\beta}^{\top} & \mathrm{RSS}\end{pmatrix}\].
+
+The main use of this (which necessarily gives up pivoting and
+its good conditioning properties) is to compute
+the regression efficiently on all subsets of the regressors, or a
+particular path of regressors, such as a forward-selected sweep.
+
+**** Cholesky Decomposition
+
+The Cholesky decomposition, described in (non-pivoting) Algorithm 11.2, is for positive
+definite Grams the unique decomposition \[LL^\top =X^\top X\] for
+the lower-triangular \[p\times p\] matrix \[L\].
+
+When \[X^\top X\] is (near-)degenerate, it is PSD instead of PD and the
+Cholesky decomposition is no longer unique since the columns of \[L\]
+corresponding to the nullspace of the Gram can be determined in multiple
+ways. Similar to GE pivoting, this is generally stable given low rank matrices
+but not guaranteed. See [[https://software.intel.com/content/www/us/en/develop/documentation/mkl-developer-reference-fortran/top/lapack-routines/lapack-linear-equation-routines/lapack-linear-equation-computational-routines/matrix-factorization-lapack-computational-routines/pstrf.html][?pstrf]].
+
+As before, the trick of decomposing the augmented matrix \[X_A^\top X_A\]
+yields a Cholesky factor \[\begin{pmatrix} R & \mathbf{z}\\ \mathbf{0} & d \end{pmatrix}\] where matrix diagonals can be recovered
+from \[(X^\top X)^{-1}=L^{-\top}L^{-1}\] (thus the diagonals are the squared
+column norms of the lower-triangular \[L^{-1}\]) and \[d^2\] is the RSS. See [[http://www.netlib.org/lapack/explore-html/da/dba/group__double_o_t_h_e_rcomputational_ga97c5ddb103f5f6bc2dc060886aaf2ffc.html][?trtri]].
+
+Unfortunately, with pivoting, the cool trick above doesn't work, since
+the last column can get pivoted in to an internal column. In any case,
+residuals can still be computed in the straightforward manner via the predictions
+\[\hat{\mathbf{y}}=X\hat{\boldsymbol\beta}\]. The book also provides \[\mathrm{RSS}=\|\mathbf{y}\|^2_2-\|L^\top\hat{\boldsymbol\beta}\|_2^2\] (from \[X^\top X = LL^\top\])
+which is curious because it seems like a cancellation error waiting to happen.
+
+*** 11.3 QR Decomposition
+
+Pivoted thin \[QR\] decomposition of the direct \[X\] matrix breaks \[X\] up
+into an \[n\times r\] matrix of orthonormal columns \[Q\] and an upper-triangular
+\[r\times p\] matrix \[R\], where \[r\] is the rank.
+
+With such a decomposition, the normal equations become \[R\hat{\boldsymbol\beta}=Q^\top \mathbf{y}\].
+
+Gram-Schmidt orthonormalization is the classical algorithm here, it's not stable.
+
+Without pivoting, the QR decomposition of the augmented matrix \[X_A\] will
+again automatically find the desired regression quantities for us automatically.
+To be precise, the QR decomposition of \[X_A\] is \[\begin{pmatrix}Q & \mathbf{q}\end{pmatrix}\begin{pmatrix}R & \mathbf{r}\\\mathbf{0} & d\end{pmatrix}\]
+where \[\boldsymbol\beta=R^{-1}\mathbf{r}\] and \[\mathrm{RSS}=d^2\].
+However, with pivoting we can't use the same routine, as before, so we can't use
+this nice trick in degenerate cases.
+
+Unlike normal equation approaches, QR is significantly more stable, because
+it doesn't square the matrix.
+
+To actually compute the QR decomposition, see the following.
+
+**** Householder Reflectors
+
+Householder matrices \[H(\mathbf{u})=I-2\frac{\mathbf{u}\mathbf{u}^\top}{\|\mathbf{u}\|_2^2}\] have the reflection property: for
+equal-norm vectors \[\mathbf{x},\mathbf{y}\], \[H(\mathbf x-\mathbf y)\mathbf x = \mathbf y\] (see equation 11.31). They are
+involutions and isometries, since they just reflect across the plane
+ defined by the normal vector \[\mathbf u\].
+
+A Householder matrix can zero out all but one entry of a vector
+\[\mathbf{x}\] by choice of \[\mathbf{y}\] such that \[y_1=\|\mathbf x\|\] and \[y_{j}=0\] for \[j>1\].
+
+The only catch is when computing \[\mathbf x - \mathbf y\], the first
+element \[x_1-\|\mathbf x\|\] is naively numerically unstable as difference
+in possibly large positive terms, in which case \[\frac{x_1^2-\|\mathbf{x}\|^2}{x_1+\|\mathbf x\|}=\frac{\sum_{j>1}x_j^2}{x_1+\|\mathbf x\|}\]
+can be used instead.
+
+The \[k\]-th step of householder-based QR decomposition (without pivoting)
+then uses the matrix \[\begin{pmatrix} I_{k-1} & 0\\0 & H(\mathbf{u}_k)\end{pmatrix}\], where
+\[\mathbf{u}_k\] is chosen to zero out the \[k\]-th column of the remaining
+matrix, whose first \[k-1\] columns are already upper-triangular:
+
+\[H_k\cdots H_1X=X'=\begin{pmatrix}
+R_{1:k,1:k} & R_{1:k,k':p}\\
+0 & X_{k':n,k':p}'
+\end{pmatrix}\], where \[k'=k+1\]
+
+After \[p\] such transformations, the remaining matrix is just \[R\].
+
+The collection of \[p\] length-\[n\] householder vectors implicitly
+define \[Q\] (which is an \[n\times n\] matrix). The unique thin QR
+from the first \[p\] columns can be extracted, but since we only need
+the multiplication \[Q^\top \mathbf{y}\], we can use the Householder
+matrices directly by reflecting \[\mathbf{y}\] at most \[p\] times,
+which is cheaper than a full \[n\times n\] matrix multiplication
+and without requiring the full \[n^2\] storage space (just \[np\]).
+
+This can be achieved using the last column of the augmented matrix \[X_A\]
+to which QR could be applied, or, if pivoting is used, then we get a
+decomposition \[A\Pi = Q R\] where \[\Pi\] is a (unitary) permutation matrix
+(for column pivoting, done for cases when the corresponding matrix norm
+\[\|\mathbf x\|\] is small). Note \[Q=H_p\cdots H_1\] and by involution \[Q^\top=H_1\cdots H_p\]. This yields
+\[\hat{\boldsymbol\beta}=\Pi R^{-1} Q^\top \mathbf{y}\], where the \[Q^\top\] is applied by operating on \[\mathbf{y}\] as described
+above.
+
+Fundamental property. How they zero out. How they build up to get decomp.
+
+[[https://www.netlib.org/lapack/lug/node42.html][?geqp3]] is a level 3 BLAS algo which performs QR with pivoting (there's
+a legacy level 2 BLAS one).
+
+**** Other Methods
+
+A similar approach is based on matrices called Givens rotators. It's slower
+than Householder but this can be patched (with additional complexity).
+MGSA (the Modified Gram-Schmidt Algorithm) can rectify Gram-Schmidt instability
+but still results in numerically non-orthogonal \[Q\] matrices. This, too,
+can be patched with additional complication.
+
+All in all, these are interesting methods, but I think everyone just gets
+by knowing just Householder. [[http://www.netlib.org/lapack/lawnspdf/lawn276.pdf][CARRQR]] is a modern implementation.
+
+*** 11.4 Singular Value Decomposition
+
+The SVD of an \[n\times p\] matrix \[X\] is a set of orthonormal matrices \[U, V\]
+and positive diagonal matrix \[\Sigma\] such that \[X=U\Sigma V^\top\]. Where
+\[U\] is \[n\times k_1\] and \[V\] is \[p\times k_2\] with
+
+ - \[k_1=k_2=\mathrm{rank}(X)\] (compact SVD)
+ - \[k_1=k_2=\min(n, p)\] (thin SVD)
+ - \[k_1=n,k_2=p\] (fat SVD)
+
+Where the fat SVD has a rectangular \[\Sigma\] but unitary \[U,V\].
+Up to permutations (with diagonal values of \[\Sigma\] in descending order
+\[\sigma_1\ge\cdots \ge\sigma_p\] being canonical), and up to unique singular values, the
+thin SVD is unique, but if multiple singular values are the same any
+any equivalent basis can be used.
+
+Applying the decomposition to the normal equations gives us
+straightforward expressions for \[\mathrm{RSS}=\|(I-U)Y\|_2^2\],
+\[\hat{\boldsymbol\beta}=V\Sigma^{-1} U^\top \mathbf{y}\], \[P=UU^\top\],
+referring to the thin SVD matrices.
+
+For degenerate cases, using the compact SVD yields the least-norm solution.
+
+At a high level, SVD is computed by bidiagonalizing the matrix with left and right
+simultaneous householder transforms (left to get QR, right to remove the right part
+of the upper-right triangle). Then the bidiagonal system can have eigenvalues
+directly extracted. [[https://www.cs.cornell.edu/cv/Books/GVL/][Golub and Van Loan]] has details.
+
+LAPACK implements this directly with [[https://software.intel.com/sites/products/documentation/doclib/mkl_sa/11/mkl_lapack_examples/_gelsd.htm][?gelsd]]. See also [[https://www.netlib.org/lapack/lug/node27.html][netlib]].
+
+*** 11.5 Weighted Least Squares
+
+**** Simple OLS Reduction
+For WLS, we're interested in finding the best linear unbiased estimator
+for coefficients when our generative model is given by \[y_i=\mathbf{x}_i\cdot \boldsymbol\beta + \varepsilon\]
+where \[\varepsilon\sim N(0, \sigma^2 w_i^{-1})\] for some \[w_i>0\]. Clearly, the process can be transformed
+by multiplying both sides by \[\sqrt{w_i}\] yielding \[y_i'=y_i\sqrt{w_i},\mathbf{x}_i'=\mathbf{x}_i\sqrt{w_i},\varepsilon'=\varepsilon\sqrt{w_i}\].
+
+Suppose we have a full-rank least squares problem \[\min_{\boldsymbol\beta}\|X\boldsymbol\beta-\mathbf{y}\|_2^2\].
+
+The corresponding WLS objective is \[(\mathbf{y}-X\boldsymbol\beta)^\top W(\mathbf{y}-X\boldsymbol\beta)\]. Where \[W\] was a
+diagonal matrix with diagonal \[\mathbf{w}\]. Minimizing this yields the BLUE
+and (which for normal noise is also the MLE). The normal equations would be
+\[X^\top W X = X^\top W \mathbf{y}\].
+
+The simple method is of course to use \[W^{1/2}\mathbf{y}\] and \[W^{1/2}X\] with one of the
+previous OLS methods (either normal equation solve or direct-\[X\]). However,
+for poorly-conditioned \[W\] the resulting OLS reduction can also be ill-conditioned.
+
+[[https://epubs.siam.org/doi/book/10.1137/1.9781611971484][Bjork's Numerical Methods for Least Squares]] describes in Section 4.4
+that with special care the ill-conditioning can be avoided because it is caused by 
+a structured diagonal matrix. The section provides examples where
+typical approaches (such as column-pivoted QR) presented above can fail.
+
+**** Row-sorted QR
+
+Intricate algorithmic fixes are possible, but give up usage of optimized routines
+such as those found natively in LAPACK.
+
+Instead, per Higham Section 19.4 and 20.8,
+if we pre-emptively sort the rows in descending row-norm order (i.e., in the new system
+\[X'=W^{1/2}X\], consider infinity row norms \[\sqrt{w_i}\|\mathbf{x}\|_\infty\], and sort the
+rows of \[X'\] such that the largest rows are first), then we can recover a stable solution which
+would only have dependence on \[\kappa(W^{1/2})\] rather than its square. See Theorem 20.7
+in Higham or the original work Stability of Householder QR Factorization
+for Weighted Least Squares Problems, by Cox and Higham 1997. This solution is appealing since
+it means we can use LAPACK column-pivoted routines. Note that interestingly this row sort analysis
+applies to unweighted OLS instances, the difference is that usually the numerical stability is
+analyzed in terms of the operator norm of \[\|X\|\]. The difference is that this is usually assumed
+to be controlled for regular OLS problems but for WLS we modify this norm by \[\kappa(W^{1/2})\].
+
+Unfortunately, this does not help us if we'd like to use direct normal equation solve methods,
+which is the case when \[X^\top X\] is much smaller than \[X\].
+
+**** Two-weight Case
+
+Section 4.4.4 of Bjork provides a much more preferable solution for special \[W\] matrices
+that contain only two distinct values (which come up when solving constrained least squares)
+by updating an unweighted solution. This uses a direct solve via the Woodbury matrix inversion
+formula, which can take advantage of the block structure of \[W=\begin{pmatrix}
+w_1I & 0\\
+0 & w_2 I
+\end{pmatrix}\] in the normal equation \[X^\top W X\] term.
+This only relies on \[p\times p\] updates and can take advantage of a pre-factored \[X^\top X\]
+matrix. Unfortunately, this is unhelpful in the general WLS case.
+
+**** Cholesky and Iterative Refinement
+
+When our hands are tied due to the need to use normal equation solves (say, \[X\] is distributed),
+then we'd want an alternative.
+
+In this case, we may have to call in other methods, namely iterative refinement, which is a much
+more generic technique ([[https://en.wikipedia.org/wiki/Iterative_refinement][Wikipedia]], [[https://www.cs.cornell.edu/~bindel/class/cs6210-f09/lec13.pdf][Lecture Notes]], [[https://en.wikiversity.org/wiki/Numerical_Analysis/Iterative_Refinement][Wikiversity]], Higham Chapter 12). The idea is
+simple. If we have a numerically unstable solution \[\tilde{ \mathbf{x}}\] to a linear system
+\[A\mathbf{x}=\mathbf{b}\] (such as the normal equation for weighted least squares above
+with \[A = X^\top W X,\mathbf{b}=X^\top W \mathbf{b}\]), then solving for the residual
+\[A\boldsymbol\Delta = (\mathbf{b}-A\tilde {\mathbf{x}})\] can yield an improved solution \[\tilde{\mathbf{x}}+\boldsymbol\Delta\].
+This process can be iterated.
+
+How many times to iterate and whether iterative refinement will help is well-studied in the above
+links.
+
+In iteratively reweighted least squares, IRLS, used to fit generalized linear models (GLMs),
+this inner-loop WLS procedure is common. E.g., see [[https://github.com/apache/spark/blob/3fdfce3120f307147244e5eaf46d61419a723d50/mllib/src/main/scala/org/apache/spark/ml/optim/IterativelyReweightedLeastSquares.scala][Apache Spark's]] implementation, which
+just recomputes the weighted Gram \[X^\top W X\] in preparation for a weighted solve.
+
+
+*** 11.6 Adding and Deleting Cases and Variables
+
+Normal equation-based methods (1) shine here in their simplicity
+(but continue to be worse from an accuracy perspective). However,
+by the nature of their up-front \[X^\top X\] computation, you can't add 
+new columns, just new cases.
+
+Adding new cases (adding rows to \[X\]) is most interesting for the
+QR algorithm, since it points us to incremental and distributed versions
+of the algorithm.
+
+While adding and removing variables is interesting for fast forward/backward selection,
+being able to incrementally add rows to a regression is most useful for dealing with
+out-of-memory compute.
+
+If the full data matrix is not representable in memory then incremental methods can
+allow dealing with part of the data frame at a time.
+
+**** GE 
+
+As mentioned above, GE shines here due to its ability to add an remove rows
+with the sweep operation in \[O(np)\] time. The only downside is poor conditioning.
+
+**** Cholesky
+
+Cholesky has a similar situation, with updates being possible
+for both rows and columns. [[https://en.wikipedia.org/wiki/Cholesky_decomposition][See wikipedia]].
+
+Of course, you need to know the inner product of the new column with all previous columns,
+which may be a very large matrix, to do the update.
+
+**** QR
+
+[[http://eprints.ma.man.ac.uk/1192/1/qrupdating_12nov][QR can be incrementalized as well]], and is the usual go-to for incremental OLS,
+with some pivoting possible in principle (see Bjork Section 3.5).
+
+**** SVD
+
+See Bjork 3.4. Not as easy to stably incrementalize SVD as QR.
+
+**** Distributed methods
+
+While incremental is nice, for large data sets that require incrementality in the
+first place we'd like to run independent parallel programs whose results could
+be combined to give a fit.
+
+Unfortunately, there do not seem to be many distributed QR or SVD approaches
+(though of course Gram-matrix approaches can compute \[X^\top W X\] in parallel
+easily).
+
+Most naive distributed SVD or QR approaches square the matrix, at which point
+the Cholesky approach is preferred anyway, since the stability we look to
+direct-\[X\] methods is no longer there. See for instance, 
+[[http://spark.apache.org/docs/latest/mllib-dimensionality-reduction.html][Spark]] and [[https://mahout.apache.org/docs/latest/algorithms/linear-algebra/d-qr.html][Mahout]]. 
+
+Actual direct distributed QR looks interesting, using many smaller QRs: [[https://arxiv.org/abs/1301.1071][TSQR]].
+Except for some randomized approaches, distributed QR looks like more or less
+of a dead end after that, because of communication optimality
+for existing [[http://www.netlib.org/lapack/lawnspdf/lawn204.pdf][dense methods, CAQR]].
+
+*** 11.7 Centering the Data
+
+For computing variances or Gram matrices \[X^\top X\], if \[X\] is to be centered
+first, then several approaches exist to computing the \[ij\]-th centered Gram entry,
+which is essentially asking to compute \[c_{ij}=n\mathrm{cov}(\mathbf{x}_i,\mathbf{x}_j)\]
+between two vectors \[\mathbf{a}=\mathbf{x}_i,\mathbf{b}=\mathbf{x}_j\].
+
+The textbook algorithm uses the computational formula \[c_{ij}=\sum_{k}a_kb_k-\frac{1}{n}\sum_ka_k\sum_kb_k\].
+
+The updating/streaming algorithm uses a set of equivalent recurrence relations,
+see [[https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Covariance][Wikipedia]].
+
+The two-pass algorithm computes the means \[\overline{a},\overline{b}\] first,
+then finds \[c_{ij}=\sum_k(a_k-\overline{a})(b_k-\overline{b})\].
+
+The relative error, up to ulp, from numeric calculation of \[c_{ij}\] depends on the condition
+of the columns, which is defined \[\kappa=1+\mathrm{CV}^{-2}\] in terms of the coefficient
+of variation (so roughly mean square divided by variance).
+
+Table 11.1 shows the relative error of each method. Note that the
+Linear Regression Analysis textbook has an error in equation 11.76, which indicates that
+\[C(n, \kappa) u\] is the relative error bound. This is incorrect (I checked the original work).
+The error bound should be just \[C(n, \kappa)\], which in all cases is \[O(u)\] where \[u\] is an
+ulp. The methods differ in their dependence on the condition number.
+
+Textbook is awful, with relative error \[n\kappa^2 u\]. Updating is OK, at \[n\kappa u\],
+but two-pass is best, at \[nu+(n\kappa u)^2\]. Using pairwise summation (where we do a tree-reduce
+style sum of terms) drops floating point error from a factor of \[n\] to \[\log n\] in 
+all algorithms.
+
+Using [[https://en.wikipedia.org/wiki/Kahan_summation_algorithm][Kahan summation]] drops the factor of \[n\] to a factor of \[nu\].
+
+*** 11.8 Comparing Methods
+
+I included parts of this section in discussion above. One interesting discussion
+point is how accuracy results are proven, which tells us about what those proofs mean.
+
+These proofs are made with respect to implementation based on the [[https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html][IEEE754 standard]].
+In general, all basic floating point operations are guaranteed to be accurate to within
+a relative error of an ulp, a "unit in the last place", parameterized by \[u\].
+It is about \[10^{-16}\] on doubles.
+
+Typically accuracy proofs on floating point algorithms are made in two steps.
+
+1. A backwards stability property is established, showing that the solution
+   \[\tilde{\boldsymbol\beta}\] using floating point to an OLS problem \[X, \mathbf{y}\]
+   is the true OLS solution to a perturbed problem \[X+\delta X,\mathbf{y}+\delta\mathbf{y}\].
+2. A forward stability property is established, showing that the solution to a
+   perturbed problem \[X+\delta X, \mathbf{y}+\delta\mathbf{y}\] has distance
+   from the unperturbed solution bounded by the perturbation sizes.
+
+Then combining the two properties we can bound \[\frac{\|\tilde {\boldsymbol\beta}-\hat {\boldsymbol\beta}\|_2}{\|\hat {\boldsymbol\beta}\|_2}\]
+We've previously shown the [[Forward Stability of OLS]], a purely mathematical
+property, which adds a \[\kappa(X)\] scaling constant. However, there are
+usually two steps: for Gram-style methods we need to first verify the
+stability of the Gram computation, and for direct-\[X\] decompositions
+the stability of the decomposition must be analyzed, too.
+
+The solve of the Gram \[X^\top X\] introduces a corresponding \[\kappa(X^\top x)=\kappa(X)^2\]
+constant during the normal equation solve, thus explaining roughly why
+approaches which "square the design" are less stable.
+
+The Weilandt-Hoffman property shows strong forward stability for the SVD, i.e.,
+singular value differences for \[X+\delta X\] from \[X\] are bounded by \[O(\|\delta X\|_2)\].
+While \[U,V\] may be unstable for less-well-separated singular values, in practice
+this does not matter much (if I can shoot from the hip, since for exactly equivalent
+singular values the SVD can be reparameterized anyway, so as far as matrix applications
+are concerned the instability occurs "in places where it doesn't matter as much").
+
+This is both over simplifying in the sense of hiding terms, but also these
+are very conservative analyses, so they're more qualitative guides to compare 
+the methods than practical stability descriptions.
+
+*** 11.9 The Rank-Deficient Case
+
+Rank deficiency is not as black-and-white as it sounds. Matrices can
+be nearly rank-deficient and as a result have poor fits. It's important
+to be robust against such scenarios and cut off columns that induce collinearity.
+
+**** Pivoting and Degeneracy
+
+LU (GE), Cholesky, and QR approaches can all be modified with partial (column)
+or full (row and column) pivoting to generally be robust against degenerate
+matrices. See Higham 8.5 and 9.12.
+
+Pivoting doesn't change the original problem because we can apply the same
+(inverse) permutations to the resulting solution or response.
+
+For a resilient solution, one should use the SVD.
+See [[https://people.maths.ox.ac.uk/trefethen/text.html][Trefethen and Bau's Numerical Linear Algebra]]. The SVD will naturally
+find the minimum-norm solution, and stably at that.
+
+Multiple times above we were unable to use the augmented matrix \[X_A\] because
+pivoting routines can destroy ordering, whereas it's important that the response
+is the last column.
+
+A note on pivoting. Note that Gram pivoting procedures will identify decompositions
+that are permutation-similar, e.g., \[P^\top X^\top X P= LL^\top\] for a permutation \[P\].
+In LAPACK, this permutation \[P\] is returned as an array of integer indices \[\mathbf{p}\]
+such that the nonzero elements of \[P\] are its \[p_ii\]-th entries. 
+
+QR will return \[X = Q R P^\top\]. In practice, it's important to keep in mind that
+the permutation matrix is unitary, so \[P^{-1}=P^\top\], and can be inverted by
+initializing an array \[\mathbf{q}\] with the \[p_i\]-th entry set to \[i\] in linear time.
+Note that right-multiplication by a permutation matrix "selects columns" from the matrix on the left,
+and that left-multiplication "selects rows" from the matrix on the right. However, the "selection" is
+made by columns of the permutation matrix when right-multiplying but rows when left-multiplying.
+
+Put more concretely, if \[\Pi_1,\Pi_2\] are permutation matrices such that the \[j\]-th column
+of \[\Pi_i\] has its unique nonzero in the \[p_j^{(i)}\]-th row, (so \[P\] would correspond to
+\[\mathbf{p}\] from before and \[P^{-1}\] to \[\mathbf{q}\]), then for a conformable matrix \[A\], the result
+\[\Pi_1 A \Pi_2\] can be expressed with numpy indexing as any of the following,
+where \[\mathbf{q}^{(i)}\] is the inverse permutation of \[\mathbf{p}^{(i)}\]:
+
+\[A[:, \mathbf{p}^{(2)}][\mathbf{q}^{(1)}, :]\]
+\[A[\mathrm{np.ix\_}(\mathbf{q}^{(1)}, \mathbf{p}^{(2)})]\]
+\[A[:, \mathbf{p}^{(2)}].T[:,\mathbf{p}^{(1)}].T\]
+
+Suppose we're interested in only
+retaining the \[r\] "most orthogonal" columns of \[X\].
+With a compact SVD \[X=U\Sigma V^\top\] (so that for numerical rank \[r\],
+determined by cutting off singular values, \[U\] is \[n\times r\],
+\[\Sigma\] is \[r\times r\], and \[V\] is \[p\times r\]), singular values \[\sigma_j\], and column vectors \[\mathbf{u}_i,\mathbf{v}_j\] of \[U,V\],
+the \[k\]-th column of \[X\] is \[\sum_i \sigma_iv_{ki}\mathbf{u}_i\]. Since \[U\] is
+orthonormal this really amounts to choosing an \[r\]-column submatrix of
+the \[r\times p\] matrix \[\Sigma V^\top\] with the smallest condition number.
+Unfortunately, this seems like a [[https://mathoverflow.net/questions/104803/optimizing-the-condition-number][tough problem in general]], but a viable
+approach is just to use RRQR (rank-revealing QR, which has multiple variants,
+including [[https://math.berkeley.edu/~mgu/MA273/Strong_RRQR.pdf][QR with pivoting]]). Nonetheless, the SVD's singular value stability
+could be used to reliably diagnose rank deficiency in the worst case.
+
+*** 11.10 Computing the Hat Matrix Diagonals
+
+Recall that for a projection matrix \[P=X(X^\top X)^{-1}X^\top\] its diagonals
+\[\mathrm{diag} P\], whose \[i\]-th entry is denoted \[h_i\] are useful for diagnostics
+(though note that centering may obscure such diagnostics; see the references of
+the [[Standardization, Centering, and Scaling]] discussion above).
+
+Given factorizations, it's a matter of some algebra to derive, e.g., 
+given a Cholesky factor \[L\], \[h_i=\|L^{-1}\mathbf{x}_i\|_2^2\]. For thin QR,
+\[P=QQ^\top\], which is expensive to generate completely, but observing that the
+\[h_i\] is then the square norm of the \[i\]-th row of \[Q_p\], which with
+Householder does require generating such rows, which still requires \[O(np)\]
+per row if generated on the fly (e.g., in a distributed manner), else \[O(np^2)\]
+if generating the full matrix in a high-memory, non-distributed manner.
+
+*** 11.11 Calculating Test Statistics
+
+These are largely calculated by plugging into the formula.
+
+The more interesting case is the variant for constrained 
+regression, in which case the incremental update formula derived
+from optimizing the Lagrangian on Equation 3.38 simplifies
+when decompositions are known (see p382).
+
+*** 11.12 Robust Regression Calculations
+
+**** L1 Regression
+
+L1 Regression is a linear program, so such packages can be applied.
+
+**** M-estimation
+
+M and GM can in some cases (GLMs) be solved iteratively via iteratively reweighted
+least squares, [[https://en.wikipedia.org/wiki/Iteratively_reweighted_least_squares][IRLS]], which uses WLS as a subroutine. See [[http://bwlewis.github.io/GLM/][this site]] for IRLS intro.
+
+This amounts to approximate Newton iteration, namely Fisher scoring,
+discussed in a [[The Special Exp-Linear Variance Case][previous section]]. Fisher scoring is exactly Newton iteration
+for canonical links.
+
+Of course, regular Newton-Raphson works too.
+
+**** High-breakdown methods
+
+For cases like LTS/LMS, fitting methods are very slow. Practical approaches
+start with randomized subsets of the data that correspond to the active
+residuals in the LTS/LMS objectives and then greedily improve those subsets.
+
+Interestingly, no mention of using MCD directly. I wonder what would happen
+if we used \[\boldsymbol\beta = C(X)^{-1}(X^\top -\mathbf{1}T(X)^\top)\mathbf{y}\]
+where \[C\] is a stable covariance estimator and \[T\] is a stable center estimator.
+
+
+
