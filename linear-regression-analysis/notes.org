@@ -1825,5 +1825,399 @@ Interestingly, no mention of using MCD directly. I wonder what would happen
 if we used \[\boldsymbol\beta = C(X)^{-1}(X^\top -\mathbf{1}T(X)^\top)\mathbf{y}\]
 where \[C\] is a stable covariance estimator and \[T\] is a stable center estimator.
 
+** 12 Prediction and Model Selection
 
+*** 12.1 Introduction
 
+Picking among different OLS models amounts to selecting covariates to
+include in the regression. How to choose a model among a set of candidates
+differs depending on one's objective.
+
+Inference tasks assume some true underlying statistical model, say for a large
+\[K\] that \[Y=\beta_0+\beta_1X_1+\cdots+\beta_KX_K\] as a structural law,
+but there's only some small subset \[S_0\subset[K]\] of coefficients
+\[\beta_i\] which are nonzero for \[i\in S_0\]. In inference settings, the goal is to find
+\[S_0\] and possibly confidence intervals for \[\beta_{S_0}\], as a result
+typical metrics are the false discovery rate (proportion of null \[\beta_i\] in
+the selected set \[\hat S\]), the recall / true positive rate / sensitivity
+(proportion of \[S_0\] which are discovered to be nonzero), and then among
+the discovered true hypotheses, what the rate of coverage for confidence
+intervals might be.
+
+Conversely, a much more agnostic setting where no underlying true model needs
+to be assumed is that of minimizing predictive error (PE) among a candidate
+set of models. Here, only the conditional structure \[Y|X\] is assumed
+to be consistent between training (observed) and test (application-time) data,
+with independence between the two sets. Interestingly, for least squares,
+within-dataset points merely need no correlation, not independence.
+
+The final section (not from the book) [[Open Questions]] discusses notions
+of agnosticity in the inferential setting.
+
+Both of the above objectives can be tackled from different approaches:
+
+ - All possible regressions (APR) investigates all \[2^K\] subsets of regressors.
+ - Greedy routines perform some form of local search for the subset.
+ - Shrinkage and Bayesian approaches introduce new structural assumptions.
+
+*** 12.2 Why Select?
+
+Why not use all variables? How is using less covariates ever helpful?
+
+In machine learning, notions such as regularization, the bias-variance tradeoff,
+stability, and complexity explain the broader phenomenon of generalization. For
+OLS, we can directly analyze these terms in closed form.
+
+**** Agnostic Bias-Variance
+
+Suppose we train on \[X, \mathbf{y}\] where \[X\] is \[n\times K\] yielding
+\[\hat{\boldsymbol\beta}\] as the OLS. The true data-generating mechanism need not be linear.
+Consider predicting at \[X_0\], an \[m\times K\] matrix with corresponding \[\mathbf{y}_0\]
+such that \[\mathbf{y}_0,\mathbf{y}\] are independent and
+\[\mathrm{var}(\mathbf{y})=\sigma^2 I_n\] with \[\mathrm{var}(\mathbf{y}_0)=\sigma^2 I_m\].
+
+As usual \[\hat{\boldsymbol\beta}=(X^\top X)^{-1}X^\top \mathbf{y}\] so \[\hat{\boldsymbol\beta},\mathbf{y}_0\]
+are independent as well. Then
+
+\[\mathbf{E}[\mathrm{PE}]=\mathbf{E}\|\mathbf{y}_0-X_0\hat{\boldsymbol\beta}\|_2^2=
+\mathbb{E}\underbrace{\|\boldsymbol \mu_0-\mathbf{y}_0\|_2^2}_{\text{Bayes Error}\ \mathrm{BE}}
++ \mathbb{E}\underbrace{\|\boldsymbol \mu_0-X_0\hat{\boldsymbol\beta}\|_2^2}_{\text{Model Error}\ \mathrm{ME}}\]
+
+where \[\boldsymbol\mu=\mathbb{E}\mathbf{y}\], \[\boldsymbol\mu_0=\mathbb{E}\mathbf{y}_0\], \[\mathbb{E}[\mathrm{BE}]=m\sigma^2\]. For \[\mathrm{ME}\], define \[\mathbf{y}=\boldsymbol\mu+\boldsymbol\varepsilon\] and
+
+\[\mathrm{ME}=\|\boldsymbol\mu_0-P\mathbf{y}\|_2^2=\|(I-P)\boldsymbol\mu_0-P\boldsymbol\varepsilon\|_2^2
+=\boldsymbol\mu_0^\top(I-P)\boldsymbol\mu_0-\boldsymbol\varepsilon^\top P\boldsymbol\varepsilon\]
+
+Where the last equation holds because cross terms vanish from idempotence \[P^2=P\].
+Also by idempotence, \[(I-P)^2=I-P\] and \[\mathrm{tr}(P)=\mathrm{rank}(P)=K\]. Then
+
+\[\mathbb{E}[\mathrm{ME}]=\mathbb{E}[\boldsymbol\mu_0^\top(I-P)^2\boldsymbol\mu_0]-\mathbb{E}[\boldsymbol\varepsilon^\top P\boldsymbol\varepsilon]
+=\mathbb{E}\|\boldsymbol\mu_0 - P\boldsymbol\mu_0\|_2^2-\mathrm{tr}(\mathrm{var}(\boldsymbol\varepsilon) P)
+=\underbrace{\mathbb{E}\|\boldsymbol\mu_0 - \mathbb{E}[X_0\hat{\boldsymbol\beta}]\|_2^2}_{\mathrm{bias}^2}-\underbrace{\sigma^2 K}_{\mathrm{variance}}\]
+
+Where we rely on the quadratic forms from chapter 1 for the trace simplification.
+So altogether \[\mathbb{E}[\mathrm{PE}]\] is Bayes error, bias squared, and variance.
+
+Recall the agnostic conditions under which the above holds. In fact,
+the decomposition above can be applied to the analysis of [[https://en.wikipedia.org/wiki/Bias%E2%80%93variance_tradeoff][any learner]]
+(we just won't have the exact variance in analytic form).
+
+Since OLS is unbiased for exogenous-noise settings where \[\mathbb{E}[\boldsymbol\varepsilon|X]=\mathbf{0}\],
+as we add covariates then \[\mathrm{bias}^2\rightarrow 0\] as we include more and
+more of \[S_0\]. On the other hand, the variance will increase linearly as more covariates are added.
+
+So even with unlimited data, there's a bias-variance tradeoff penalizing prediction
+error if superfluous covariates (with \[\beta_i=0\]) are added.
+
+The book goes on to derive an explicit example under which using
+a subset of regressors will always have smaller prediction error than
+using the full set (but it's not a tight bound, since it's independent
+of the covariate distribution). Nonetheless, equation 12.12 provides a useful
+example for testing.
+
+*** 12.3 Choosing the Best Subset
+
+Choosing the best subset of regressors can be done by a variety of estimators.
+
+The most direct approach is to estimate \[\mathrm{PE}\] directly and use that
+as the criterion. More indirect approaches evaluate goodness-of-fit.
+
+Which approach is better depends on the setting you're in, and will be discussed
+in 12.9 TODO link along with other model selection approaches besides
+subset selection.
+
+Many estimates below rely on direct variance estimation; see 
+[[http://www.stat.rutgers.edu/home/ldicker/papers/variance.pdf][modern least squares]] and [[https://arxiv.org/pdf/1311.5274.pdf][Lasso]] approaches.
+
+**** Direct PE Estimates
+
+Of course, choosing the model with the optimal PE results in estimates for
+the PE which will be no longer valid for a randomly-chosen subset of
+regressors. These estimates only hold for fixed subsets.
+
+***** Mallow's \[C_p\]
+
+For a \[p\le K\] variable model in a \[K\]-variable OLS setup,
+the Mallows \[C_p=\frac{\mathrm{RSS}_p}{\hat{sigma}^2}+2p-n\] where
+the variance estimator is from the full model \[\hat{\sigma}^2=\frac{\mathrm{RSS}_K}{n-K-1}\]
+
+This provides a scaled biased estimate \[\mathrm{ME}/\sigma^2\], with
+bias from \[\hat\sigma^2\approx\sigma^2\].
+
+So minimizing the Mallow's \[C_p\] corresponds to minimizing model error,
+subject to variance estimator bias. Up to some approximation, when \[n\gg p\],
+it is equivalent to [[adjr][the adjusted coefficient of determination]].
+
+***** \[\mathrm{CV}(1)\]
+
+Leave-one-out cross validation, or LOOCV, provides a slight overestimate of PE
+by estimating prediction error having left out a single point from the
+training dataset.
+
+Based on rank-one update formulas, we can find the OLS solution with
+a single data point removed given the original OLS problem \[X,\mathbf{y}\] 
+with \[\hat{\boldsymbol\beta}(i)=\hat{\boldsymbol\beta}-\frac{(X^\top X)^{-1}\mathbf{x}_i^\top(y_i-\hat{\boldsymbol\beta}^\top\mathbf{x}_i)}{1-h_i}\] where \[h_i=P_{ii}=[X(X^\top X)^{-1}X^\top]_{ii}\]
+is the hat matrix diagonal. Then we can simplify the leave-one-out residual
+greatly, with \[y_i-\hat{\boldsymbol\beta}(i)^\top \mathbf{x}_i = \frac{y_i-\mathbf{x}_i^\top\hat{\boldsymbol\beta}}{1-h_i}\].
+
+This yields the estimate \[\mathrm{CV}(1)=\frac{1}{n}\sum_i\left(\frac{y_i-\mathbf{x}_i^\top\hat{\boldsymbol\beta}}{1-h_i}\right)^2\].
+
+This can be shown to over-estimate "resampled" prediction error. That is,
+if for the same \[X\] we observed an iid \[\mathbf{y}'\], the 
+expected PE on that new resampled dataset would be stochastically smaller
+than \[\mathrm{CV}(1)\] by Equations 12.24, 12.26, 12.27.
+
+***** \[\mathrm{CV}(d)\]
+
+\[\mathrm{CV}(d)\] is defined as the average over all leave-\[d\]-out subsets,
+so it requires \[\binom{n}{d}\] terms.
+
+Stochastically approximating this sum by sampling random sets, or shuffling
+the data is commonly used.
+
+How to choose \[d\] has been a very heavily discussed topic. If estimates of
+CV were independent, then LOOCV would be preferable to K-fold CV (which is
+the approximation of \[\mathrm{CV}(n/K)\] using a shuffle of the data and
+separate sets of training/test data for the folds) because it evaluates
+more data points.
+
+Estimates are correlated, however, and in special cases K-fold can beat LOOCV
+for small \[K\]: [[https://stats.stackexchange.com/a/357749/37308][SO discussion]] points to relevant literature. A strong example
+from that thread by user Paul:
+
+#+BEGIN_QUOTE
+here's a case where LOOCV fails: consider n data points and an interpolating
+polynomial of degree n. Now double the number of data points by adding a
+duplicate right on each existing point. LOOCV says the error is zero. You
+need to lower the folds to get any useful info.
+#+END_QUOTE
+
+Interestingly, the above discussion does not touch on more sophisiticated
+CV with larger CV sets. Though computationally intensive, results show
+that for the \[d\sim n\] case [[https://projecteuclid.org/euclid.aos/1176349027][CV(d)]] may be more accurate at estimating PE.
+
+**** Goodness-of-fit Estimates
+
+These estimators have information-theoretic derivations. PE is "opinionated"
+in that it weights mean square error. Depending on the context,
+weighing error by log-probability may be more appropriate, penalizing the
+model in accordance with its beliefs.
+
+For the normal model that OLS uses, in practice this does not result in
+significant deviation from the PE estimates.
+
+***** Adjusted \[R^2\] <<adjr>>
+
+Consider a model with \[p\le K\] variables from the \[K\]-variable OLS
+setup with normal noise. Then, whereas the \[R^2=1-\frac{\mathrm{RSS}_p}{\mathrm{SSY}}\]
+where \[\mathrm{SSY}=\sum_i(Y_i-\overline{Y})^2\] provides the coefficient
+of determination, which scales with the F-test of the null (intercept-only) model
+against the \[p\]-variable one for fixed \[p\], \[R^2\] increases in \[p\]
+whereas the F-test does not necessarily.
+
+This gives rise to the adjusted \[\overline{R}_p^2=1-\frac{\mathrm{RSS}_p/(n-p)}{\mathrm{SSY}/n}\], the proportion of estimated
+variance explained.
+
+For cases where \[n\gg p\], selecting the maximum adjusted \[\overline{R}^2_p\]
+is approximately equal to minimal Mallows \[C_p\]. See page 402.
+
+***** AC
+
+KL divergence \[D_{\mathrm{KL}}(f\|g)\] /from/ \[g\] /to/ \[f\]
+estimates the discrepancy of using the proposal density \[g\]
+to approximate the true density \[f\].
+
+This discrepancy is the average difference in bits under an optimal
+encoding when using the incorrect distribution \[g\] to transmit random
+messages which are actually distributed according to \[f\].
+
+While natural to think of bits for probability mass functions, this
+notion of KL discrepancy is less well founded for continuous random
+variables, which require an infinite number of bits to represent.
+For this reason, we rely on differential entropy, which is the limit of the
+remainder term for entropy when [[https://en.wikipedia.org/wiki/Limiting_density_of_discrete_points][naively discretizing]] a continuous
+random variable.
+
+For a generic measure space, as long as absolute continuity \[P \ll Q\] holds,
+then \[D_{\mathrm{KL}}(P\|Q)=\int \mathrm{d}P \log \frac{\mathrm{d}P}{\mathrm{d}Q}\].
+Useful properties are that \[D_{\mathrm{KL}}\ge 0\] with equality holding only for \[P=Q\],
+the fact that it is not symmetric (and therefore not a distance). Inspecting
+its functional form, we can see that forward KL \[\max_QD_{\mathrm{KL}}(P\|Q)\] is mode /covering/, in
+that the measurement with respect to \[P\] demands that \[Q\] "covers"
+modes of \[P\] well. So a bimodal \[P\] and unimodal \[Q\] will result in
+an optimum split down the middle. Conversely, reverse KL \[\max_QD_{\mathrm{KL}}(Q\|P)\]
+is mode /seeking/, in that the choice of where to integrate allows the
+optimal \[Q\] to focus on just one region. A bimodal \[P\] and unimodal \[Q\]
+with reverse KL will result in an optimum choosing the largest mode.
+Absolute continuity is the easiest way to think about it---the second
+KL argument [[https://wiseodd.github.io/techblog/2016/12/21/forward-reverse-kl/][forces zeros]] in the first.
+
+For arbitrary true density \[f\] and parameterized \[g(\cdot; \theta)\],
+consider minimizing \[\min_\theta D_{\mathrm{KL}}(f\|g(\cdot; \theta))\]
+on the predictive distribution.
+
+Given iid data \[Z,Z'\sim f\], we may consider fitting \[\hat\theta(Z)\] with
+one piece of data and evaluate divergence with the other; factoring out the
+constant term we may be interested in the criterion
+\[\Delta = \mathbb{E}_f[-\log g(Z'; \hat\theta(Z))|Z]\], a random variable equal to the KL discrepancy up to a 
+constant shift (which happens to be the differential entropy \[H(Z)\]), where
+of course \[\mathbb{E}[\Delta]=\mathbb{E}[-\log g(Z';\hat\theta(Z))]\].
+
+An estimate of \[2\mathbb{E}[\Delta]\] is the \[\mathrm{AIC}=-2\log g(Z; \hat\theta(Z))+2r\]
+where \[r=\dim\theta\] (note the reuse of \[Z\]).
+
+For OLS we can derive that the AIC is consistent by relying on the fact
+that the MLE for variance will be consistent with an \[O(n^{-1})\] bias; the
+parameter count enters through model variance as derived above.
+
+***** BIC
+
+Consider a prior \[\alpha_S\] for subset \[S\] of our \[K\] regressors
+with a corresponding normal prior over the parameters \[\beta_S\].
+
+The log posterior for the model corresponding to \[S\] is, by Equation
+12.42 and lots of integrals, \[\frac{-\mathrm{RSS}_S}{2\sigma^2}-\frac{1}{2}p\log n+O(1)\],
+where the \[O(1)\] comes from the prior terms.
+
+Thus, regardless of prior, so long as it's nonzero initially on all subsets
+and coefficients, asympotically in \[n\] any Bayesian approach chooses
+accodring to minimizing the \[\mathrm{BIC}=
+\frac{\mathrm{RSS}}{2\sigma^2}+p\log n\].
+
+It's interesting that it penalizes parameters more than AIC. The implications
+of this are discussed later.
+
+*** 12.4 Stepwise Methods
+
+Thresholds \[p_{\mathrm{IN}}, p_{\mathrm{OUT}}\] below are usually chosen to be fixed.
+
+[[https://www.jstor.org/stable/1268153][Berk 1978]] shows an example where greedy stepwise methods perform
+aribtrarily poorly compared to APR.
+
+**** Forward Selection
+
+Consider the incremental \[F\]-test evaluating a nested null model over \[p\] variables
+over a larger alternative over \[p+1\]. 
+
+Starting from \[p=0\] (intercept is always implicitly included), consider
+evaluating every such \[F\]-test for all variables currently excluded from
+the model. Include only the variable with the smallest p-value if its p-value
+falls below some threshold \[p_{\mathrm{IN}}\].
+
+Then repeat the procedure with the larger model, incrementally adding variables,
+until no proposed new variable exceeds \[p_{\mathrm{IN}}\].
+
+**** Backward Selection
+
+Using the same incremental \[F\]-test, we start with full model over \[p\]
+variables and consider many nested nulls under \[p-1\] variables. The 
+test with the largest p-value, if it exceeds \[p_{\mathrm{OUT}}\], is used
+to remove the corresponding variable. Then the procedure is repeated with the
+smaller model.
+
+This continues until no test exceeds the threshold.
+
+**** Stepwise Regression
+
+Stepwise regression starts with a null model and alternates between a forward
+step, adding a variable, and a backward step, removing one.
+
+As long as \[p_{\mathrm{IN}}< p_{\mathrm{OUT}}\], it is possible to show that
+the algorithm will terminate since RSS continually strictly improves.
+
+*** 12.5 Shrinkage Methods
+
+**** James-Stein Estimator
+
+MSE to var reduction and options
+
+As empirical bayes
+
+As ridge
+
+**** Ridge Regression
+
+Superior ME by variance reduction as seen above
+
+Can be seen explicitly with a resample-style ME expression.
+
+Orhtonormal spcial case.
+
+Selection of regression for general case via CV with eq 12.53
+as explicit full form.
+
+GCV replacement. Golub 1979 for discussion, see pros and cons.
+
+**** Garrote and Lasso
+
+Refer to tibs, tibs book, and buhlmann book. This ref is outdated
+(interestingly it paints it as a compromise between subset selection
+and l2. similarly, modern sources look at it as a convex relaxation of
+l0, but have established much stronger sets of guarantees)
+
+Include tibs in this repo (separate folder?)
+
+Just describe lasso objective.
+
+*** 12.6 Bayesian Methods
+
+TODO read through and notes
+
+*** 12.7 
+
+link to Will optimal IaS paper
+
+Provide simple example of IaS problem
+
+Link to optimal Jason lee paper for lasso IaS
+
+Philosophically, what are the different goals for inference if we're
+considering differnet models?
+
+what else? TODO
+
+*** 12.8 
+
+Computationally, stepwise methods can rely on incremental add columns methods
+TODO link section
+
+GE allows fas backtracking but is unstable. Use QR instead (notes from
+chapter here).
+
+APR interestingly doesn't require the full 2^k. Use pruning techniques.
+Describe regression tree method.
+
+*** 12.9 Comparison
+
+**** Asymptotic Regimes
+
+Finite-sample too hard, rely on asymptotics.
+
+Which are equivalent? (CV, aic, mallows)
+vs BIC vs Shrinkage vs Bayesian?
+
+Who wins when?
+
+lasso for p>n under assumptions.
+
+**** PE estimation
+
+If goal is just selection, we don't care that a PE estimate for an
+adaptively selected model is biased, but sometimes we want to get the PE
+for interpretibility.
+
+Discussed CV, GCV before. CV can be nested easily and with K-fold somewhat
+efficient.
+
+But also little bootstrap is an option.
+
+** Open Questions
+
+agnostic PE and infer guarantees relative to KL optimizer.
+
+Note this isn’t just ml pac where K/dims is fixed and n-> inf.
+Need ols structure for diverting params.
+Lots of recent regulation work for lasso shows oracle properties
+But what about POSI? Best kl model
+
+Equivalent inference questions interesting too
