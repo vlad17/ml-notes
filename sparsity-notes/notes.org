@@ -1,0 +1,27 @@
+[[https://projecteuclid.org/euclid.aos/1176325766][Foster and George 1994]] shows that \[\ell_0\] regression gives the oracle
+rate \[\sigma^2 k/n (4\log p)\] for OLS where the solution is \[k\]-sparse and
+\[(4 \log p)\] is the factor payed for doing the search. They also show that this
+is optimal in a minimax sense up to a factor of \[2\].
+
+But, \[\ell_0\] is NP-complete to compute. That doesn't stop us from trying with
+industrial solvers, but it's unclear if we would want the best-subset solution anyway
+in high-noise settings. See [[https://projecteuclid.org/euclid.aos/1458245736][Bertsimas et al 2016]] for elaboration here.
+
+[[https://www.jstor.org/stable/3647580][Zou and Hastie 2005]] show that using elastic net you can get some wins for dealing with
+correlated inputs, it has a grouping effect where equicorrelated inputs are pulled in
+to the active set together.
+
+Lasso is unique under [[https://projecteuclid.org/euclid.ejs/1369148600][general position condition]], which is implied by full-rank.
+
+Geometrical intuition and LASSO path algorithm (i.e., a lasso-specialized LARS,
+which is distinct from LARS). They're all interlinked:
+
+ - By KKT and nuclear norm duality, Lasso solution is constrained to \[\boldsymbol\beta\] solutions within an \[\ell_\infty\] ball
+ - This yields the geometric lasso solution condition \[X\hat{\boldsymbol\beta}=(I-P_C)y\] where
+   \[P_C\] projects onto \[C=\{u|\|X^\top u\|_\infty\le \lambda\}\].
+
+Thus as \[\lambda\] shrinks from infinity, which yields the null solution, the LARS algorithm
+traces out the projection solution from the growing polygon \[C\].
+
+Wider discussion about implementation, for GLMs too, is available in this [[https://www.jstatsoft.org/article/view/v033i01][glmnet writeup]].
+In fact, there's little reason to prefer LARS to coordinate descent now.

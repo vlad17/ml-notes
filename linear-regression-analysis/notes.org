@@ -1948,7 +1948,7 @@ So minimizing the Mallow's \[C_p\] corresponds to minimizing model error,
 subject to variance estimator bias. Up to some approximation, when \[n\gg p\],
 it is equivalent to [[adjr][the adjusted coefficient of determination]].
 
-***** \[\mathrm{CV}(1)\]
+***** \[\mathrm{CV}(1)\] <<cv1>>
 
 Leave-one-out cross validation, or LOOCV, provides a slight overestimate of PE
 by estimating prediction error having left out a single point from the
@@ -2129,35 +2129,63 @@ the algorithm will terminate since RSS continually strictly improves.
 
 **** James-Stein Estimator
 
-MSE to var reduction and options
+The James-Stein estimator for the mean of a normal \[\mathbf{y}\sim N(\boldsymbol\mu, \sigma^2 I)\]
+(such as one that might come from an OLS model) can be derived by inspecting MSE.
 
-As empirical bayes
+The minimum-variance unbiased estimator is just \[\mathbf{y}\] (check via Cramer-Rao
+lower bound or Gauss-Markov with identity design).
 
-As ridge
+But if we allow biased estimates trading of bias and variance, say
+by considering a downscaled estimate \[\tilde{\boldsymbol\mu}=\mathbf{y}c\]
+for \[0<c<1\], then the MSE is given by \[\mathbb{E}\|\tilde{\boldsymbol\mu}-\boldsymbol\mu\|_2^2=c^2\sigma^2n + (1-c)^2\|\boldsymbol\mu\|_2^2\]
+where \[\dim \mathbf{y}=n\].
+
+The optimal choice from the MSE Perspective is then
+\[c_*=1-\frac{n\sigma^2}{n\sigma^2+\|\boldsymbol\mu\|_2^2}\]
+
+which unfortunately relies on the unknown quantity \[\|\boldsymbol\mu\|_2^2\].
+Using various estimates for this value itself, such as \[\|\mathbf{y}\|_2^2-n\sigma^2\],
+results in different flavors of James-Stein estimators.
+
+Repeating the MSE analysis for the OLS case, where we're estimating the mean
+the mean of \[\hat{\boldsymbol\beta}\sim N(\boldsymbol\beta, \sigma^2(X^\top X)^{-1})\]) also yields a class of JS estimators, which is
+results in \[c\hat{\boldsymbol\beta}\]. Note that this is different from ridge,
+which penalizes spherically. These differences can be inspected through
+a Bayesian lens, where James-Stein becomes an empirical Bayes estimator through
+the noise estimate \[\sigma^2(X^\top X)^{-1}\] derived from the data.
+
+[[https://www.jstor.org/stable/1268284][Draper and Nostrand 1979]] discuss.
 
 **** Ridge Regression
 
-Superior ME by variance reduction as seen above
+Ridge regression penalizes the OLS, yielding an estimator \[\hat{\boldsymbol\beta}(\lambda)=(X^\top X+\lambda I)^{-1} X^\top \mathbf{y}\].
+It can be motivated as the maximum a posteriori estimate under 
+a spherical Gaussian prior for the coefficients or through
+direct analysis of the "resampled" \[\mathrm{ME}\], as done for CV estimation.
+The expectation of the modeling error (before the data \[\mathbf{y}\] is seen)
+can be shown to have a negative derivative for small positive values of
+\[\lambda\] (see Equations 12.52), indicating James-Stein-like MSE reduction.
 
-Can be seen explicitly with a resample-style ME expression.
+Choosing \[\lambda\], one can rely \[n\] LOOCV estmates, which admit a
+closed form from the previous [[cv1][CV]] formula based on the modified
+projection \[P_\lambda = X(X^\top X + \lambda I)^{-1}X^\top\].
 
-Orhtonormal spcial case.
-
-Selection of regression for general case via CV with eq 12.53
-as explicit full form.
-
-GCV replacement. Golub 1979 for discussion, see pros and cons.
+Generalized cross-validation is based on the observation that while the
+ridge loss is invariant to rotation of the original problem to \[RX, R\mathbf{y}\],
+LOOCV is not. Under some smoothness assumptions on the true underyling function,
+this can be slightly more efficient, but asymptotically
+the estimators are equivalent anyway.
 
 **** Garrote and Lasso
 
-Refer to tibs, tibs book, and buhlmann book. This ref is outdated
-(interestingly it paints it as a compromise between subset selection
-and l2. similarly, modern sources look at it as a convex relaxation of
-l0, but have established much stronger sets of guarantees)
+Lasso has come a long way since this book was written. Lasso introduces
+a different regularization term \[\frac{1}{n}\|\mathbf{y}-X\boldsymbol\beta\|_2^2+\lambda\|\boldsymbol\beta\|_1\]
+unlike the \[\ell_2\] norm for Ridge.
 
-Include tibs in this repo (separate folder?)
+[[/sparsity-notes][Sparsity notes]] provide a great overview.
 
-Just describe lasso objective.
+[[https://www.springer.com/gp/book/9783642201912][Bühlmann and van de Geer]] provide a theoretical text and
+[[https://web.stanford.edu/~hastie/StatLearnSparsity/][SLS]] provides a more application-oriented introduction.
 
 *** 12.6 Bayesian Methods
 
@@ -2221,3 +2249,4 @@ Lots of recent regulation work for lasso shows oracle properties
 But what about POSI? Best kl model
 
 Equivalent inference questions interesting too
+
