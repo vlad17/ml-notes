@@ -2189,7 +2189,26 @@ unlike the \[\ell_2\] norm for Ridge.
 
 *** 12.6 Bayesian Methods
 
-TODO read through and notes
+This section introduces the usual spiel about Bayesian approaches and
+choosing from a set of models via MAP.
+
+We can view Bayesian methods pragmatically, as a way of injecting prior
+information or making computations tractable.
+
+The interesting part comes in when triggering disagreement
+between frequentist and Bayesian approaches [[https://en.wikipedia.org/wiki/Lindley%27s_paradox][Lindley's paradox]]
+is one such example.
+
+Such situations can be fixed to a certain degree by a choice of
+[[https://stats.stackexchange.com/questions/20520][uninformative prior]].
+
+Though it is a lengthy discussion, there are two important philosophical points
+to make on Bayes vs frequentist. Under regularity conditions on an
+estimation problem, admissible (dominating) decision procedures 
+are equivalent to some (possibly improper) [[https://en.wikipedia.org/wiki/Admissible_decision_rule#Admissibility_of_(generalized)_Bayes_rules][Bayesian rule]]. Impropriety may
+require giving up some of the Bayesian interpretation. In some cases,
+no prior is necessary (when a minimax procedure is available), but in others
+the Bayesian approach can improve on an austere frequentist setting.
 
 *** 12.7 
 
