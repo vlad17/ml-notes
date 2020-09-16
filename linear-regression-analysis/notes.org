@@ -2210,18 +2210,34 @@ require giving up some of the Bayesian interpretation. In some cases,
 no prior is necessary (when a minimax procedure is available), but in others
 the Bayesian approach can improve on an austere frequentist setting.
 
-*** 12.7 
+*** 12.7 Effect of Model Selection on Inference
 
-link to Will optimal IaS paper
+Trying to construct confidence intervals on coefficients for an OLS
+model determined by some selection will result in significant deviation
+from theoretical guarantees.
 
-Provide simple example of IaS problem
+This is because the data is being used to choose the model, and coefficients
+which are likely to be selected by a subset selection routine will already
+be more likely to be significant, even though they may just have fit to noise.
 
-Link to optimal Jason lee paper for lasso IaS
+In fact, philosophically, it's unclear what inference of some submodel
+defined by a subset of coefficients \[\beta_M\] means when \[M\] is random
+and dependent on the data.
 
-Philosophically, what are the different goals for inference if we're
-considering differnet models?
+The typical interpretation is that some procedure (e.g., APR with LOOCV)
+selects \[M\]. Then, if \[M\] was taken for granted as the true statistical
+model, then what is a CI for the coefficients? The answer to this quesion
+is described in [[https://arxiv.org/abs/1410.2597][Optimal Inference after Selection]] for details.
 
-what else? TODO
+A simple solution is to split data: do model selection on one half of the
+data and do inference on the other. This may waste data, and can be fixed
+by adjusting null distributions to account for the probability of selection.
+Less wasteful approaches ("data carving") must be carefully developed
+based on the selection procedure, e.g., see [[https://arxiv.org/abs/1311.6238][this lasso IaS approach]].
+
+A frequentist approach that treated \[M\] as a parameter would be forced to
+take an austere position, where the union of CIs must be chosen across
+the models \[M\]. Let's revisit this idea in [[Open Questions]] with POSI.
 
 *** 12.8 
 
