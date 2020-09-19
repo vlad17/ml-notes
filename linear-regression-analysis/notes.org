@@ -1923,8 +1923,7 @@ The most direct approach is to estimate \[\mathrm{PE}\] directly and use that
 as the criterion. More indirect approaches evaluate goodness-of-fit.
 
 Which approach is better depends on the setting you're in, and will be discussed
-in 12.9 TODO link along with other model selection approaches besides
-subset selection.
+in the last section.
 
 Many estimates below rely on direct variance estimation; see 
 [[http://www.stat.rutgers.edu/home/ldicker/papers/variance.pdf][modern least squares]] and [[https://arxiv.org/pdf/1311.5274.pdf][Lasso]] approaches.
@@ -2241,47 +2240,156 @@ the models \[M\]. Let's revisit this idea in [[Open Questions]] with POSI.
 
 *** 12.8 
 
-Computationally, stepwise methods can rely on incremental add columns methods
-TODO link section
+Stepwise methods can be implemented by taking a classical OLS fit algorithm
+and applying rules to add variables, discussed in the section
+[[Adding and Deleting Cases and Variables]] above.
 
-GE allows fas backtracking but is unstable. Use QR instead (notes from
-chapter here).
+For APR, this still results \[2^K\] adds/deletes which is quite expensive.
 
-APR interestingly doesn't require the full 2^k. Use pruning techniques.
-Describe regression tree method.
+**** Operate on active submatrices
+
+While the GE approach allows for a very simple implementation, which can
+be further improved with various significant constant-factor optimizations
+(see [[https://www.tandfonline.com/doi/abs/10.1080/00401706.1972.10488918][Morgan and Tatar]]), it is still unstable.
+
+E.g., naively applying
+GE sweeping would require storing the full \[K^2\] matrix, with full sweeps
+on addition/removal of variables. By maintaining only the active submatrix
+in a regression, we can reduce the active working memory by about half on
+average.
+
+**** Regression Trees
+
+We can frame APR search as a tree search, where the /full/ \[K\]-variable
+model is fitted first. Then since RSS only decreases as new variables are added,
+certain criteria such as AIC can be upper bounded.
+
+E.g., if we know that the model with coefficients \[M_1=\{1, 2, 3\}\] has AIC \[a_1\]
+and another model with coefficients \[M_2=\{4, 5, 6\}\] has an AIC greater than \[a_1+2\] then no
+2-variable submodel of \[M_2\] (e.g., \[\{4, 5\}\]) will improve AIC (this works since AIC uses a single
+variance estimate \[\hat\sigma^2\] across all models).
+
+Of course, this can be generalized. For AIC, given any two explored models \[M_1,M_2\]
+with AICs \[a_1,a_2\] and parameter count \[p_1,p_2\], any submodel \[M_3\] of \[M_2\]
+with \[p_3\] variables will be dominated by \[M_1\] if \[a_1\le a_2 - 2(p_2-p_3)\], and
+vice-versa as well for submodels of \[M_1\].
+
+This can also be extended to similar selection routines like BIC by changing the coefficient
+\[\log n\].
+
+**** Modern Research
+
+A very exciting recent line of work essentially attacks the above problem by
+[[https://arxiv.org/abs/1507.03133][APR to MIP]] (Mixed Integer Programming) reduction. This is still an exp-time algorithm,
+but modern solvers are quite efficient. Advanced forms of clause learning
+in [[https://en.wikipedia.org/wiki/DPLL_algorithm][DPLL]]-like routines may learn problem-specific cutoff rules like those
+described in [[Regression Trees]]. This approach scales to moderate (\[n,p\] in the thousands)
+problems.
+
+Curiously, in very high dimensional settings, actually outperforms best-subset selection
+on inference tasks, [[https://arxiv.org/abs/1707.08692][recent work]] shows that in low signal-to-noise settings shrinkage, which
+makes optimization easier, is also statistically helpful. Further [[https://arxiv.org/abs/1803.01454][research]] shows
+how we cn blend the two approaches.
 
 *** 12.9 Comparison
 
 **** Asymptotic Regimes
 
-Finite-sample too hard, rely on asymptotics.
+Between regularization, information-based criteria, Bayesian methods,
+prediction-estimation criteria, what should we actually use to select
+our models?
 
-Which are equivalent? (CV, aic, mallows)
-vs BIC vs Shrinkage vs Bayesian?
+Analyzing finite-\[n\] settings is challenging, but asymptotic
+approaches provide insight. They reveal crucial phase changes
+as we explore different regimes. As \[n\rightarrow \infty\], how does
+the number of considered covariates \[K\] change, assuming the true model
+is OLS on some subset \[S_0\] of the \[K\] coefficients?
 
-Who wins when?
+***** \[K\] fixed, infer \[S_0\]
 
-lasso for p>n under assumptions.
+If the number of inputs \[K\] is fixed, as \[n\rightarrow \infty\], 
+the "frequentist approaches"  t\[C_p\], \[\mathrm{CV}(1)\], and \[\mathrm{AIC}\] are asymptotically
+equivalent and consistently overfit, selecting a model with a
+superset of parameters \[S\supset S_0\] with probability 1.
 
-**** PE estimation
+This isn't as bad as it sounds in the book, though! By a simple procedure,
+we can use \[\mathrm{AIC}\]-like criteria on half the data to select
+regressors and then confidence intervals generated from the other half
+to select \[S_0\] with probability 1 at the cost of some efficiency.
 
-If goal is just selection, we don't care that a PE estimate for an
-adaptively selected model is biased, but sometimes we want to get the PE
-for interpretibility.
+On the other hand, \[\mathrm{BIC}\], and therefore all Bayesian approaches
+with prior coverage, converges to \[S_0\] with probability 1, but in practice
+this means that in finite settings we can over-penalize, omitting relevant
+variables along the way.
 
-Discussed CV, GCV before. CV can be nested easily and with K-fold somewhat
-efficient.
+Experiments show that for \[\mathrm{CV}(d)\] with \[d\sim n\], or at least
+the stochastic approximation to that procedure, practically outperforms
+other approaches like \[\mathrm{CV}(1)\].
 
-But also little bootstrap is an option.
+Another hot take not discussed in the book is [[https://projecteuclid.org/euclid.aos/1369836961][POSI]], which corrects
+confidence intervals for _any_ model selection procedure. Unfortunately,
+this is of course quite a conservative approach.
 
-** Open Questions
+***** \[K\] fixed, minimize \[\mathrm{PE}\]
 
-agnostic PE and infer guarantees relative to KL optimizer.
+The main question with optimizing prediction error criteria
+\[\hat{\mathrm{PE}}\] estimated from the data (for selecting regularization constants or optimal
+subsets) is that the parameter optimum \[\hat s =\mathrm{argmin}_s\hat{\mathrm{PE}}(s)\] isn't guaranteed to
+be the optimum of the true prediction error \[\mathrm{PE}\].
 
-Note this isn’t just ml pac where K/dims is fixed and n-> inf.
-Need ols structure for diverting params.
-Lots of recent regulation work for lasso shows oracle properties
-But what about POSI? Best kl model
+However, in their most general form, such \[\mathrm{argmin}\] estimators
+tend to be well-behaved. In our setting, the parameter \[s\] lives in a small
+space (and in fact the normal noise is not tail-heavy so even if \[s\] was in
+a large space we still wouldn't be in trouble). Then the
+[[https://www.stat.berkeley.edu/~aditya/resources/FullNotes210BSpring2018.pdf][Argmax Continuous Mapping Theorem]] applies, so most smooth estimators
+\[\hat{\mathrm{PE}}\] with a unique minimizer will lead to the asymptotically
+correct optimum \[\hat s\].
 
-Equivalent inference questions interesting too
+***** \[K\] not fixed, infer \[S_0\]
 
+This setting is very hard :)
+
+[[/sparsity-notes][Sparsity notes]] are a better place to discuss.
+
+***** \[K\] not fixed, minimize \[\mathrm{PE}\]
+
+Here, lasso really shines. For even settings where \[K\sim n\], so both
+go to infinity at the same rate, the machinery described above can be
+[[https://statistics.berkeley.edu/sites/default/files/tech-reports/797.pdf][extended]] under (to be fair, stringent) assumptions on the covariates.
+
+Without lasso, we need the more restrictive rate \[K^2\sim n\] shown by
+[[https://projecteuclid.org/euclid.aos/1176346793][Portnoy]]. Lasso still works in such settings with a smaller regularization
+constant, these are its "slow rates" and don't require the same covariate
+assumptions mentioned above.
+
+Modern work explores various phase changes \[K^\alpha\sim n\] as \[\alpha\] varies
+from 1 to larger numbers, in terms of other statistical properties of the problem
+such as the signal-to-noise ratio (which is typically some variant of \[\|X\boldsymbol\beta\|/\|\boldsymbol\varepsilon\|\]).
+
+***** Agnostic setting
+
+An interesting regime is that of trying to estimate models where the true model
+isn't guaranteed to be an OLS of the subset of the \[K\] regressors.
+
+This yields fundamental epistemological questions about model fitting in these settings
+in the first place. If we just care about finding a model which minimizes
+PE, then the machinery for M-estimation above works just the same: we'll be able
+to find, in the limit, a model which optimizes prediction error.
+
+Other criteria may also work, we could in sufficiently regular settings have
+asymptotic confidence intervals for the coefficients of the model-which-minimizes
+KL divergence from the real distribution, whatever it may be.
+
+***** Little Bootstrap
+
+The book end on discussion of the little bootstrap, which is a bootstrap approach
+for estimating PE which its author argues results in better approximations
+\[\mathrm{PE}(\hat s)\approx \hat{ \mathrm{PE}}(s)\] in practice than other PE
+estimation approaches.
+
+It's interesting. Nowadays, everyone uses stochastic approximations to
+\[\mathrm{CV}(d)\] (i.e., regular K-fold cross validation). Given the strong
+theoretical results about M-estimation, the type of PE estimator probably
+matters very little, and the more exciting question comes down to computational
+concerns. The little bootstrap, for instance, has analytical limiting solutions
+called tiny bootstraps for ridge regression. I may explore those sometime.
