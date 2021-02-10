@@ -1,0 +1,195 @@
+* Lagrangian Duality
+
+Following Chapter 5 of Convex Optimization.
+
+** Definitions
+
+All problems will be assumed in *standard form*. For some \[x\in\mathbb{R}^n\]
+
+\[\min f_0(x)\,\mathrm{s.t.}\,\forall i\in[m]\,f_i(x)\le 0\,,\forall j\in[p] \,h_j(x)=0\]
+
+I.e., \[f_0\] is the objective, we have \[m\] inequality constraints, and \[p\] equality constraints.
+
+The domain for the problem \[\mathcal{D}\] is the set on which all of these functions are defined. Note
+this is distinct from the feasible, set, which restricts \[\mathcal{D}\] further to the set of points
+matching the inequality and equality constraints.
+
+Note the problem need not be convex.
+
+The *Lagrangian function* for a standard form mathematical program. It is defined as a function \[L:\mathbb{R}^n\times\mathbb{R}^m\times \mathbb{R}^p\rightarrow\mathbb{R}\] as
+\[L(x, \lambda, \nu)=f_0(x)+\lambda^\top f(x)+\nu^\top h(x)\], viewing \[f,h\] as vector-valued functions over the
+inequality and equality constraints, respectively.
+
+The Lagrangian *dual function* is just \[g(\lambda, \nu)=\inf_x L(x, \lambda, \nu)\] with inputs \[\mathrm{R}^m\times\mathbb{R}^p\]
+and technically taking values over \[-\infty, \mathbb{R}\] for nonempty \[\mathcal{D}\].
+
+Regardless of the convexity of the original problem, by the linear dependence of \[L\] on \[\lambda,\nu\],
+as an infimum of affine functions \[g\] is always concave.
+
+** Lagrangian as Linear Constraint Relaxation
+
+Notice that \[U=\min f_0(x)+\sum_i I_{-}\circ f_i(x)+\sum_i I_{0}\circ h_j(x)\] is identical to
+the original standard form program, where \[I_{-}(u)=\begin{cases}0 &u<0\\\infty &\text{o/w}\end{cases}\] and \[I_0\] is analogous for \[0\].
+
+This unconstrained equivalent program can be relaxed with linear constraints. For \[\lambda_i\ge 0\],
+\[\lambda_i f_i(x)<I_{-}\circ f_i(x)\] for feasible \[x\], as \[f_i\le 0\] when feasible. And for all \[\nu_j\] and feasible \[x\], \[\nu_j h_j(x)\le I_0\circ h_j(x)\].
+
+Thus a Lagrange function can be viewed as a linear relaxation of constraints encoded
+in the objective. Taking the infimum over all \[x\in\mathcal{D}\] then also gives us
+weak duality, namely if the solution to the original standard form program is \[p^*\] that
+\[g(\lambda, \nu)\le U=p^*\] for \[\lambda>0\]. Taking a supremum over the dual function arguments
+is *weak duality*.
+
+** Weak Duality
+
+Weak duality is the fact that \[d^*\le p^*\], always, for the dual program \[d^*=\sup g(\lambda, \nu)\] over
+dual feasible points \[\lambda\ge 0,\nu\in\mathbb{R}^p\].
+
+This follows per the reasoning above.
+
+It also means that we can get *certificates*, which are dual feasible solutions \[\tilde\lambda, \tilde\nu\]
+that the lower bound \[p^*\] with \[g(\tilde\lambda, \tilde \nu)\].
+
+Such certificates are helpful when the original problem (the *primal problem* is tough to solve,
+in which case we can propose guesses for approximate solutions, e.g., with random search, and then
+just check how close they are to the optimal solution). If the *duality gap* \[p^*-d^*\] is small
+and we have a good certificate then \[g(\tilde\lambda,\tilde\nu)\approx d^*\approx p^*\] (where left to right the values increase)
+so we can use \[f_0(x)-g(\tilde\lambda,\tilde\nu)\] as a proxy upper bound for how close we are to
+optimality in practice.
+
+** The Dual Problem
+The dual function, by virtue of being an infimum, can frequently be written as \[g(\lambda,\nu)=\begin{cases} h(\lambda,\nu) & (\lambda,\nu)\in S\\
+-\infty & \text{o/w}\end{cases}\]
+for some set \[S\] by solving the \[\inf\] analytically. Often in such situations,
+\[S\] is isomorphic under \[\phi\] to a space \[S'\] of much lower dimension than \[m+p\]. In that case, we can view
+a *Lagrangian dual problem* to our original primal program as the program \[\max_{y\in S'} h\circ\phi^{-1}(y)\].
+
+Computationally, this may be advantageous. Note now we can still view \[y\in S'\] as feasible and thus
+certificates because mathematically we are maximizing a lower bound.
+
+Note that this /modified/ Lagrangian dual problem, /may or may not/ be convex. Even though
+the Lagrangian dual /function/ is always concave, on the lower-dimensional manifold we might cast
+the dual problem in may no longer be convex. As an example of this is visible by taking the trust 
+region problem below, a non-convex program with strong duality and a convex dual.
+
+Going /the other way/, from the convex dual, recovers a Lagrangian which can be modified to recover
+the original primal.
+
+** Strong Duality
+
+Strong Duality holds when \[d^*=p^*\].
+
+Often, but not always, strong duality holds for convex problems, where \[f_0, f_i\] and optimization domain
+are convex.
+
+Things can be similarly variable for non-convex problems, though those often fail to have strong duality.
+
+Note some gotchas (see [[Examples]])
+ - Convex doesn't imply efficiency, which is a structural property of \[f_0,f_i,h_j\].
+ - Convex and strong duality don't always go hand-in-hand.
+
+** Geometric Interpretation
+
+The Geometric Interpretation surfaces much intuition about the dual problem (see [[geometric.pdf][Geometric]] notes):
+
+ - The dual is /structurally/ tied to the primal. Notice how programs \[(f_0,f_i,h_j)\] and \[(f_0, 1\land f_i,h_j)\] have identical feasible sets and primal optima. However, their duals are very different. /A dual relies on constraint function values outside the feasible set/.
+ - The above fact can be of computational interest: it means to solve a primal we can use dual information about "how much a constraint is broken".
+ - *Complimentary slackness*, that \[\lambda_i^*f_i*(x^*)=0\] at optimality, follows from geometry
+ - *Slater's Constraint Qualification*, that for convex programs if there is any strictly feasible point \[x\in\mathrm{relint} \mathcal{D}\] with \[f_i(x)<0\] for nonlinear \[f_i\], then strong duality holds, follows from geometry.
+
+** Convex Conjugates
+
+Convex conjugates are a core concept in Fenchel duality, which describe a function in terms of its
+supporting hyperplanes.
+
+Consider a function \[f\] and a slope \[m\]. Following [[https://math.stackexchange.com/questions/223235/please-explain-the-intuition-behind-the-dual-problem-in-optimization/624633#624633][this SO answer]], suppose for some intercept \[\alpha\]
+the hyperplane \[\langle m,  x\rangle -\alpha\le f(x)\] is dominated by \[f\]. Here the intercept tells us exactly how much
+the homogenous plane \[\langle m, x\rangle \] must be downshifted to support \[f\]. We can thus
+compute the smallest such shift (such that the hyperplane supports \[f\]) by rearranging and
+taking a supremum, \[\alpha \ge \sup_x \langle m, x\rangle - f(x)=\alpha^*\], say.
+
+This is the convex conjugate: \[f^*(m)=\alpha^*\].
+
+This is also known as the Fenchel transformation. As a supremum of affine functions, the convex
+conjugate is always itself convex, regardless of the convexity of \[f\].
+
+From this intuitive perspective, \[f^*\] characterizes the /epigraph/ of \[f\] through its
+supporting hyperplanes. For /convex/ functions \[f\], their epigraph is itself convex and thus
+characterized by the intersection of supporting half-spaces.
+
+This can lead us to one (sufficient, but not necessary and thus incomplete) view of strong duality,
+described below in the [[Involution and Fenchel Duality]] section.
+
+Even beyond their use as theoretical instruments, convex conjugates show up naturally in deriving
+Lagrangian dual problems with linear constraints. This is because the Lagrangian of 
+
+\[\min_x f_0(x) \,\text{s.t.}\, A x\le b\,,\, Cx=d\]
+
+is given by 
+
+\[g(\lambda, \nu)=\inf_x f_0(x)+\lambda^\top (Ax -b)+\nu ^\top (Cx-d)=-b^\top\lambda -d^\top \nu -f_0^*(-A^\top \lambda - C^\top \nu)\]
+
+See [[Examples]] of Lasso and SVM.
+
+** Examples
+
+TODO add all examples
+
+See the following PDF files for worked examples of dual problems derived from primal ones.
+ - [[least_squares.pdf][Least Squares]], convex with strong dual
+ - [[linear_programs.pdf][Linear Programs]], convex with strong dual (notably, linear programs are always strongly dual, except when both [[https://en.wikipedia.org/wiki/Dual_linear_program#Infeasible_program][primal and dual]] are infeasible).
+ - [[two_way_partition.pdf][Two-Way Partition]], a non-convex problem with a weak dual and convex dual problem
+ - [[non_convex_to_convex_reduction.pdf][Non-convex to Convex Reduction]], a reduction showing non-convex can be cast as convex problems, showing convex problems can be computationally expensive to solve.
+ - [[trust_region.pdf][Trust Region]], a non-convex problem with a strong dual (norm optimization)
+ - svm -- TODO
+ - lasso -- TODO
+ - an example of a convex problem without strong duality is in the [[geometric.pdf][Geometric]] notes.
+
+** optimality conditions
+
+(TODO continue from 5.5 optimality conditions)
+
+
+** Involution and Fenchel Duality
+
+One frustrating thing in all of the above discussion is that there isn't a satisfying notion of what
+"the" dual for a problem is.
+
+We've seen that duality is a structural property of a program per the bullet in [[Geometric Interpretation]].
+
+What this means is that it's not sensible to ask, abstractly, for the dual optimization over a set,
+e.g., \[\min_{x\in C} f(x)\]. This is equivalent to unconstrained \[\min f'\], extending \[f'=f+\delta_C\] where \[\delta_C(x)=\begin{cases}0&x\in C\\\infty & \text{o/w}\end{cases}\] .
+Clearly this purely functional interpretation of optimization is missing some piece of duality.
+Let's call such formulations "narrow programs".
+
+Indeed, a dual only emerges when we specify a perturbation function \[\phi(x, y)\], which
+satisfies \[\phi(x, 0)=f'(x)\], but otherwise \[\phi\] is free. Then the interpretation of \[y\]
+is as a perturbation of our constraints. It specifies the degree of slack we need for the constraints
+to be met, and in turn provides a geometry for the dual space. 
+
+Thus, for the same narrow program we can specify multiple perturbations (equivalently, characterizations
+oft he constraint set) and thus multiple duals.
+
+For \[\phi\] defined over topologically regular spaces, [[https://en.wikipedia.org/wiki/Fenchel%E2%80%93Moreau_theorem][Fenchel–Moreau theorem]] characterizes
+when the dual of the dual is the primal, which is the involutive property that makes
+the primal and dual true mirrors of one another. This also implies strong duality.
+TODO -- why? https://en.wikipedia.org/wiki/Duality_gap
+
+Notably, involution is sufficient, but not necessary, for strong duality. TODO -- example?
+Trust Region again?
+
+https://math.stackexchange.com/questions/948862/fenchel-dual-vs-lagrange-dual
+https://en.wikipedia.org/wiki/Fenchel%E2%80%93Moreau_theorem
+https://math.stackexchange.com/a/624633/38471
+https://math.stackexchange.com/a/2264853/38471
+
+All of this is to say when people talk about "the" dual for an optimization problem,
+they're talking about the one implied by adding slack variables to some sort of general
+inequality that their current program uses (thus implicitly defining a perturbation function).
+
+For instance the [[https://en.wikipedia.org/wiki/Semidefinite_programming][SDP]] has positive-semidefinite inequalities \[X\succeq 0\] which admit natural perturbations
+\[X+Y\succeq 0\]. In principle, we could rewrite the SDP in dot-product form, possibly changing the dual
+because of different perturbations.
+
+The most abstract form of such inequalities I'm aware of is generic [[https://math.stackexchange.com/a/2287265/38471][convex cone]] partial inequalities,
+so anything of this form can get duals generated "easily".
