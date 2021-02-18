@@ -131,6 +131,11 @@ is given by
 
 See [[Examples]] of Lasso and SVM.
 
+TODO -- convex conjugates notes http://www.seas.ucla.edu/~vandenbe/236C/lectures/conj.pdf
+https://math.stackexchange.com/questions/3706312/convex-conjugate-of-composition-with-non-invertible-linear-transform
+http://archive.control.lth.se/media/Education/DoctorateProgram/2015/LargeScaleConvexOptimization/Lectures/conj_fcn.pdf
+http://niaohe.ise.illinois.edu/IE521/IE521-lecture-7-convex%20conjuate.pdf
+
 ** Examples
 
 TODO add all examples
@@ -142,7 +147,7 @@ See the following PDF files for worked examples of dual problems derived from pr
  - [[non_convex_to_convex_reduction.pdf][Non-convex to Convex Reduction]], a reduction showing non-convex can be cast as convex problems, showing convex problems can be computationally expensive to solve.
  - [[trust_region.pdf][Trust Region]], a non-convex problem with a strong dual (norm optimization)
  - svm -- TODO
- - lasso -- TODO
+ - [[lasso.pdf][Lasso]], which admits two distinct duals, similar to these [[https://www.cs.ubc.ca/~schmidtm/Documents/2008_Notes_LassoDual.pdf][online notes]], but consider more general cases and don't drop constants between primal/dual.
  - an example of a convex problem without strong duality is in the [[geometric.pdf][Geometric]] notes.
 
 ** optimality conditions
