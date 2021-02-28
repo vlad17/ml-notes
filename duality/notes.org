@@ -146,7 +146,7 @@ See the following PDF files for worked examples of dual problems derived from pr
  - [[two_way_partition.pdf][Two-Way Partition]], a non-convex problem with a weak dual and convex dual problem
  - [[non_convex_to_convex_reduction.pdf][Non-convex to Convex Reduction]], a reduction showing non-convex can be cast as convex problems, showing convex problems can be computationally expensive to solve.
  - [[trust_region.pdf][Trust Region]], a non-convex problem with a strong dual (norm optimization)
- - svm -- TODO
+ - [[svm.pdf][SVM]], a classic convex QP example where duality provides possible speedup through the kernel trick.
  - [[lasso.pdf][Lasso]], which admits two distinct duals, similar to these [[https://www.cs.ubc.ca/~schmidtm/Documents/2008_Notes_LassoDual.pdf][online notes]], but consider more general cases and don't drop constants between primal/dual.
  - an example of a convex problem without strong duality is in the [[geometric.pdf][Geometric]] notes.
 
