@@ -88,6 +88,14 @@ Note some gotchas (see [[Examples]])
  - Convex doesn't imply efficiency, which is a structural property of \[f_0,f_i,h_j\].
  - Convex and strong duality don't always go hand-in-hand.
 
+To the first point, note that any problem can easily be made convex: simply
+define a new variable and constraint \[f_0(x)\le \gamma\] and minimize \[\gamma\].
+
+As an affine objective, its optimum is unchanged if we replace the feasible set
+with its convex hull. This yields an equivalent program with the same optimal
+value that's convex. One can recover decision variables with a bisection routine
+on top of this widened set (up to a certain precision), in polynomial time.
+
 ** Geometric Interpretation
 
 The Geometric Interpretation surfaces much intuition about the dual problem (see [[geometric.pdf][Geometric]] notes):
@@ -117,7 +125,7 @@ From this intuitive perspective, \[f^*\] characterizes the /epigraph/ of \[f\] t
 supporting hyperplanes. For /convex/ functions \[f\], their epigraph is itself convex and thus
 characterized by the intersection of supporting half-spaces.
 
-This can lead us to one (sufficient, but not necessary and thus incomplete) view of strong duality,
+This can lead us to a (convex-only) view of strong duality,
 described below in the [[Involution and Fenchel Duality]] section.
 
 Even beyond their use as theoretical instruments, convex conjugates show up naturally in deriving
@@ -131,24 +139,22 @@ is given by
 
 See [[Examples]] of Lasso and SVM.
 
-TODO -- convex conjugates notes http://www.seas.ucla.edu/~vandenbe/236C/lectures/conj.pdf
-https://math.stackexchange.com/questions/3706312/convex-conjugate-of-composition-with-non-invertible-linear-transform
-http://archive.control.lth.se/media/Education/DoctorateProgram/2015/LargeScaleConvexOptimization/Lectures/conj_fcn.pdf
-http://niaohe.ise.illinois.edu/IE521/IE521-lecture-7-convex%20conjuate.pdf
+Useful links for convex conjugates
+
+ - [[http://www.seas.ucla.edu/~vandenbe/236C/lectures/conj.pdf][Conjugate Construction Rules]]
+ - [[https://math.stackexchange.com/questions/3706312/convex-conjugate-of-composition-with-non-invertible-linear-transform][Convex Conjugate Composition]], [[http://archive.control.lth.se/media/Education/DoctorateProgram/2015/LargeScaleConvexOptimization/Lectures/conj_fcn.pdf][in depth]]
+ - [[http://niaohe.ise.illinois.edu/IE521/IE521-lecture-7-convex%20conjuate.pdf][More examples]]
 
 ** Examples
 
-TODO add all examples
-
 See the following PDF files for worked examples of dual problems derived from primal ones.
- - [[least_squares.pdf][Least Squares]], convex with strong dual
- - [[linear_programs.pdf][Linear Programs]], convex with strong dual (notably, linear programs are always strongly dual, except when both [[https://en.wikipedia.org/wiki/Dual_linear_program#Infeasible_program][primal and dual]] are infeasible).
- - [[two_way_partition.pdf][Two-Way Partition]], a non-convex problem with a weak dual and convex dual problem
- - [[non_convex_to_convex_reduction.pdf][Non-convex to Convex Reduction]], a reduction showing non-convex can be cast as convex problems, showing convex problems can be computationally expensive to solve.
- - [[trust_region.pdf][Trust Region]], a non-convex problem with a strong dual (norm optimization)
+ - [[http://www.princeton.edu/~aaa/Public/Teaching/ORF523/ORF523_Lec5.pdf][Linear Programs]], convex with strong dual (notably, linear programs are always strongly dual, except when both [[https://en.wikipedia.org/wiki/Dual_linear_program#Infeasible_program][primal and dual]] are infeasible).
+ - [[https://www.di.ens.fr/~aspremon/PDF/MVA/ApplicationsOne.pdf][Two-Way Partition]] a non-convex primal with a weak and convex dual problem
+ - [[https://doi.org/10.1137/0805016][Trust Region]], a non-convex problem with a strong dual
  - [[svm.pdf][SVM]], a classic convex QP example where duality provides possible speedup through the kernel trick.
  - [[lasso.pdf][Lasso]], which admits two distinct duals, similar to these [[https://www.cs.ubc.ca/~schmidtm/Documents/2008_Notes_LassoDual.pdf][online notes]], but consider more general cases and don't drop constants between primal/dual.
  - an example of a convex problem without strong duality is in the [[geometric.pdf][Geometric]] notes.
+ - Last section of these [[https://www.cse.iitk.ac.in/users/rmittal/prev_course/s14/notes/lec16.pdf][IIT notes]] gives two jointly dual problems with a nonzero duality gap.
 
 ** optimality conditions
 
@@ -177,16 +183,13 @@ oft he constraint set) and thus multiple duals.
 
 For \[\phi\] defined over topologically regular spaces, [[https://en.wikipedia.org/wiki/Fenchel%E2%80%93Moreau_theorem][Fenchel–Moreau theorem]] characterizes
 when the dual of the dual is the primal, which is the involutive property that makes
-the primal and dual true mirrors of one another. This also implies strong duality.
-TODO -- why? https://en.wikipedia.org/wiki/Duality_gap
+the primal and dual true mirrors of one another. This also implies strong duality,
+by using both sides of the weak dual. [[https://en.wikipedia.org/wiki/Duality_gap][Duality gap]].
 
-Notably, involution is sufficient, but not necessary, for strong duality. TODO -- example?
-Trust Region again?
+Notably, involution characterizes convex strong duality.
 
-https://math.stackexchange.com/questions/948862/fenchel-dual-vs-lagrange-dual
-https://en.wikipedia.org/wiki/Fenchel%E2%80%93Moreau_theorem
-https://math.stackexchange.com/a/624633/38471
-https://math.stackexchange.com/a/2264853/38471
+ - [[https://math.stackexchange.com/questions/948862/fenchel-dual-vs-lagrange-dual][Fenchel Dual vs Lagrange Dual]]
+ - [[https://math.stackexchange.com/a/624633/38471][Dual problem via supporting hyperplanes]]
 
 All of this is to say when people talk about "the" dual for an optimization problem,
 they're talking about the one implied by adding slack variables to some sort of general
@@ -198,3 +201,7 @@ because of different perturbations.
 
 The most abstract form of such inequalities I'm aware of is generic [[https://math.stackexchange.com/a/2287265/38471][convex cone]] partial inequalities,
 so anything of this form can get duals generated "easily".
+
+** Generic Conic Optimization
+
+TODO 5.9 notes
