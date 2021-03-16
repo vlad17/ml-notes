@@ -137,7 +137,9 @@ is given by
 
 \[g(\lambda, \nu)=\inf_x f_0(x)+\lambda^\top (Ax -b)+\nu ^\top (Cx-d)=-b^\top\lambda -d^\top \nu -f_0^*(-A^\top \lambda - C^\top \nu)\]
 
-See [[Examples]] of Lasso and SVM.
+See [[Examples]] of Lasso and SVM. Note that the above can also manifest when the objective or constraints
+are of the form \[f_i(Ax-b)\] in which case introducing a new variable exposes structure of the constraints
+into the problem, giving rise to new conjugates appearing in the dual (and possibly a more useful dual).
 
 Useful links for convex conjugates
 
@@ -156,10 +158,80 @@ See the following PDF files for worked examples of dual problems derived from pr
  - an example of a convex problem without strong duality is in the [[geometric.pdf][Geometric]] notes.
  - Last section of these [[https://www.cse.iitk.ac.in/users/rmittal/prev_course/s14/notes/lec16.pdf][IIT notes]] gives two jointly dual problems with a nonzero duality gap.
 
-** optimality conditions
+** KKT Optimality Conditions
 
-(TODO continue from 5.5 optimality conditions)
+For problems which are possibly non-convex but differentiable, the smooth KKT conditions on a primal \[x^*\]
+point and its duals \[\lambda^*,\nu^*\] are:
 
+1. primal feasibility \[f_i(x^*)\le 0,h_j(x^*)=0\].
+2. dual feasibility \[\lambda_i^*\ge 0\]
+3. complementary slackness \[\lambda_i^*x_i^*=0\]
+4. stationarity \[\nabla_{x}L(x,\lambda^*,\nu^*)\big|_{x=x^*}=0\]
+
+In this setting, strong duality implies that the optimum must meet the smooth KKT conditions:
+\[\mathrm{SD}\implies(\mathrm{opt\ at}\ x^*\implies\mathrm{smooth\ KKT\ at}\ x^*)\]
+
+For convex problems, we instead have access only to the subgradient \[\partial L\], which replaces
+the \[\nabla\] yielding a set-like stationarity condition \[0\in\partial(x\mapsto L(x,\lambda^*, \nu^*))\].
+
+However, with convex problems, we have a stronger relationship:
+\[\mathrm{SD}\implies (\mathrm{opt\ at}x^*\iff\mathrm{cvx\ KKT\ at}x^*)\]
+
+Note bidirectionality here.
+
+** Sensitivity Analysis
+
+The perturbed problem of our original standard form problem is
+\[\min f_0(x)\,\mathrm{s.t.}\,\forall i\in[m]\,f_i(x)\le u_i\,,\forall j\in[p] \,h_j(x)=v_j \]
+
+
+We can define the optimum under the above perturbations \[(u, v)\] as \[p^*(u,v)\].
+
+When the original problem is convex so is \[p^*\].
+
+*** Global Sensitivity Inequality
+
+Under strong duality, assuming the dual optimum is attained, we have a global sensitivity inequality
+\[p^*(u,v)\ge p^*(0,0)-\langle \lambda^*, u\rangle-\langle \nu^*, v\rangle\], which follows from expansion
+of the Lagrangian, strong duality, and the definition of the dual.
+
+Note that this provides a clean interpretation of the Lagrangian parameters (but they always go
+in "worse" directions; i.e., you never get to find out when \[p^*\] improves by getting lower.
+
+For example, if \[\lambda_i^*\] is large and we tighten \[u_i\] by lowering it to a negative value,
+then \[p^*\] will increase significantly. On the other hand, if \[\lambda_i^*\] is small and
+we loosen \[u_i\] by increasing it we won't improve \[p^*\] by much; however, the vice-versa statements
+do not hold. We cannot with confidence say when \[p^*\] will improve by much.
+
+*** Local Sensitivity
+
+When \[p^*(u,v)\] is differentiable (which does not happen often and is not merely a consequence of
+differentiability of a standard form problem), then we have equalities
+\[\lambda_i^*=-\partial_{u_i}p^*(u,v)\big|_{(u,v)=0},\nu_i^*=-\partial_{v_i}p^*(u,v)\big|_{(u,v)=0}\]. In this differentiable case we do have that locally \[p^*\] has
+slope given by its Lagrange multiplier. This does give us at least local guaranteed decrease in \[p^*\]
+when loosening the problem (and a guarantee of non-increase for small Lagrange multipliers).
+
+** Implicit Constraints
+
+Sometimes, constraints can be encoded implicitly, i.e., replacing \[f_0\] with \[f_0(x) + \begin{cases}0&f_i(x)\le 0\\\infty & \text{o/w}\end{cases}\]
+to get rid of the \[i\]-th constraint. This is useful when the corresponding dual infimum \[\inf_{f_i\le0}f_0\]
+can be solved analytically, allowing for partial analytic knowledge to be encoded into the dual.
+
+** Theorems of Alternatives
+
+Consider the primal system of inequalities \[\{f_i(x)\le 0|i\in[m]\}\]. If there exists a linear combination
+of the constraints such that the infimum is strictly positive, i.e., \[\exists \lambda\ge 0\,g(\lambda)=\inf_x\lambda^\top f(x)>0\],
+then the latter statement /certifies/ that the primal system is infeasible; for if they
+ were the inf of the linear sum would not be strictly positive. Conversely, the existence of
+a feasible primal \[x\] implies non-positivity for any \[\lambda\ge 0\] of the dual.
+
+The above presents us with _weak alternatives_: at most one of the two systems are feasible.
+
+We can also consider stronger assumptions that yield _strong alternatives_: exactly one of the two
+systems must be feasible. For instance, by adding a Slater-type condition to the above, it can become
+a system of strong alternatives. The proof in the book skipped a step, see my notes [[strong-alternatives.pdf][Strong Alternatives]].
+
+We can view such Theorems of Alternatives about feasibility as a form of duality in a geometric setting.
 
 ** Involution and Fenchel Duality
 
