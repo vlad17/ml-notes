@@ -274,6 +274,10 @@ because of different perturbations.
 The most abstract form of such inequalities I'm aware of is generic [[https://math.stackexchange.com/a/2287265/38471][convex cone]] partial inequalities,
 so anything of this form can get duals generated "easily".
 
-** Generic Conic Optimization
+Section 5.9 recounts all of the above; it generalizes naturally the aforementioned Lagrangian duality.
+Even Slater's condition holds. The only caveat is that complimentary slackness for a general conic
+constraint \[f_i(x)\preceq_{K_i}0\] where \[K_i\] is a proper cone and \[x\succeq_K y\] implies \[x-y\in K\] for a cone \[K\]
+(since \[x\] is "bigger" than \[y\] in the "cone's direction")  where now \[\lambda_i^*\in K_i^*\], the dual cone
+having \[\langle \lambda_i^*, f_i(x)\rangle =0\] at optimality. This orthogonality condition does not imply that one is zero if the other is.
 
-TODO 5.9 notes
+Similar KKT conditions can be derived without too much modification.
