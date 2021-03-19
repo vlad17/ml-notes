@@ -269,15 +269,106 @@ inequality that their current program uses (thus implicitly defining a perturbat
 
 For instance the [[https://en.wikipedia.org/wiki/Semidefinite_programming][SDP]] has positive-semidefinite inequalities \[X\succeq 0\] which admit natural perturbations
 \[X+Y\succeq 0\]. In principle, we could rewrite the SDP in dot-product form, possibly changing the dual
-because of different perturbations.
+because of different perturbations (this is because any \[n\times n\] semi-definite matrix \[X\] can be written
+as the sum of \[n\] outer products of vectors \[v_i\in\mathbb{R}^n\].
+
+** General Conic Programming
+
+*** Cones
 
 The most abstract form of such inequalities I'm aware of is generic [[https://math.stackexchange.com/a/2287265/38471][convex cone]] partial inequalities,
 so anything of this form can get duals generated "easily".
 
 Section 5.9 recounts all of the above; it generalizes naturally the aforementioned Lagrangian duality.
-Even Slater's condition holds. The only caveat is that complimentary slackness for a general conic
-constraint \[f_i(x)\preceq_{K_i}0\] where \[K_i\] is a proper cone and \[x\succeq_K y\] implies \[x-y\in K\] for a cone \[K\]
-(since \[x\] is "bigger" than \[y\] in the "cone's direction")  where now \[\lambda_i^*\in K_i^*\], the dual cone
-having \[\langle \lambda_i^*, f_i(x)\rangle =0\] at optimality. This orthogonality condition does not imply that one is zero if the other is.
+Even Slater's condition holds. 
 
-Similar KKT conditions can be derived without too much modification.
+A set \[K\subset\mathbb{R}^n\] is a /proper cone/ if it is convex, closed, solid (i.e., nonempty interior),
+and salient/pointed (i.e., \[K\cap(-K)=\{0\}\]).
+
+Proper cones define partial orders, namely \[x\succeq_K y\], which intuitively mean that \[x\] is
+"more in the direction of the cone" than \[y\], but formally \[x-y\in K\]. The dual cone
+\[K^*\] to a cone \[K\] is the set of vectors positively correlated with all of \[K\]:
+\[K^*=\{x\in\mathbb{R}^n|\forall y\in K\,\langle x, y\rangle\}\] (note how this definition in principle can be extended to Hilbert spaces
+or even separate dual spaces). Note that for proper cones \[K\], \[K^{**}=K\] and \[K^*\] is proper.
+
+Common cones:
+
+ - norm cone :: \[K=\{(x,t)\in \mathbb{R}^{n+1}|\|x\|\le t\}\], \[K^*=\{(y,v)\in \mathbb{R}^{n+1}|\|y\|_*\le v\}\] is proper
+ - PSD cone :: \[K=K^*=\{X\in S^n|X\succeq 0\}\] is proper; note symmetric matrices \[S^n\] as the ambient Hilbert space
+ - nonnegative orthant :: \[K=K^*=\mathbb{R}^n_+\], the set of positive vectors, is self-dual.
+
+Dual cones admit a simple set of strong alternative inequalities:
+
+ - \[x\preceq_K y\] iff \[\lambda^\top x\le \lambda^\top y\] for all \[\lambda\succeq_{K^*}=0\].
+ - \[x\prec_K y\] iff \[\lambda^\top x< \lambda^\top y\] for all \[\lambda\succeq_{K^*}=0,\lambda\neq 0\].
+
+where above, the strict inequality \[x\prec_K y\] means \[y-x\in \mathrm{int}\,K\].
+
+*** Standard Cone Program
+
+We can now introduce *standard conic form*. For some \[x\in\mathcal{D}\subset\mathbb{R}^n\],
+
+\[\min f_0(x)\,\mathrm{s.t.}\,\forall i\in[m]\,f_i(x)\preceq_{K_i} 0\,,\forall j\in[p] \,h_j(x)=0\]
+
+where now \[f_i(x)\in \mathcal{H}_i\subset\mathbb{R}^{k_i}\], some possibly high-dimensional Hilbert
+space (which as far as practical optimizers are concerned can be embedded in the reals), and the
+cone \[K_i\] now defines a richer inequality for it.
+
+*** Properties of Conic Programs
+
+We now admit a conic Lagrange function with /vector/ \[\lambda_i\in\mathbb{R}^{k_i}\],
+\[L(x,\lambda, \nu)=f_0(x)+\sum_i\lambda_i^\top f_i(x)+\nu^\top h(x)\].
+
+As usual, the dual function \[g(\lambda, \nu)=\inf_{x\in\mathcal{D}}L(x,\lambda, \nu)\], from which weak duality follows immediately.
+
+**** Smooth KKT
+
+Similarly, we have for differentiable functions the KKT necessary conditions:
+
+1. primal feasibility \[f_i(x^*)\preceq_{K_i} 0,h_j(x^*)=0\].
+2. dual feasibility \[\lambda_i^*\succeq_{K_i} 0\]
+3. complementary slackness \[\langle \lambda_i^*,x_i^*\rangle =0\]
+4. stationarity \[\nabla_{x}L(x,\lambda^*,\nu^*)\big|_{x=x^*}=0\]
+
+Note there are important differences here from the scalar case: (1) complementary slackness
+is now merely an orthogonality condition and (2) we must have the /Jacobian/ of our inequality functions:
+\[\nabla_{x}L(x,\lambda^*,\nu^*)=\nabla f_0(x^*)+\sum_i J_{f_i}(x^*)^\top \lambda_i^* + \sum_j\nu_i^*\nabla h_i(x^*)\]
+
+**** Convex Conic Programs
+
+A conic problem is convex if its objective is convex, equality constraints are affine, and
+\[f_i\] is \[K_i\]-convex. Cone convexity is defined as you'd expect: \[f_i\] is \[K_i\]-convex if for \[\theta\in[0,1]\]:
+\[f_i(\theta x + (1-\theta)y)\preceq_{K_i}\theta f_i(x)+(1-\theta)f_i(y)\].
+
+Note that an equivalent characterization of \[K\]-convexity is just that
+\[K\]-convexity holds for \[f\] if \[w^\top f\] is plain old convex for all nonzero \[w\succeq_{K_i}0\]. 
+
+Note that not all convexity properties generalize. For instance, \[e^X\] is not matrix convex.
+Citation in BV for this is A. W. Marshall and I. Olkin. Inequalities: Theory of Majorization and Its
+Applications. Academic Press, 1979, page 474].
+
+Y. Nesterov and A. Nemirovskii. Interior-Point Polynomial Methods in Convex Programming.
+Society for Industrial and Applied Mathematics, 1994, page 156.
+
+**** Slater's Condition
+
+Strong duality also holds under similar conditions. One sufficient one is again Slater, where
+strict linear inequality is replaced by strict conic inequality, \[f_i(x)\prec_{K_i}0\], for convex conic
+problems.
+
+**** Convex KKT
+
+As before, in the convex case KKT is necessary and sufficient for optimality (if strongly dual).
+The BV book only reviews differentiable convex cones, but it appears that in principle a Jacobian-based
+generalization of the subdifferential could be possible (not sure though, in higher dimensions you might
+not be able to characterize \[K\]-convex functions this way).
+
+**** Others
+
+Analogous perturbation results and weak/strong alternatives hold as in the non-conic case.
+
+*** Conic Examples
+
+The real payoff of this investment in conics is more natural expression of certain programming problems:
+SDPs can be expressed in matrix rather than [[http://www.cs.toronto.edu/~avner/teaching/S5-2411/ln/lecture10.pdf][outer-product form]] (from the Vector Programming section).
+Examples 5.11, 5.13 in the BV book show SDPs along with their LMI dual.
