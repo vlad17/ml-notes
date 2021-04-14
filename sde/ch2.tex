@@ -1,0 +1,256 @@
+\documentclass{article}
+
+\title{Some Mathematical Preliminaries}
+\author{Vladimir Feinberg}
+
+\usepackage{fullpage}
+
+\input{defs}
+
+\begin{document}
+
+\maketitle
+
+\section{Probability Spaces, Random Variables and Stochastic Processes}
+
+This section introduces standard measure theoretic structures, all of which are pretty standard. A couple lemmas and theorems are provided, some of which are definition-related, such as
+\href{https://en.wikipedia.org/wiki/Doob%E2%80%93Dynkin_lemma}{Doob-Dynkin}
+for conditional expectation and \href{https://en.wikipedia.org/wiki/Kolmogorov_extension_theorem}{Kolmogorov Extension} to be able to construct stochastic processes with prescribed distributions on infinite spaces.
+
+\section{An Important Example: Brownian Motion}
+
+\begin{definition}[Brownian Motion]
+  Brownian Motion \(B_t\) is a \(\R^n\)-valued process over \([0,\infty)\) characterized by
+  \begin{enumerate}
+    \item origin: \(B_0=0\),
+    \item independent increments: for any \(t,h\ge 0\), \(B_{t+h}-B_{t}\independent \set{B_s}{s\le t}\)
+    \item Gaussian increments: for any \(t,h\ge 0\), \(B_{t+h}-B_{t}\sim N(\vzero, h I)\)
+    \item continuous sample paths \(t\mapsto B_t(\omega)\) for almost all \(\omega\in \Omega\).
+    \end{enumerate}
+  \end{definition}
+
+  The first three can be checked to yield existence of some process via Kolmogorov extension. Via \href{https://en.wikipedia.org/wiki/Kolmogorov_continuity_theorem}{Kolmogorov Continuity Theorem}, one can show that a continuous version of such a process exists.
+
+  \begin{theorem}[Kolmogorov's Continuity Theorem]
+    Suppose a stochastic process \(U_t\) on a separable, complete metric space with indices \(t\in S\subset\R^d\) satisfies
+    \[
+      \E\ha{d(U_x, U_y)^\alpha}\le C\|x-y\|^{d+\beta}\,\,.
+    \]
+    Then, \(U\) admits a continuous version over \(S\).
+    \end{theorem}
+
+The continuity theorem \href{https://almostsuremath.com/2020/10/20/the-kolmogorov-continuity-theorem/}{proof} looks essentially like \href{http://www.stat.yale.edu/~pollard/Books/Mini/Chaining.pdf}{chaining}.
+Many other characterizations exist for Brownian Motion, also called a \href{https://en.wikipedia.org/wiki/Wiener_process}{Wiener process}.
+
+\begin{definition}[Off-origin Brownian Motion]
+  Denote by \(\P^x\) and \(\E^x\) the laws of off-origin Brownian motion starting at \(B_0=x\).
+  \end{definition}
+
+
+\section{Exercises}
+
+\begin{theorem}[Law of the Unconscious Statistician, LOTUS]
+  Consider a rv \(X\) with measure \(\mu\). Then
+  \[
+    \E g(x) = \int g \d{X_*\P}
+  \]
+    \end{theorem}
+    \begin{proof}
+      By change of variables,
+      \[\E g(x)=\int_\Omega g(X)\d{\P}=\int_X g\d{X_*\P}\,\,,\]
+    \end{proof}
+
+    Though it seems like a simple one-step formula, LOTUS allows us to actually evaluate expectations. Written as a measure-theoretic expectation, \((X_*\P)(g)\) is defined as a limit of \href{https://en.wikipedia.org/wiki/Simple_function}{simple functions}. This, in turn, simplifies in most cases for Borel \(X\), which
+    \href{https://en.wikipedia.org/wiki/Lebesgue%27s_decomposition_theorem}{states}
+      that \(\mu=\mu_{\lambda}+\mu_{\delta}+\mu_{\mathrm{singular}}\), where \(\mu_\lambda\) is absolutely continuous with respect to the Lebesgue measure, \(\mu_\delta\) is atomic, and the remaining singular distribution \(\mu_{\mathrm{singular}}\) is quite exceptional: it's basically everything else, which is diffuse measures which admit no Borel subsets of positive Lebesgue measure. An example of the latter is the \href{https://en.wikipedia.org/wiki/Cantor_distribution}{Cantor distribution} (recall the Cantor set is Borel!).
+
+ Actual computation must be proven to be equivalent to familiar forms: for Riemann integrable functions, Lebesgue integration is equal to the city-style integration, but otherwise must be interpreted as the limit of pancake-style integration (\href{https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/RandLintegrals.png/375px-RandLintegrals.png}{visualization}). By \href{https://en.wikipedia.org/wiki/Radon%E2%80%93Nikodym_theorem}{Radon-Nikodym}, given \(\mu_\lambda\) we can compute this analogous integral.
+
+   For the discrete part \(\mu_\delta\) using the probability axioms directly for disjoint sets, integrals are countable sums.
+
+   I don't really know how to compute integrals \(\mu_{\mathrm{singular}}\), since they're not well-characterized. For certain examples such as the Cantor distribution, fractal structure can be leveraged to recover recurrences for expectations (since nonzero singular measures are necessarily uncountable, it's difficult to sum over, but in practice these may come up in \href{https://mathoverflow.net/questions/163325/singular-distributions-applications-and-instances}{game-like} settings).
+
+
+   \subsection{}
+
+   Let \(X\) be a real-valued function on \(\omega\) with corresponding \(\sigma\)-algbra \(\mcF\) taking on only countably many values \(\{a_k\}\) in \(\R\).
+   \subsubsection{}
+   \(X\) is a random variable iff \(X^{-1}\ca{a_k}\in\mcF\) for all \(k\). \((\implies)\) is immediate, as the singleton sets are Borel. \((\impliedby)\) as any Borel set contains at most countably many \(a_k\) singletons, whose preimage unions must then also be in \(\mcF\).
+   \subsubsection{}
+   The rest of the problem follows from LOTUS.
+   \subsection{}
+   For a real rv \(X\) define its distribution function as \(F(x)=\P\ca{X\le x}\).
+   \subsubsection{}
+   By definition of a measure, \(F\) goes from \(0\) to \(1\) across the number line and is bounded by the two in between. The limiting properties hold by considering the nested sets and monotone convergence of \(\bigcup_{x=1}^\infty\ca{X\le x}=\Omega\).
+     \subsubsection{}
+     \(F\) is increasing as measures are monotonic over their events.
+     \subsubsection{}
+     \(F\) is rc (right continuous), again because of nested set limits \(\bigcap_{y>x}\ca{X\le y}=\ca{X\le x}\). Notice left continuity does {\em not} hold analogously.
+
+     \subsection{}
+     Let \(\ca{\mcF_i}_{i\in I}\) be a family of \(\sigma\)-algebras. Their intersection is then also a \(\sigma\)-algbra. This holds immediately because all \(\sigma\)-algebra properties are of the form \(\forall j\in J\,\,B_j\in \mcF\implies B\in \mcF\) for various index sets \(J\). This is invariant under intersection.
+     
+
+     \subsection{}
+     Chebyshev's inequality \(\P\ca{|X|\ge\lambda}\le \frac{\E\abs{X}^p}{\lambda^p}\) follows for \(p>0\) from
+     \[
+       \E\abs{X}^p\ge\int_{X>\lambda}\abs{X}^pd\P=\lambda^p \int_{X>\lambda}\frac{\abs{X}^p}{\lambda^p}d\P\ge \lambda^p \int_{X>\lambda}d\P=\lambda^p\P\ca{X>\lambda}
+     \]
+     Then an MGF inequality stating that \(M=\E\exp\pa{k\abs{X}}<\infty\) implies \(\P\ca{X\ge\lambda}\le M\exp(-k\lambda)\) may be proven the same way.
+
+     \subsection{}
+     Let \(X\independent Y\). Then \(\E\ha{XY}=\E X\E Y\). As described in the exercise, by monotone convergence it suffice to consider simple functions \(X=\sum_ia_i1_{A_i},Y=\sum_jb_j1_{B_j}\) where \(\sigma(X)\independent\sigma(Y)\) implies \(\P\pa{A\cap B}=\P A\P B\). Then the discrete expectation factors as desired.
+
+     \subsection{}
+     The Borel-Cantelli lemma states that for \(n\in\N\), events \(A_n\) such that \(\sum_n \P A_n<\infty\), \(\P\bigcap_m B_m=0\) where \(B_m=\bigcup_{n=m}^\infty A_n\). To show this, note by measure continuity that \(\P\bigcap_m B_m=\lim_m\P B_m\). Then by union bound, \(\P B_m\le \sum_{n=m}^\infty \P A_n\rightarrow 0\) where the latter tends to \(0\) in \(m\) because the sum of probabilities must converge.
+
+     \subsection{}
+     \subsubsection{}
+     A Dynkin system made of unions of a finite partition \(G_i\) of \(\Omega\) is a \(\sigma\)-algebra is necessarily a \(\pi\)-system and thus a \(\sigma\)-algebra by the \(\pi\)-\(\lambda\) theorem because the intersection of union of disjoint sets is just the union of the common sets.
+
+     \subsubsection{}
+
+     Any finite \(\sigma\)-algebra on \(\Omega\) is a Dynkin system of a finite partition.
+
+     Given a \(\sigma\)-algebra \(\mcF\), consider \(P=\set{G\in\mcF}{\not\exists H\in\mcF,H\neq\emptyset, H\subset G}\). \(P\) must be disjoint, since otherwise assume for contradiction it contains nondisjoint \(G,H\). As \(G\cap H\in \mcF\) we have a contradiction, as both \(G,H\) are in \(P\) yet they do not meet its non-containment property. On the other hand, \(P\) is a partition, because any \(\omega\in \Omega\) absent from all \(G\in P\) is present in \(\Omega\setminus \bigcup_{G\in P}G\in\mcF\), which must itself be \(P\), a contradiction. Finally, \(P\) generates \(\mcF\): any \(F\in\mcF\) must be covered by some subset of the partition \(J\subset P\). Consider any such cover with the smallest cardinality such that union \(U=\bigcup_{j\in J}G_j\) satisfies \(F\subset U\). Then consider \(U\setminus F\), if this is empty then we have shown that all sets in \(\mcF\) are generated by unions of \(P\). So assume for contradiction it is nonempty. This difference must be covered by some \(G_j\) for fixed \(j\in J\). But \(G_j\) must be disjoint with \(F\), since otherwise it contains the \(U\setminus F\in\mcF\) set, violating its membership with \(P\). This contradicts the minimality of \(U\), which could do without \(G_j\).
+\label{basis}
+     \subsubsection{}
+
+     Suppose \(X\) is a real-valued random variable on \((\Omega,\mcF,\P)\). If \(\mcF\) is finite then then show \(X\) has a finite image.
+
+     By Sec.~\ref{basis}, we can find a finite partition \(P=\{F_i\}\) which generates \(\mcF\) with Dynkin completion. Consider for any fixed \(i\) two \(\omega_1,\omega_2\in F_i\). If \(X(\omega_1)\neq X(\omega_2)\) then \(A_1=f_i\cap X^{-1}X\{\omega_1\},A_2=F_i\cap X^{-1}X\{\omega_2\}\) are disjoint and in \(\mcF\). Yet as subsets of \(F_i\) they cannot be recovered by a Dynkin completion of \(P\). Thus, \(\card{X F_i}=1\) for all \(i\), so \(\card{X \Omega}\le\sum_i\card{XF_i}<\infty\).
+
+     \subsection{}
+     Let \(W_t\) be 1-dimensional Brownian motion from the origin.
+     \subsubsection{}
+     Recall that the multivariate CF for \(x\)-origin \(d\)-dimensional Brownian motion at a collection of times \(t_1,\cdots,t_k\) is given by the following function of \(k\) vectors \(u_j\in\R^d\):
+     \[
+       \E\exp\pa{\i\sum_{j=1}^ku_j^\top B_{t_j}}=\exp\pa{\i\sum_j x^\top u_j-\frac{1}{2}\sum_{j_1=1}^d\sum_{j_2=1}^d t_{j_1\land j_2}B_{j_1}^\top B_{j_2}}
+     \]
+
+     Thus in our 1-dimensional case, \(\E\exp\pa{\i u W_t}=\exp\pa{-\frac{1}{2}u^2t}\)
+     \subsubsection{}
+
+     As \(\exp\) is entire, it is perfectly formal to rewrite the power series like so:
+     \[
+\E\exp\pa{\i u W_t}=\E\sum_{k=0}^\infty\frac{(\i u W_t)^k}{k!}\,\,,
+       \]
+     where strictly speaking the measure integration performed by \(\E\) is really performing two separate real integrals, and the extension to \(\C\) can be viewed like sugar for \(\E=\E \MyRe + \i\E\MyIm\). Then we may do some limit exchanges,
+     \[
+       \partial_u\E\sum_{k=0}^\infty\frac{(\i u W_t)^k}{k!}
+       =\E\partial_u\sum_{k=0}^\infty\frac{(\i u W_t)^k}{k!}
+       =\E\sum_{k=0}^\infty\partial_u\frac{(\i u W_t)^k}{k!}
+       \,\,,
+       \]
+       justified by Dominated Convergence Theorem (as for real arguments \(u W_t\), \(\exp(\i u W_t)\) is on the unit circle) and then absolute convergence, which is really itself a form of dominated convergence.
+
+       Given the setup above, we may take several derivatives:
+       \[
+         \partial_u^{2k}\E\exp\pa{\i u W_t}\big|_{u=0}=\E\ha{\i^{2k}W_t^{2k}}\,\,,
+       \]
+       which setting equal to \(\partial_u^{2k}\exp\pa{-\frac{1}{2}u^2t}\big|_{u=0}=(-1)^k\frac{(2k)!t^k}{2^k\cdot k!}\) yields a formula for the \((2k)\)-th moment (and thus satisfies the condition for Kolmogorov Continuity.
+       \subsubsection{}
+       The above was completely formal, so the non-characteristic proof is superfluous.
+       \subsection{}
+       Kolmogorov Extension may give rise to non-continuous versions, since even agreement in distribution (and therefore any finite-dimensional distribution of a subset of a process' indices) can be equivalent while path properties differ.
+
+       Consider a probability space on \(\Omega=[0,\infty)\) with Borel \sa and any diffuse measure \(\mu\). We can define two processes on \([0,\infty)\), \(Y_t=0\) and \(X_t(\omega)=1\ca{t=\omega}\). Notice the processes are equal in law. By disjointness and measure properties,
+       \[\P\ca{X_{t_1}\in A_1,\cdots, X_{t_k}\in A_k}=\P\ca{X_{t_1}^{-1}A_1\setminus t_1,\cdots, X_{t_k}\in A_k}+\P\ca{\omega= t_1,\cdots, X_{t_k}\in A_k}\,\,.\]
+       But \(\P\ca{\omega = t_1,\cdots, X_{t_k}\in A_k}\le \P\ca{\omega = t_1}=0\) as \(\mu\) is diffuse, so by repeating the same reasoning across the other indices, the original expression
+       \[
+         \P\set{X_{t_i}\in A_i}{i\in[k]}=\P\set{X_{t_i}^{-1}A_i\setminus t_i}{i\in[k]}=1\ca{\forall i\in[k],\,\,0\in A_i}=\P\set{Y_{t_i}\in A_i}{i\in[k]}
+       \]
+       \subsection{}
+
+       Brownian motion has stationary increments, which follows immediately from translation invariance of Brownian motion.
+
+       \subsection{}
+       \(d\)-dimensional Brownian motion \(B_t\) is equal to \(B_t=(B_t^{(1)},\cdots,B_t^{(d)})\) \(d\) components of independent 1-dimensional Brownian motion. This follows from the CF of \(B_t\), which factors componentwise for any finite set of indices \(t_1,\cdots,t_k\), proving independence, and that components have the same Brownian process law.
+
+       \subsection{}
+       \label{translate}
+
+       For any \(t_0\ge 0\), \(B_{t_0+t}-B_{t_0}\) is Brownian motion. This follows immediately from checking the Brownian motion characterization above.
+
+       \subsection{}
+       Let \(D_\rho\) be the origin-centered disc of radius \(\rho\) in \(\R^2\). then \(\P^0\ca{B_t\in D_\rho }=\P\ca{\chi^2_2\le \rho^2/t}=1-\exp\frac{-\rho^2}{2t}\)
+
+       \subsection{}
+       Prove that the Green measure on \(\R^n\) with respect to \(B_t\), \(K\mapsto\E\int 1\ca{B_t\in K}\d{t}\) is absolutely continuous with respect to the Lebesgue measure.
+
+       The interior integral cannot be easily dominated, so interchange is difficult, but Fubini's Theorem merely requires \(\sigma\)-finite measures, which the Lebesgue measure \(\d{t}\) is. Thus by Fubini,
+       \[
+         \E\int 1\ca{B_t\in K}\d{t}=\int \d{t}\int \d{\P} 1\ca{B_t\in K}=\int \d{t}\int_K \d{\pa{(B_t)_*\P}} =0\,\,,
+       \]
+       since the pushforward measure \(\pa{(B_t)_*\P}\) is diffuse.
+
+       \subsection{}
+
+       \(UB_t\) is Brownian motion for unitary \(U\), most easily shown here by the fact that all components remain independent normals.
+
+       \subsection{}
+
+       For \(c>0\), \(\frac{1}{c}B_{c^2t}\) is Brownian motion, which follows immediately from checking the properties of Brownian motion. The scaling \(1/c\) is squared so variance is preserved.
+       \subsection{}
+
+       Define the \(p\)-th variation process fora continuous stochastic process \(X_t\) as
+       \[
+         [X]_t^{(p)}(\omega)=\lim_{n\rightarrow\infty}\sum_{t_k^{(n)}}\abs{X_{t_{k+1}^{(n)}}(\omega)-X_{t_k^{(n)}}}^p\,\,,
+       \]
+       where the limit is taken over any increasingly fine splits with \(\delta_k^{(n)}=t_{k+1}^{(n)}-t_{k}^{(n)}\) where \(0= t_1^{(n)} \le t_2^{(n)}\le\cdots\le  t_n^{(n)}=t\). Note that this construction intentionally permits duplicates. Call such sequences split sequences.
+       \([X]_t^{(1)}\) is referred to as the total variation process and \([X]_t^{(2)}=[X]_t\) as the quadratic variation process.
+
+       \begin{definition}[Shrinking Property]
+         A split sequence \(\ca{t_k^{(2)}}_{k=1}^2,\cdots,\ca{t_k^{(n)}}_{k=1}^n,\cdots\) is {\em shrinking} if \[\lim_n\max_k\delta_k^{(n)}=0\,\,.\]
+       \end{definition}
+
+       Note that by continuity on a compact interval \([0, t]\), \(t\mapsto X_t(\omega)\) is uniformly continuous.
+
+       \begin{lemma}[Partition Invariance]
+         Fix \(\omega\) and let \(\Delta_k^{(n)}(t)=\abs{X_{t_{k+1}}^{(n)}(\omega)-X_{t_{k}}^{(n)}(\omega)}\). Suppose a shrinking split sequence \(t\) exists such that \(a_n=\sum_{k}\abs{\Delta_k^{(n)}(t)}^p\) converges. Then any other shrinking split sequence \(s\) with \(b_m=\sum_{k}\abs{\Delta_k^{(m)}(s)}^p\) will also converge and \(\lim_n a_n = \lim_m b_m\), so long as \(p\ge 1\).
+       \end{lemma}
+
+       \begin{proof}
+
+         First, we fix any \(\epsilon>0\) and consider \(n\) large enough such that \(a_n\) is within its limit by \(\epsilon\).
+
+         By the shrinking property of \(b_m\), for any \(\delta>0\), there exists \(M\) such that for all \(m>M\), the split \(\ca{s_k^{(m)}}\) is a \(\delta\)-cover of \([0, t]\). Let the relabeling function \(c:[n]\rightarrow[m]\) map the index \(k\) of each split point \(t_k^{(n)}\) to the closest one \(k'\) of \(s_{k'}^{(m)}\), choose \(c\) such that it is weakly increasing, which must be possible since both sequences are increasing. Then, for any \(0<\eta\le 1\), by choice of \(\delta\),
+         \[
+           a_n=\sum_k\abs{X_{t_{k+1}}^{(n)}-X_{t_k}^{(n)}}^p\le n\eta + \sum_k\abs{X_{s_{c(k+1)}}^{(n)}-X_{s_{c(k)}}^{(n)}}^p\le n\eta + \sum_k\sum_{j=c(k)}^{c(k+1)-1}\abs{X_{s_{j+1}}^{(n)}-X_{s_j}^{(n)}}^p\le n\eta + b_m\,\,,
+         \]
+         where the first inequality follows by choosing \(\delta\) small enough such that the modulus of continuity of \(X_t(\omega)\) is below \((\eta/2)^{1/p}\), the second inequality follows from triangle inequality (requiring \(p\ge 1\)), and the third adds in missing positive terms.
+
+         Choose \(\eta\le \epsilon/n\). Thus by choice of \(M\) through \(\delta\) we have for all \(m>M\) that \(a_n-\epsilon\le b_m\).
+
+         Since the sequence \(\{a_{n'}\}_{n'}\) is itself shrinking, we may repeat this logic above starting from any \(b_m\) to find that for any \(\epsilon'>0\), for all sufficiently large \(n'=n'(\epsilon')\), \(b_m-\epsilon'\le a_{n'}\). Taking limits we find that \(b_m\le \lim_{n'} a_{n'}\). Combining with the original property of \(n\), we have that \(b_m\) must be within \(2\epsilon\) of \(\lim_n a_n\) for all sufficiently large \(m\).
+
+       \end{proof}
+
+       Given the above, we need only consider some fixed shrinking split sequence to analyze variation of a stochastic process. One surely exists: just use the unique evenly spaced split sequence.
+
+         \begin{theorem}[Quadratic Variation of Brownian Motion]
+           For Brownian motion \(X_t\),
+           \[[X]_t^{(2)}=t\,\,.\]
+         \end{theorem}
+         \begin{proof}
+           Let \(\Delta_k=\Delta_k^{(n)}(t)\) for \(t_k^{(n)}\) to be the sequence with distance \(\frac{t}{n-1}\) between each point. Then we will show \(\sum_k\Delta_k\mathbin{\overset{L^2\pa{\P}}{\longrightarrow}} t\). Recall that convergence in \(L^{p}\) implies convergence in probability by Markov's inequality, and convergence in probability implies almost sure convergence of a subsequence by decreasing the probability of deviation exponentially and applying Borel-Cantelli. Then, some subsequence \(\{n_m\}_m\) yields \(\sum_k\Delta^{(n_m)}_k(t)\) which converges almost surely to both \(t\) and \([X]_t^{(2)}\), implying the latter are equal.
+
+           It remains to show the original \(L^2(\P)\) convergence. Indeed, leveraging independent increments, and letting \(\sigma^2=\frac{t}{n-1}\),
+           \begin{align*}
+             \E\pa{\sum_k\Delta_k-t}^2&=\sum_k\E\Delta_k^4+\sum_k\sum_{j\neq k}\E\Delta_k^2\E\Delta_j^2-2t\sum_k\E\Delta_k^2+t^2\\
+                                      &=3n\sigma^4+n(n-1)\sigma^4-2tn\sigma^2+t^2\\
+             &= O\pa{t^2n^{-1}}\,\,,
+           \end{align*}
+           where critically all \(t^2\) terms cancel.
+         \end{proof}
+
+         \begin{theorem}[Total Variation of Brownian Motion]
+           For Brownian motion \(X_t\),
+           \[[X]_t^{(1)}=\infty\,\,.\]
+         \end{theorem}
+         \begin{proof}
+           It suffices to show that \([X]_t^{(1)}<\infty\) implies \([X]_t^{(2)}=0\). Then by the contrapositive the conclusion follows since Brownian motion has a positive quadratic variation.
+
+           Indeed, for any \(\epsilon>0\) if \(n\) is sufficiently large then \(\abs{\Delta_k^{(n)}(t)}\le\epsilon\), holding across all \(k\), by uniform continuity, since \(\delta_k^{(n)}\) is sufficiently small. In turn \(\sum_k\abs{\Delta_k^{(n)}}^2\le\epsilon\sum_k\abs{\Delta_k^{(n)}}=O(\epsilon)\) since the sum is itself \(O(1)\) by assumption. Taking limits we have that the quadratic variation must be \(0\).           
+\end{proof}
+\end{document}
