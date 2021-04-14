@@ -125,7 +125,7 @@ Many other characterizations exist for Brownian Motion, also called a \href{http
      \subsubsection{}
      Recall that the multivariate CF for \(x\)-origin \(d\)-dimensional Brownian motion at a collection of times \(t_1,\cdots,t_k\) is given by the following function of \(k\) vectors \(u_j\in\R^d\):
      \[
-       \E\exp\pa{\i\sum_{j=1}^ku_j^\top B_{t_j}}=\exp\pa{\i\sum_j x^\top u_j-\frac{1}{2}\sum_{j_1=1}^d\sum_{j_2=1}^d t_{j_1\land j_2}B_{j_1}^\top B_{j_2}}
+       \E\exp\pa{\i\sum_{j=1}^ku_j^\top B_{t_j}}=\exp\pa{\i\sum_j x^\top u_j-\frac{1}{2}\sum_{j_1=1}^d\sum_{j_2=1}^d t_{j_1\land j_2}u_{j_1}^\top u_{j_2}}
      \]
 
      Thus in our 1-dimensional case, \(\E\exp\pa{\i u W_t}=\exp\pa{-\frac{1}{2}u^2t}\)
@@ -148,7 +148,7 @@ Many other characterizations exist for Brownian Motion, also called a \href{http
        \[
          \partial_u^{2k}\E\exp\pa{\i u W_t}\big|_{u=0}=\E\ha{\i^{2k}W_t^{2k}}\,\,,
        \]
-       which setting equal to \(\partial_u^{2k}\exp\pa{-\frac{1}{2}u^2t}\big|_{u=0}=(-1)^k\frac{(2k)!t^k}{2^k\cdot k!}\) yields a formula for the \((2k)\)-th moment (and thus satisfies the condition for Kolmogorov Continuity.
+       which setting equal to \(\partial_u^{2k}\exp\pa{-\frac{1}{2}u^2t}\big|_{u=0}=(-1)^k\frac{(2k)!t^k}{2^k\cdot k!}\) yields a formula for the \((2k)\)-th moment (and thus satisfies the condition for Kolmogorov Continuity).
        \subsubsection{}
        The above was completely formal, so the non-characteristic proof is superfluous.
        \subsection{}
@@ -239,9 +239,9 @@ Many other characterizations exist for Brownian Motion, also called a \href{http
            \begin{align*}
              \E\pa{\sum_k\Delta_k-t}^2&=\sum_k\E\Delta_k^4+\sum_k\sum_{j\neq k}\E\Delta_k^2\E\Delta_j^2-2t\sum_k\E\Delta_k^2+t^2\\
                                       &=3n\sigma^4+n(n-1)\sigma^4-2tn\sigma^2+t^2\\
-             &= O\pa{t^2n^{-1}}\,\,,
+             &= O\pa{\mathrm{poly}(t)n^{-1}}\,\,,
            \end{align*}
-           where critically all \(t^2\) terms cancel.
+           where critically all nonvanishing \(t^2\) terms cancel.
          \end{proof}
 
          \begin{theorem}[Total Variation of Brownian Motion]
