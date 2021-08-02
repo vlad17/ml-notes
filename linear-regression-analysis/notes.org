@@ -16,7 +16,7 @@ Augmenting linear regression models with additional covariates can be done throu
 
 Basically, if you have \[Y\sim X\beta+\varepsilon\] with the OLS estimate,
 let 
-\[P=(X^\top X)^{-1}X^\top\] be the projection matrix and \[R=I-P\] be the
+\[P=X(X^\top X)^{-1}X^\top\] be the projection matrix and \[R=I-P\] be the
 residual operator.
 
 Then to fit the new model \[Y\sim X\beta+Z\gamma+\varepsilon\], you project out \[X\] from
