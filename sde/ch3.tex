@@ -1,0 +1,122 @@
+\documentclass{article}
+
+\title{It\^{o} Integrals}
+\author{Vladimir Feinberg}
+
+\usepackage{fullpage}
+
+\input{defs}
+
+\begin{document}
+
+\maketitle
+
+\section{Construction of the It\^{o} integral}
+
+We recall our original objective, which is to define some stochastic notion of differential equations parameterized by \(b,\sigma\) to identify some process \(X_t\) satisfying
+\[
+X'(t) = b(t, X_t)+\sigma(t, X_t)\cdot \text{``noise"}\,\,.
+\]
+
+It's sensible to consider the forward Euler method, for some shrinking split sequence \(t_i\), which would set
+\[
+  \Delta_kX=b(t_k, X_{t_k})\Delta_k t+\sigma(t_k, X_{t_k})\Delta_k V\,\,,
+  \]
+  where \(\Delta_k f=f\pa{t_{k+1}}-f\pa{t_{k}}\) and \(V_t\) is some stochastic process.
+
+  Based on natural assumptions about \(\Delta_k V\) such as stationarity, independent increments, and 0-mean, we might be tempted to choose Brownian motion \(V_t=B_t\). In the limit as \(\Delta_kt\rightarrow 0\), we would be interested in finding a definition of an integral which is consistent with the limit of the discrete sums implied by the Euler method:
+  \[
+X_t=X_0+\int_0^t b(s, X_s)\d{s}+\int_0^t\sigma(s, X_s)\d{B_s}\,\,,
+\]
+where \(\int_0^t\sigma(s, X_s)\d{B_s}\) is not yet sensibly defined or shown to exist uniquely as \(\lim_n\sum_{k=1}^n\sigma(t_k, X_{t_k})\Delta_i B\).
+
+\begin{definition}[It\^{o} Integral]
+  Consider the probability space \((\Omega,\mcF,\P)\) where \(\mcF=\mcF_\infty\) for a filtration \(\ca{\mcF_t}\). Let \(\mcV =\mcV(S, T)\) be the class of functions \(f: \R_+\times \Omega\rightarrow\R\) satisfying the following properties:
+  \begin{enumerate}
+  \item \(f\) is \(\mathcal{B}\pa{\R_+}\times\mcF\) measurable.
+  \item \(f(t, \omega)\) is \(\mcF_t\)-adapted.
+  \item \(L^2(\P \times [S,T])=\E^{1/2}\ha{\int_S^T f(t,\omega)^2\d{t}}<\infty\)
+  \end{enumerate}
+
+  Then under some shrinking split sequence (see previous chapter notes), the It\^{o} Integral is defined as the limit
+  \[
+\int_S^Tf(t, \omega)\d{B_t(\omega)}=\lim_{n\rightarrow\infty}\sum_{k=1}^n\phi_n(t_k, B_{t_k}(\omega))\Delta_i B(\omega)\,\,,
+\]
+where \(\phi_n\) are simple functions chosen by diagonalizing multiple other unique limit sequences. These \(\phi_n\) will be recovered from multiple other sequences as we grow the complexity of \(f\) to the full extent of \(\mcV\). To start, if \(f\) is a simple function, then of course \(\phi_n=f\) suffices. Afterwords, we show the convergence under \(L^2(\P \times [S, T])\) of limit sequences for growing subsets of $\mcV$:
+\begin{enumerate}
+\item Bounded and everywhere continuous processes. Since simple functions approximate our continuous process everywhere on \(\Omega\), by bounded convergence they approximate in \(L^2(\P \times [S, T])\).
+\item Bounded processes \(g\in \mcV\). As \(n\rightarrow\infty\), consider a bump function \(\psi_n\) with shrinking support immediately left of the origin. Consider the convolution \(g_n=\psi_n * g\), also in \(\mcV\) by virtue of the negative support of \(\psi_n\). Note that \(g_n\rightarrow g\) pointwise as \(\psi_n\) progressively approximates the Dirac measure. Then again by bounded convergence we have \(g_n\rightarrow g\) in \(L^2(\P \times [S, T])\), where \(g_n\) are bounded and everywhere continuous by construction.
+\item Any process in \(g\in \mcV\). Let \(g_n\) be \(g\) clamped to \([-n, n]\). By the previous step, we have convergence to each such \(g_n\) via limit sequence in \(\mcV\). Then since \(g\in L^2(\P \times [S,T])\) itself, by dominated convergence we have convergence in \(g\in L^2(\P \times [S,T])\).
+\end{enumerate} 
+\end{definition}
+
+For any \(f\in\mcV\) we may diagonalize the above sequences for some {\em elementary} functions \(\phi_n\) to define the It\^{o} integral. Why does this definition give rise to a {\em unique} integral, independent of the choice of \(\phi_n\)? To see this, we need a critical tool.
+
+\begin{lemma}[It\^{o} Isometry]
+  For any \(f\in \mcV\),
+  \[
+    \E\ha{\int_S^Tf(t, \omega)^2\d{t}}
+    = \E\ha{\pa{\int_S^Tf(t, \omega)\d{t}}^2}\,\,,
+  \]
+  or, in operator form,
+  \[L^2(\P \times [S, T])(f)=L^2(\P)\circ \int_S^T\d{t}\,\,.\]
+\end{lemma}
+
+For elementary functions, this can be proven by computing both sides explicitly and relying on stationarity of increments. In turn, this implies that for any \(f\in\mcV\), for any \(L^2(\P \times [S,T])\) sequence \(\phi_n\) of elementary functions, which is necessary Cauchy in that metric, must give rise to a sequence of integrals \(I_n=\int_S^T\phi_n\d{B_t}\) which are Cauchy in \(L^2(\P)\) and thus converge as random variables in this way to a fixed limit \(I = I(f, \phi)\) in \(L^2(\P)\). But for any other similar elementary function sequence \(\phi_n'\) converging to \(f\) in \(L^2(\P \times [S,T])\), we construct an analogous sequence of integrals \(I_n'\), also Cauchy in \(L^2(\P)\), thus also yielding an It\^{o} integral \(I'=I(f, \phi')\). Through our elementary isometry,
+\begin{align*}
+  \norm{I_n-I'}_{L^2(\P)}&\le\norm{I_n-I_n'}_{L^2(\P)}+\norm{I_n'-I'}_{L^2(\P)}\\
+                         &=\norm{\phi_n-\phi_n'}_{L^2(\P)\circ\int_S^T\d{t}}+\norm{I_n'-I'}_{L^2(\P)}\\
+                         &=\norm{\phi_n-\phi_n'}_{L^2(\P\times[S,T])}+\norm{I_n'-I'}_{L^2(\P)}\\
+                           &\rightarrow 0\,\,,
+\end{align*}
+but since \(I_n\) converges to both \(I,I'\) in \(L^2(\P)\), by completeness of the corresponding metric space, \(I=I'\) almost surely, showing both invariance of the It\^{o} integral to the specific limit sequence \(\phi_n\) chosen and It\^{o} isometry on all of \(\mcV\).
+
+\section{Some properties of the It\^{o} integral}
+
+By taking limits from the definition, the following properties of the It\^{o} integral hold almost always:
+
+\begin{enumerate}
+\item \(\int_S^Tf\d{B_t}=\int_S^Uf\d{B_t}+\int_U^Tf\d{B_t}\),
+\item \(\int_S^T \pa{cf+g}\d{B_t}=c\int_S^Tf\d{B_t}+\int_S^Tg\d{B_t}\) for constant \(c\),
+\item \(\E \int_S^Tf\d{B_t} =0\),
+\item \(\int_S^Tf\d{B_t} \in\mcF_T\),
+\item and \(M_s=\int_0^s f\d{B_t}\) is a martingale.
+\end{enumerate}
+
+\begin{theorem}
+  Let \(f\in\mcV(0, T)\). Then there exists a \(t\)-continuous version of \(I_t(\omega)\int_0^tf(s, \omega)\d{B_s(\omega)}\).
+\end{theorem}
+\begin{proof}
+  Let \(\phi_n\) be elementary functions tending to \(f\) in \(L^2(\P \times [0, T])\) from It\^{o}'s construction, with corresponding It\^{o} integrals \(I_t^{(n)}\). For any \(n,m\), \(I_t^{(n)}-I_t^{(m)}\) is a martingale since its components are. \href{https://math.ucsd.edu/~pfitz/downloads/courses/winter05/math280b/doob.pdf}{Doob's Martingale Inequality}, which is basically Markov for martingales, relates
+  \[
+    \P\ca{\sup_{0\le t\le T}\abs{I_t^{(n)}-I_t^{(m)}}\ge \epsilon}\le\frac{1}{\epsilon^2}\E\abs{I_t^{(n)}-I_t^{(m)}}^2=\frac{1}{\epsilon^2}\norm{\phi_n-\phi_m}_{L^2(\P\times[0,T])}^2\,\,.
+  \]
+  Since the RHS vanishes as \(n,m\) grow large, a subsequence \(I_t^{(n_k)}\) may be chosen ensuring with geometrically decreasing \(\epsilon\) between adjacent \(I_t^{(n_k)},I_t^{(n_{k+1})}\). This allows Borel-Cantelli to be applied over the set of events \(\ca{\sup_{0\le t\le T}\abs{I_t^{(n_k)}-I_t^{(n_{k+1})}}\ge 2^{-k}}\) for varying \(k\in\N\), so in fact with probability one \(\sup_{0\le t\le T}\abs{I_t^{(n_k)}-I_t^{(n_{k+1})}}\le 2^{-k}\) so long as \(k\ge K(\omega)\). This provides uniform convergence for almost all \(\omega\), and thus continuity in the limit.
+  \end{proof}
+
+\section{Extensions of the It\^{o} integral}
+
+Without much effort, the filtration \(\mcF\) can be expanded to any other filtration \(\mcH\) such that \(\mcF_t\subset\mcH_t\).
+
+Relaxing the integrator to be an arbitrary semimartingale instead of Browninan motion is possible. Revisiting our construction steps, the only direct properties used were bounded quadratic variation and adaptedness. These can be further relaxed to just \href{https://en.wikipedia.org/wiki/Semimartingale}{semimartingale} properties.
+
+The second moment condition in It\^{o}'s construction can be relaxed to a mere condition requiring that the second moment of our integrand is almost surely finite, \(\P\ca{\int_S^Tf(s,\omega)^2\d{s}<\infty}=1\), however, this of course will end up creating non-integrable integrals, and thus drop the martingale property. However, continuity can be recovered, along with a local martingale property.
+
+There also exists another interpretation of stochastic integrals. The Stratonovich is built from a trapezoidal rule (unlike It\^{o}'s left-sided integration rule) as the building block:
+  \[
+\int_S^Tf(t, \omega)\circ \d{B_t(\omega)}=\lim_{n\rightarrow\infty}\sum_{k=1}^n\phi_n\pa{\frac{t_k+t_{k+1}}{2}, B_{t_k}(\omega)}\Delta_i B(\omega)\,\,.
+\]
+One reason the Stratonovich interpretation might be more natural is because of the following motivation. If we consider \(t\)-continuously differentiable approximations \(B_t^{(n)}\) to our noise process \(B_t\) which on bounded intervals converge uniformly almost always, then the solution \(X^{(n)}_t\) to the differential equation (for constant \(\omega\))
+\[
+\frac{d X_t}{dt}=b(t,X_t)+\sigma(t,X_t)\frac{dB_t^{(n)}}{dt}\,\,,
+\]
+converges to the Stratonovich solution \(X_t=X_0+\int_0^tb(t, X_s)\d{s}+\int_0^t\sigma(t, X_s)\circ\d{B_s}\), whereas the solution expressed in the It\^{o} interpretation would be
+\[
+  X_t=X_0+\int_0^tb(t, X_s)\d{s}+\frac{1}{2}\int_0^{t}\sigma'(s, X_s)\sigma(s, X_s)\d{s}+\int_0^t\sigma(t, X_s)\d{B_s}
+  \]
+
+\section{Exercises}
+
+
+
+\end{document}
