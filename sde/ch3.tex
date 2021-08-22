@@ -84,7 +84,7 @@ By taking limits from the definition, the following properties of the It\^{o} in
 \end{enumerate}
 
 \begin{theorem}
-  Let \(f\in\mcV(0, T)\). Then there exists a \(t\)-continuous version of \(I_t(\omega)\int_0^tf(s, \omega)\d{B_s(\omega)}\).
+  Let \(f\in\mcV(0, T)\). Then there exists a \(t\)-continuous version of \(I_t(\omega)=\int_0^tf(s, \omega)\d{B_s(\omega)}\).
 \end{theorem}
 \begin{proof}
   Let \(\phi_n\) be elementary functions tending to \(f\) in \(L^2(\P \times [0, T])\) from It\^{o}'s construction, with corresponding It\^{o} integrals \(I_t^{(n)}\). For any \(n,m\), \(I_t^{(n)}-I_t^{(m)}\) is a martingale since its components are. \href{https://math.ucsd.edu/~pfitz/downloads/courses/winter05/math280b/doob.pdf}{Doob's Martingale Inequality}, which is basically Markov for martingales, relates
@@ -117,6 +117,56 @@ converges to the Stratonovich solution \(X_t=X_0+\int_0^tb(t, X_s)\d{s}+\int_0^t
 
 \section{Exercises}
 
+\subsection{}
 
+We show
+\[
+  \int_0^t s\d{B_s}=tB_t-\int_0^tB_s\d{s}
+\]
+directly from the definition of It\^{o} integrals. We consider the progressively finer elementary functions defined by the discretization of the identity integrand as \(n\rightarrow\infty\) for some shrinking split sequence \(t_j\), which tend to the identity in \(L^2(\P\times[0,t])\).
+\[
+  \sum_it_i\pa{B_{t_{i+1}}-B_{t_{i}}}=  t_nB_t-\sum_i\pa{t_{i+1}-t_{i}}B_{t_i}\,\,,
+\]
+so that the limit converges to the desired solution, because almost-always continuity of \(B_t\) permits \(\omega\)-pointwise Riemann integration.
+
+\subsection{}
+
+
+We show
+\[
+  \int_0^t B_s^2\d{B_s}=\frac{1}{3}B_t^3-\int_0^tB_s\d{s}
+\]
+directly from the definition of It\^{o} integrals. A more general technique for solving such integrals from the definition follows in three steps:
+
+\begin{enumerate}
+\item Rewrite the expected naive Riemann integral solution (here, \(\frac{1}{3}B_t^3\)) as a telescoping sum. \(B_t^3=\sum_j\Delta_jB^3\).
+\item Express each term in an It\^{o}-friendly way, i.e., as functions of increments or the left sided-timestep, i.e., \(B_{t_j},\Delta_jB\).
+  \begin{align*}
+    \Delta_jB^3&=\Delta_jB\pa{B_{t_{j+1}}^2+B_{t_{j+1}}B_{t_j}+B_{j}^2}\\
+    &=\Delta_jB\pa{B_{t_{j+1}}^2-2B_{t_{j+1}}B_{t_j}+B_{j}^2}+3B_{t_{j+1}}B_{t_j}\Delta_jB\\
+    &=\Delta_j^3B+3(\Delta_jB+B_{t_j})B_{t_j}\Delta_jB\\
+    &=\Delta_j^3B+3B_{t_j}\Delta_j^2B+3B_{t_j}^2\Delta_jB
+  \end{align*}
+\item Summing the above formula over \(j\) and rearranging terms from the first telescope we have
+  \[
+    \sum_jB_{t_j}^2\Delta_jB=\frac{1}{3}B_t^3-\frac{1}{3}\sum_j\Delta_j^3B-\sum_jB_{t_j}\Delta_j^2B\,\,.
+  \]
+
+  In the limit as \(n\rightarrow\infty\), the LHS converges to the desired It\^{o} integral \(  \int_0^t B_s^2\d{B_s}\) in \(L^2(\P)\). The middle term vanishes since \(\abs{\sum_j\Delta_j^3B}\le\sum_j\abs{\Delta_j^3B}\rightarrow[B]_t^{(3)}=0\). To finish, it remains to show that the last term simplifies to \(\int_0^tB_s\d{s}\).
+
+  Notice it suffices to show that \(\|\sum_jB_{t_j}\Delta_j^2B-\sum_jB_{t_j}\Delta_jt\|_{L^2(\P)}\rightarrow 0\) as the \(L^2\) convergence implies an almost surely convergent subsequence, and by uniqueness of the It\^{o} integral definition, this shows almost sure equality on the final integrals regardless of the elementary function sequence we look at. Indeed,
+\begin{align*}
+  \E\pa{\sum_jB_{t_j}(\Delta_j^2B-\Delta_jt)}^2
+    &=\E\sum_jB_{t_j}^2(\Delta_j^2B-\Delta_jt)^2+2\E\sum_j\sum_{k> j}B_{t_j}B_{t_k}(\Delta_j^2B-\Delta_jt)(\Delta_k^2B-\Delta_kt)\,\,.
+\end{align*}
+In the first term, independence simplifies calculation, yielding \(\E B_{t_j}^2\E(\Delta_j^2B-\Delta_jt)^2=O(tn^{-2})\) term-wise, leveraging the variance of a standard \(\chi^2\) distribution, which still vanishes in an \(n\)-sized sum. The second term can be decomposed
+\[
+  \E \ha{B_{t_j}B_{t_k}(\Delta_j^2B-\Delta_jt)(\Delta_k^2B-\Delta_kt)}
+  =  \E \ha{B_{t_j}B_{t_k}(\Delta_j^2B-\Delta_jt)}\E\ha{(\Delta_k^2B-\Delta_kt)}\,\,,
+\]
+where the last term vanishes. Of course, \(\Delta_jt=n^{-1}\) for all \(j\) above.
+
+  
+  \end{enumerate}
 
 \end{document}
