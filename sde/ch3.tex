@@ -165,8 +165,34 @@ In the first term, independence simplifies calculation, yielding \(\E B_{t_j}^2\
   =  \E \ha{B_{t_j}B_{t_k}(\Delta_j^2B-\Delta_jt)}\E\ha{(\Delta_k^2B-\Delta_kt)}\,\,,
 \]
 where the last term vanishes. Of course, \(\Delta_jt=n^{-1}\) for all \(j\) above.
-
-  
   \end{enumerate}
+
+
+  \subsection{}
+
+  Let \(X_t\) be a stochastic process.
+\subsubsection{}
+If \(X_t\) is a martingale with respect to any filtration \(\mcG_t\), it must be a martingale with respect to its own natural filtration \(\mcF_t\). Measurability and integrability conditions hold immediately, so it suffice to check the conditional martingale property. In addition, by virtue of \(X_t\in \mcG_t\) we must have \(\mcF_t\subset\mcG_t\) through an inductive argument. Taking \(s\le t\), by tower, \(\CE{X_t}{\mcF_s}=\CE{\CE{X_t}{\mcG_s}}{\mcF_s}=\CE{X_s}{\mcF_s}=X_s\).
+\subsubsection{}
+By the above, for any martingale \(X_t\), we have for all \(t\ge 0\),
+\[
+  \E X_t=\E\CE{X_t}{\mcF_0}=\E X_0\,\,.
+\]
+\subsubsection{}
+The above may be satisfied for non-martingales; consider \(X_t=t\epsilon\) where \(\epsilon\) is Rademacher-distributed.
+\subsection{}
+\subsubsection{}
+\(X_t=B_t+4t\) is not a martingale because its expectation is strictly increasing with time (see previous problem).
+\subsubsection{}
+\(X_t=B_t^2\) is not a martingale because its expectation is strictly increasing with time.
+\subsubsection{}
+\(X_t=t^2B_t-2\int_0^tsB_s\d{s}\) is a martingale. Integrability and measurability hold immediately. Then notice
+\[
+  \CE{X_t}{\mcF_s}=t^2B_s-2\int_0^sB_r\d{r}-2\int_s^tr\CE{B_r}{\mcF_s}\d{r}=t^2B_s-2\int_0^sB_r\d{r}-2B_s\int_s^tr\d{r}=X_s\,\,.
+\]
+\subsubsection{}
+\(X_t=B_t^{(1)}B_t^{(2)}\) is a martingale, where \(B_t^{(i)}\) are independent brownian motions, so the conditional expectation operator will distribute.
+
+\section{}
 
 \end{document}
