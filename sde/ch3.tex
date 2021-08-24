@@ -35,7 +35,7 @@ where \(\int_0^t\sigma(s, X_s)\d{B_s}\) is not yet sensibly defined or shown to 
   \begin{enumerate}
   \item \(f\) is \(\mathcal{B}\pa{\R_+}\times\mcF\) measurable.
   \item \(f(t, \omega)\) is \(\mcF_t\)-adapted.
-  \item \(L^2(\P \times [S,T])=\E^{1/2}\ha{\int_S^T f(t,\omega)^2\d{t}}<\infty\)
+  \item \(L^2(\P \times [S,T])(f)=\E^{1/2}\ha{\int_S^T f(t,\omega)^2\d{t}}<\infty\)
   \end{enumerate}
 
   Then under some shrinking split sequence (see previous chapter notes), the It\^{o} Integral is defined as the limit
@@ -118,7 +118,7 @@ converges to the Stratonovich solution \(X_t=X_0+\int_0^tb(t, X_s)\d{s}+\int_0^t
 \section{Exercises}
 
 \subsection{}
-
+\label{pt1}
 We show
 \[
   \int_0^t s\d{B_s}=tB_t-\int_0^tB_s\d{s}
@@ -130,7 +130,7 @@ directly from the definition of It\^{o} integrals. We consider the progressively
 so that the limit converges to the desired solution, because almost-always continuity of \(B_t\) permits \(\omega\)-pointwise Riemann integration.
 
 \subsection{}
-
+\label{pt2}
 
 We show
 \[
@@ -193,9 +193,71 @@ The above may be satisfied for non-martingales; consider \(X_t=t\epsilon\) where
 \subsubsection{}
 \(X_t=B_t^{(1)}B_t^{(2)}\) is a martingale, where \(B_t^{(i)}\) are independent brownian motions, so the conditional expectation operator will distribute.
 
-\section{}
+\subsection{}
 
 \(M_t=B_t^2-t\) is a martingale. Measurability and integrability are apparent, and \(\CE{M_t}{\mcF_s}=B_s^2+\CE{2B_s(B_t-B_s)+(B_t-B_s)^2}{\mcF_s}-t=M_s\) by splitting up \(B_t=B_s+(B_t-B_s)\).
 
-\section{}
+\subsection{}
+
+\(N_t=B_t^3-tB_t\) is a martingale. Measurability and integrability are apparent. Performing the same expansion \(B_t=B_s+\Delta\) as before, we find
+\[
+  \CE{N_t}{\mcF_s}=
+  \CE{\Delta^3 + 3\Delta^2 B_s+3\Delta B_s^2-3tB_t+B_s^3}{\mcF_s}=
+  3(t-s) B_s-3tB_s+B_s^3=N_s
+\]\label{pt3}
+\subsection{}
+Consider the iterated It\^{o} integral
+\[
+  I_n=n!\int_0^{t}\int_0^{u_n}\cdots\int_0^{u_2}\d{B_{u_1}}\d{B_{u_2}}\cdots\d{B_{u_n}}\,\,.
+\]
+
+\subsubsection{}
+
+For every tuple \(u_2,\cdots, u_n\), necessarily in sorted order already, the innermost integrand \(1\) is measurable with respect to \(\mcB(\R_+)\times \mcF\). It is also adapted to \(\mcF_{u_1}\) trivially. Finally, it's square integrable, as the entire integral \(\int_0^{u_2}1^2\d{B_1}\le u_2\le t\). The resulting integral \(I^{(n)}_1(u_2,\cdots, u_n)=\int_0^{u_2}1\d{B_1}\) is by properties of It\^{o} integration itself measurable and adapted to \(\mcF_{u_2}\), as well as dominated by \(t\) over \(u_2\in[0,u_3]\).
+
+Then, inductively, assume for a tuple \(u_i,\cdots, u_n\), the corresponding integrand \(\int_0^{u_{i}}\cdots\d{B_{u_{i-1}}}\) is measurable, adapted, and square integrable due to being dominated by \(t^{i-1}/(i-1)!\). Then adding another integral again results in a measurable and adapted random process dominated in \(L^2(\P \times [S,T])\) by \(t^i/i!\).
+
+\subsubsection{}
+
+Manually, we can verify that
+\[
+I_1=B_t\,\,,
+\]
+and since \(\int_0^{u_2}\d{B_{u_1}}=B_{u_2}\) that
+\[
+  I_2=B_t^2-t\,\,,
+\]
+and finally,
+\[
+  I_3=3 \int_0^{t}B_{u_2}^2-u_2\d{B_{u_2}}=B_t^3-3tB_t\,\,,
+\]
+by combining Exercises~\ref{pt1} and~\ref{pt2}.
+
+We notice that all of the above are of the form \(I_n=t^{n/2}h_n\pa{\frac{B_t}{\sqrt{t}}}\), where \(h_n\) is the Hermite polynomial of degree \(n\), where
+\[
+  h_n(x)=(-1)^n\exp\pa{\frac{x^2}{2}}\partial_x^n\exp\pa{\frac{-x^2}{2}}
+\]
+\subsubsection{}
+
+By the above, \(N_t\) from Exercises~\ref{pt3} must be a martingale as it is an It\^{o} integral.
+
+\subsection{}
+
+
+\subsubsection{}
+Let \(Y\) be an integrable rv and let \(M_t=\CE{Y}{\mcF_t}\)
+\(M_t\) is a martingale, following immediately from the tower property.
+\subsubsection{}
+Conversely, suppose \(M_t\) is a real-valued \(\mcF_t\)-martingale which satisfies for some \(p\) that \(\sup_t\E\abs{M_t}^p<\infty\). We can show there exists some integrable \(Y\) such that \(M_t=\CE{Y}{\mcF_t}\).
+
+By Corollary C.7 in the appendix (also, for discrete settings, by Theorem 4.7 from \c{C}inlar's Probability and Stochastics,  p.201, Theorem 4.7, the characterization of uniformly integrable martingales), {\em with the additional assumption that \(M_t\) is continuous, an assumption absent from {\O}ksendal}, we have that an integrable \(Y\) exists such that \(M_t\convarg{L^1}Y\).
+
+Then, notice that \(\CE{Y-X_t}{\mcF_t}=0\) if \(\E\ha{1_H\pa{Y-X_t}}=0\) is for all events \(H\in \mcF_t\).
+But \(1_H\pa{X_s-X_t}\convarg{L^1}1_H\pa{Y-X_t}\) as \(s\rightarrow\infty\) by analyzing the cases of \(1_H\in\{0,1\}\). So \(\E\ha{1_H\pa{Y-X_t}}=\lim_{s\rightarrow\infty}\E\ha{1_H\pa{X_s-X_t}}\) where for \(s\ge t\)
+\[
+  \E\ha{1_H\pa{X_s-X_t}}=\E \ha{1_H\CE{X_s-X_t}{\mcF_t}}=0\,\,.
+\]
+
+The continuity assumption seems load-bearing, but uninterestingly so. With \(\epsilon\) a Rademacher random variable, \(M_t=\epsilon 1\ca{t\ge 1}\), and a large constant filtration \(\mcH_t=\sigma\{\epsilon\}\) (note the natural filtration has \(\mcF_t=\emptyset\) for \(t<1\)), then \(M_t=0\neq \epsilon=\CE{\epsilon}{\mcH_{t}}\) for any \(t<1\).
+
 \end{document}
