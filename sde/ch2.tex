@@ -52,12 +52,12 @@ Many other characterizations exist for Brownian Motion, also called a \href{http
 \begin{theorem}[Law of the Unconscious Statistician, LOTUS]
   Consider a rv \(X\) with measure \(\mu\). Then
   \[
-    \E g(x) = \int g \d{X_*\P}
+    \E g(X) = \int g \d{X_*\P}
   \]
     \end{theorem}
     \begin{proof}
       By change of variables,
-      \[\E g(x)=\int_\Omega g(X)\d{\P}=\int_X g\d{X_*\P}\,\,,\]
+      \[\E g(X)=\int_\Omega g\circ X\d{\P}=\int_X g\d{X_*\P}\,\,,\]
     \end{proof}
 
     Though it seems like a simple one-step formula, LOTUS allows us to actually evaluate expectations. Written as a measure-theoretic expectation, \((X_*\P)(g)\) is defined as a limit of \href{https://en.wikipedia.org/wiki/Simple_function}{simple functions}. This, in turn, simplifies in most cases for Borel \(X\), which

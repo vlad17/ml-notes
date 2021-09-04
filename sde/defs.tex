@@ -169,12 +169,15 @@
 \makeatletter
 \newcommand{\distas}[1]{\mathbin{\overset{#1}{\kern\z@\sim}}}%
 \makeatother
-\newcommand{\disteq}{\overset{d}{=}}
+\newcommand{\disteq}{\mathrel{\overset{\Delta}{=}}}
+\newcommand{\lpeq}{\mathrel{\overset{L^2(\P)}{=}}}
 \newcommand{\distiid}{\distas{\text{iid}}}
 \newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
 \def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
 \newcommand{\convdist}{\mathbin{\overset{\text{d}}{\longrightarrow}}}
 \newcommand{\convarg}[1]{\mathbin{\overset{ #1 }{\longrightarrow}}}
+\newcommand{\convlp}{\mathbin{\overset{L^2(\P)}{\longrightarrow}}}
+\newcommand{\convlpi}{\mathbin{\overset{L^1(\P)}{\longrightarrow}}}
 \newcommand{\convas}{\mathbin{\overset{\text{as}}{\longrightarrow}}}
 \newcommand{\convpb}{\mathbin{\overset{\text{pb}}{\longrightarrow}}}
 

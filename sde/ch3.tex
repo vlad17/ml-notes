@@ -34,7 +34,7 @@ where \(\int_0^t\sigma(s, X_s)\d{B_s}\) is not yet sensibly defined or shown to 
   Consider the probability space \((\Omega,\mcF,\P)\) where \(\mcF=\mcF_\infty\) for a filtration \(\ca{\mcF_t}\). Let \(\mcV =\mcV(S, T)\) be the class of functions \(f: \R_+\times \Omega\rightarrow\R\) satisfying the following properties:
   \begin{enumerate}
   \item \(f\) is \(\mathcal{B}\pa{\R_+}\times\mcF\) measurable.
-  \item \(f(t, \omega)\) is \(\mcF_t\)-adapted.
+  \item \(f(t, \cdot)\) is \(\mcF_t\)-adapted.
   \item \(L^2(\P \times [S,T])(f)=\E^{1/2}\ha{\int_S^T f(t,\omega)^2\d{t}}<\infty\)
   \end{enumerate}
 
@@ -50,7 +50,7 @@ where \(\phi_n\) are simple functions chosen by diagonalizing multiple other uni
 \end{enumerate} 
 \end{definition}
 
-For any \(f\in\mcV\) we may diagonalize the above sequences for some {\em elementary} functions \(\phi_n\) to define the It\^{o} integral. Why does this definition give rise to a {\em unique} integral, independent of the choice of \(\phi_n\)? To see this, we need a critical tool.
+For any \(f\in\mcV\) we may diagonalize the above sequences for some {\em elementary} functions \(\phi_n\) to define the It\^{o} integral. Why does this definition give rise to a {\em unique} integral, independent of the choice of \(\phi_n\) (and thus, also, independent of split sequence choice)? To see this, we need a critical tool.
 
 \begin{lemma}[It\^{o} Isometry]
   For any \(f\in \mcV\),
@@ -92,6 +92,29 @@ By taking limits from the definition, the following properties of the It\^{o} in
     \P\ca{\sup_{0\le t\le T}\abs{I_t^{(n)}-I_t^{(m)}}\ge \epsilon}\le\frac{1}{\epsilon^2}\E\abs{I_t^{(n)}-I_t^{(m)}}^2=\frac{1}{\epsilon^2}\norm{\phi_n-\phi_m}_{L^2(\P\times[0,T])}^2\,\,.
   \]
   Since the RHS vanishes as \(n,m\) grow large, a subsequence \(I_t^{(n_k)}\) may be chosen ensuring with geometrically decreasing \(\epsilon\) between adjacent \(I_t^{(n_k)},I_t^{(n_{k+1})}\). This allows Borel-Cantelli to be applied over the set of events \(\ca{\sup_{0\le t\le T}\abs{I_t^{(n_k)}-I_t^{(n_{k+1})}}\ge 2^{-k}}\) for varying \(k\in\N\), so in fact with probability one \(\sup_{0\le t\le T}\abs{I_t^{(n_k)}-I_t^{(n_{k+1})}}\le 2^{-k}\) so long as \(k\ge K(\omega)\). This provides uniform convergence for almost all \(\omega\), and thus continuity in the limit.
+\end{proof}
+
+Note that we {\em cannot} assume that the elementary functions \(\phi_n\), known to exist, which define the It\^{o} integral \(\int_S^T f\d{B_t}\) for \(f\in \mcV(S,T)\), are of the form \(\phi_n(t, \omega)\stackrel{?}{=}\sum_jf(t_j,\omega)1\ca{t\in[t_j,t_{j+1})}\). \textbf{Observation}. For general \(f\in\mcV(S,T)\), we do not know a-priori the form of the elementary functions which define its It\^{o} integral.
+
+However, from the original construction of the It\^{o} integral, we do have some basic lemmas which help.
+
+\begin{lemma}
+  \label{lemma:validelem}
+  If \(f,f_n\in\mcV(S, T)\) and \(f_n\convarg{L^2(\P\times[S,T])} f\), then \(\int_S^T f_n\d{B_t}\convarg{L^2(\P)} \int_S^Tf\d{B_t}\). Proof immediately follows from It\^{o}'s lemma.
+\end{lemma}
+
+
+\begin{lemma}
+  \label{lemma:continuous}
+  If \(f\in\mcV(S, T)\) almost always has continuous sample paths, then \(\phi_n\convarg{L^2(\P\times[S,T])} f\) where \(\phi_n(t, \omega)=\sum_jf(t_j,\omega)1\ca{t\in[t_j,t_{j+1})}\).
+\end{lemma}
+\begin{proof}
+  A stronger version of this Lemma is proven as an exercise. We need only rely on a weaker notion of continuity; it suffices to show \(f\) is CMS; see Exercise~\ref{ex3.13c} below.
+
+  To show an almost always continuous \(f\) is CMS, interchange limits by DCT and appeal to continuity.
+  \[
+    \lim_{s\rightarrow t}\E\pa{f(s,\cdot)-f(t, \cdot)}^2= \E\lim_{s\rightarrow t}\pa{f(s,\cdot)-f(t, \cdot)}^2=0
+    \]
   \end{proof}
 
 \section{Extensions of the It\^{o} integral}
@@ -100,7 +123,7 @@ Without much effort, the filtration \(\mcF\) can be expanded to any other filtra
 
 Relaxing the integrator to be an arbitrary semimartingale instead of Browninan motion is possible. Revisiting our construction steps, the only direct properties used were bounded quadratic variation and adaptedness. These can be further relaxed to just \href{https://en.wikipedia.org/wiki/Semimartingale}{semimartingale} properties.
 
-The second moment condition in It\^{o}'s construction can be relaxed to a mere condition requiring that the second moment of our integrand is almost surely finite, \(\P\ca{\int_S^Tf(s,\omega)^2\d{s}<\infty}=1\), however, this of course will end up creating non-integrable integrals, and thus drop the martingale property. However, continuity can be recovered, along with a local martingale property.
+The second moment condition in It\^{o}'s construction can be relaxed to a mere condition requiring that the second moment of our integrand is almost surely finite, \(\P\ca{\int_S^Tf(s,\omega)^2\d{s}<\infty}=1\), however, this of course will end up creating non-integrable It\^{o} limits, and thus drop the martingale property. However, continuity can be recovered, along with a local martingale property.
 
 There also exists another interpretation of stochastic integrals. The Stratonovich is built from a trapezoidal rule (unlike It\^{o}'s left-sided integration rule) as the building block:
   \[
@@ -128,6 +151,8 @@ directly from the definition of It\^{o} integrals. We consider the progressively
   \sum_it_i\pa{B_{t_{i+1}}-B_{t_{i}}}=  t_nB_t-\sum_i\pa{t_{i+1}-t_{i}}B_{t_i}\,\,,
 \]
 so that the limit converges to the desired solution, because almost-always continuity of \(B_t\) permits \(\omega\)-pointwise Riemann integration.
+
+Note the above relies on Lemma~\ref{lemma:validelem} and Lemma~\ref{lemma:continuous} to derive the It\^{o} integral from the definition with the obvious elementary function approximation.
 
 \subsection{}
 \label{pt2}
@@ -167,7 +192,8 @@ In the first term, independence simplifies calculation, yielding \(\E B_{t_j}^2\
 where the last term vanishes. Of course, \(\Delta_jt=n^{-1}\) for all \(j\) above.
   \end{enumerate}
 
-
+Note the above relies on Lemma~\ref{lemma:validelem} and Lemma~\ref{lemma:continuous} to derive the It\^{o} integral from the definition with the obvious elementary function approximation.
+  
   \subsection{}
 
   Let \(X_t\) be a stochastic process.
@@ -239,7 +265,7 @@ We notice that all of the above are of the form \(I_n=t^{n/2}h_n\pa{\frac{B_t}{\
 \]
 \subsubsection{}
 
-By the above, \(N_t\) from Exercises~\ref{pt3} must be a martingale as it is an It\^{o} integral.
+By the above, \(N_t\) from Exercise~\ref{pt3} must be a martingale as it is an It\^{o} integral.
 
 \subsection{}
 
@@ -248,6 +274,9 @@ By the above, \(N_t\) from Exercises~\ref{pt3} must be a martingale as it is an 
 Let \(Y\) be an integrable rv and let \(M_t=\CE{Y}{\mcF_t}\)
 \(M_t\) is a martingale, following immediately from the tower property.
 \subsubsection{}
+
+\textbf{Observation}. The below doesn't seem to hold without the additional continuity assumption, which disagrees with the primary text.
+
 Conversely, suppose \(M_t\) is a real-valued \(\mcF_t\)-martingale which satisfies for some \(p\) that \(\sup_t\E\abs{M_t}^p<\infty\). We can show there exists some integrable \(Y\) such that \(M_t=\CE{Y}{\mcF_t}\).
 
 By Corollary C.7 in the appendix (also, for discrete settings, by Theorem 4.7 from \c{C}inlar's Probability and Stochastics,  p.201, Theorem 4.7, the characterization of uniformly integrable martingales), {\em with the additional assumption that \(M_t\) is continuous, an assumption absent from {\O}ksendal}, we have that an integrable \(Y\) exists such that \(M_t\convarg{L^1}Y\).
@@ -258,6 +287,197 @@ But \(1_H\pa{X_s-X_t}\convarg{L^1}1_H\pa{Y-X_t}\) as \(s\rightarrow\infty\) by a
   \E\ha{1_H\pa{X_s-X_t}}=\E \ha{1_H\CE{X_s-X_t}{\mcF_t}}=0\,\,.
 \]
 
-The continuity assumption seems load-bearing, but uninterestingly so. With \(\epsilon\) a Rademacher random variable, \(M_t=\epsilon 1\ca{t\ge 1}\), and a large constant filtration \(\mcH_t=\sigma\{\epsilon\}\) (note the natural filtration has \(\mcF_t=\emptyset\) for \(t<1\)), then \(M_t=0\neq \epsilon=\CE{\epsilon}{\mcH_{t}}\) for any \(t<1\).
+The continuity assumption seems load-bearing, but perhaps uninterestingly so. With \(\epsilon\) a Rademacher random variable, \(M_t=\epsilon 1\ca{t\ge 1}\), and an unnaturally large constant filtration \(\mcH_t=\sigma\{\epsilon\}\) (note the natural filtration has \(\mcF_t=\emptyset\) for \(t<1\)), then \(M_t=0\neq \epsilon=\CE{\epsilon}{\mcH_{t}}\) for any \(t<1\).
 
+\subsection{}\label{ex3.9}
+
+Recall the Stratonovich integral is defined as
+\[
+  \int_0^Tf(t,\omega)\circ\d{B_t(\omega)}=\lim_n\sum_jf(t_j^*,\omega)\Delta_jB\,\,,
+\]
+where \(t_j^*=\frac{t_j+t_{j+1}}{2}\). We suppose that for \(f\in\mcV(0, T)\) and continuous (such that Lemma~\ref{lemma:validelem} and Lemma~\ref{lemma:continuous} apply) the above Stratonovich integral exists in \(L^2(\P)\) and is unique regardless of choice of shrinking split partition (without proof).
+
+We compute \(\int_0^TB_t\circ\d{B_t}\).
+
+Consider the term of the sum on the RHS, \(f(t_j^*,\omega)\Delta_jB\), for \(f(t,\omega)=B_t(\omega)\).
+\begin{align*}
+  B_{t_j^*}\Delta_jB
+  &=B_{t_j^*}\pa{\pa{B_{t_{j+1}}-B_{t_j^*}}+\pa{B_{t_j^*}-B_{t_j}}}\\
+  &=B_{t_j^*}\pa{B_{t_{j+1}}-B_{t_j^*}}+B_{t_j}\pa{B_{t_{j}^*}-B_{t_j}}
+    -B_{t_j}\pa{B_{t_{j}^*}-B_{t_j}}+B_{t_j^*}\pa{B_{t_j^*}-B_{t_j}}\\
+  &=\sum_{i=2j-1}^{2j}B_{t_i^\dag}\Delta_i^\dag B+\pa{B_{t_j^*}-B_{t_j}}^2
+\end{align*}
+
+Where \(\ca{t_i^\dag}_i\) iterates over twice as many points as \(\ca{t_j}_{j=1}^n\) and includes the midpoints of the latter sequence. Similarly, \(\Delta_i^\dag g=g(t_{i+1}^\dag)-g(t_{i}^\dag)\).
+
+Introduce the notation \(a_n\lpeq b_n\) when \(\lim_n\norm{a_n-b_n}_{L^2(\P)}\) and one of the limits converges as \(a_n\convlp a\) to the same \(a\) for any subsequence of \(a_n\). This implies that \(a_n,b_n\convas a\) and \(b_n\convlp a\) as well.
+
+Then, starting from assumption,
+
+\begin{align*}
+  \int_0^TB_t\circ\d{B_t}
+  &\lpeq \sum_jB_{t_j^*}\Delta_jB\\
+  &\lpeq \sum_iB_{t_i^\dag}\Delta_i^\dag B+\sum_j(B_{t_j^*}-B_{t_j})^2\\
+  &\lpeq \int_0^TB_t\d{B_t}+\sum_j(B_{t_j^*}-B_{t_j})^2\,\,.
+\end{align*}
+
+Next, notice that each term of the sum \(\sum_j(B_{t_j^*}-B_{t_j})^2\) is jointly independent and distributed exactly as each term of the sum \(\sum_{i=1}^n\pa{\Delta_i^\dag B}^2\), which is just the half interval, respectively. Following the proof from Chapter 2 Exercise 17, we can re-derive what is essentially the quadratic variation \([B]_t^{(2)}\) over the interval \([0, T/2]\), so that \(\sum_j(B_{t_j^*}-B_{t_j})^2=\frac{T}{2}\). Combining this with the known It\^{o} integral \(\int_0^TB_t\d{B_t}\), we have that
+\[
+  \int_0^TB_t\circ\d{B_t}=\frac{1}{2}B_T^2\,\,.
+  \]
+
+  \subsection{}
+
+  Consider the setup in Exercise~\ref{ex3.9} for any deterministic choice \(t_j^*\in[t_j,t_{j+1}]\), not necessarily the midpoint. Recall \(f\in\mcV(0, T)\) and let \(f_t=f(t,\cdot)\) be shorthand for the corresponding random variable. Further, assume that
+  \[
+    \E\abs{f_s-f_t}^2\le K\abs{s-t}^{1+\epsilon}
+  \]
+  for any fixed \(\epsilon>0\).
+
+  Define \(I_n^*(\omega)=\sum_jf(t_j^*, \omega)\Delta_j B\). We show that \(I_n^*\convlpi \int_0^T f\d{B_t}\). Let \(I_n(\omega)=\sum_jf(t_j, \omega)\Delta_j B\) be the standard elementary sum approximating our It\^{o} integral.
+
+  Before we begin, notice that through Jensen concavity, we can derive a weaker \(L^1\) continuity:
+  \[
+  \E^2\abs{f_s-f_t}\le\pa{  \E^{1/2}\abs{f_s-f_t}^2}^2=\E\abs{f_s-f_t}^2\le K\abs{s-t}^{1+\epsilon}\,\,.
+\]
+
+By DCT,
+\[
+  \lim_n\E\abs{I_n- I_n^*}=  \lim_n\E\abs{\int f\d{B_t}- \lim_nI_n}\,\,,
+\]
+so we need only show the LHS vanishes.
+    
+  \begin{align*}
+    \E\abs{I_n-I_n^*}
+    &\le\sum_j\E\abs{\pa{f_{t_j}-f_{t_j^*}}\Delta_jB}\\
+    &\le\E\abs{\Delta_1B}\sum_j\E\abs{f_{t_j}-f_{t_j^*}}\\
+    &\le \sqrt{\frac{2}{\pi n}}\sum_jK^{1/2}\abs{t_j^*-t_j}^{0.5+\epsilon/2}=O\pa{n^{-\epsilon/2}}\,\,,
+  \end{align*}
+  Since \(\abs{t_j^*-t_j}\le \frac{1}{n}\) by choice of split sequence.
+
+  \textbf{Observation}. One of my earlier proof attempts made it seem like one could use the much weaker condition,
+    \[
+    \E\abs{f_s-f_t}^2\le K\abs{s-t}^{\delta}\,\,,
+  \]
+  holding for any fixed \(\delta>0\). With this, I thought I could prove an even stronger result, that \(I_n^*\convlp\int_0^Tf\d{B_t}\), but was eventually able to find the bug.
+
+  First, we define the elementary functions
+  \[
+    \phi_n^*(t, \omega)=\sum_jf(t_j^*,\omega)1\ca{t\in[t_j,t_{j+1})}\,\,.
+  \]
+  Now \(I_n^*=\int_0^T\phi_n^*\d{B_t}\). Let \(\phi_n\) be an elementary function sequence such that \(\phi_n\rightarrow f\) in \(L^2(\P\times[0,T])\) (and therefore \(I_n=\int_0^T\phi_n\d{B_t}\) satisfies \(I_n\convlp \int_0^T f\d{B_t}\)). As before, by DCT suffices to show that the following vanishes:
+  \begin{align*}
+    \norm{I_n-I_n^*}_{L^2(\P)}
+    &=\norm{\phi_n-\phi_n^*}_{L^2(\P\times[0,T])}\\
+    &=\E\sum_j\pa{f_{t_j}-f_{t_j^*}}^2\Delta_jt\\
+    &\le\frac{K}{n}\sum_j\abs{t_j^*-t_j}^{1+\epsilon}=O(n^{-1-\epsilon})\,\,,
+  \end{align*}
+  where the critical first step supposedly follows from It\^{o}'s lemma.
+
+  However, upon closer inspection we notice \(I_n^*=\int_0^T\phi_n^*\d{B_t}\) is not well-defined, because \(\phi_n^*(t,\omega)\), though elementary, is not in \(\mcV(0, T)\) as it is not \(\mcF_t\)-measurable. This demonstrates the importance of the filtration measurability condition.
+
+  \subsection{}
+
+  Consider a stochastic process \(W_t\) such that all of the following attributes hold:
+  \begin{enumerate}
+  \item \(W_t\) is stationary; namely the joint distribution of \(\ca{W_{t_1+t},W_{t_2+t},\cdots,W_{t_k+t}}\) does not depend on \(t\) for any finite collection \(\ca{t_i}_{i=1}^k\subset \R_+\),
+  \item \(W_t\independent W_s\) where \(t\neq s\),
+  \item \(\E W_t=0\) for all \(t\),
+  \item and \(W_t\) is continuous.
+  \end{enumerate}
+  In this case, \(W_t\) must be trivial.
+
+  Define for fixed \(N>0\) \(W_t^{(N)}=-N\lor \pa{N\land W_t}\) as the original process clamped to \([-N,N]\). Then by the bounded convergence theorem,
+  \[
+    \lim_{s\rightarrow t}\E\pa{ W_t^{(N)}-W_s^{(N)}}^2    =\E\lim_{s\rightarrow t}\pa{ W_t^{(N)}-W_s^{(N)}}^2=0\,\,.
+    \]
+    And yet, by expanding the square and applying independence, we have that for \(s\neq t\) that
+    \[
+          \lim_{s\rightarrow t}\E\pa{ W_t^{(N)}-W_s^{(N)}}^2    =\lim_{s\rightarrow t}\E\pa{W_t^{(N)}}^2+\E\pa{W_s^{(N)}}^2=2\E\pa{W_t^{(N)}}^2\,\,,
+        \]
+        where we must actually apply BCT again.
+
+        But all this implies that \(\E\pa{W_t^{(N)}}^2=0\). But this implies \(W_t^{(N)}=0\) almost surely for any \(N\). Taking limits we have our result.
+
+        \subsection{}
+
+        For brevity, given some endpoints \(S,T\) in context (typically, \(S=0\), the notation
+        \[
+          \d{X_t}=b(X_t,t)\d{t}+\sigma(X_t,t)\d{B_t}\,\,,
+        \]
+        is taken to be an almost sure equality
+        
+        \[
+          \int_S^T\d{X_t}=\int_S^Tb(X_t,t)\d{t}+\int_S^T\sigma(X_t,t)\d{B_t}\,\,,
+        \]
+        so that corresponding assumptions are placed such as \(\sigma\in\mcV(S, T)\) and \(b\) is Lebesgue integrable.
+
+        In this case, per the chapter text, if the Stratonovich process
+        \[
+          \d{X_t}=b(X_t,t)\d{t}+\sigma(X_t, t)\circ\d{B_t}
+        \]
+        exists (which we have assumed under the implicit assumptions we've equipped this notation with), then the corresponding It\^{o} below must be almost surely equal to it:
+        \[
+          \d{X_t}=\pa{b(X_t,t)-\frac{1}{2}\sigma(X_t,t)\partial_1\sigma(X_t, t)}\d{t}+\sigma(X_t, t)\circ\d{B_t}\,\,.
+        \]
+
+        \textbf{Observation}. This results in a straightforward computation for going in the Stratonovich to It\^{o} direction of converting stochastic differential equations. But this also shows us that It\^{o} process which happen to also be Stratonovich (the other direction) are rarer; they require the additional regularity \(\partial_1\sigma\in\mcV\) on the noise term. This makes sense; an It\^{o} process is necessarily a martingale, but a Stratonovich one is not necessarily one. However, as described in \href{https://www.robots.ox.ac.uk/~lsgs/resources/ito-strat.pdf}{these notes} comparing the two integtrals, this difference is overblown most of the time. The below exercises, which convert from one to the other, demonstrate this.
+
+        \subsubsection{}
+        \begin{align*}
+          \d{X_t}
+          &=\gamma X_t\d{t}+\alpha X_t\circ\d{B_t}\\
+          &=\pa{\gamma-\frac{1}{2}\alpha^2} X_t\d{t}+\alpha X_t\d{B_t}
+          \end{align*}
+        \subsubsection{}
+        \begin{align*}
+          \d{X_t}
+          &=\sin X_t \cos X_t \d{t}+\pa{t^2+\cos X_t}\circ\d{B_t}\\
+          &=\frac{\sin X_t}{2}\pa{\cos X_t-t^2} X_t\d{t}+\pa{t^2+\cos X_t}\d{B_t}
+          \end{align*}
+        \subsubsection{}
+        \begin{align*}
+          \d{X_t}
+          &=r X_t\d{t}+\alpha X_t\d{B_t}\\
+          &=\pa{r-\frac{\alpha^2}{2}}\ X_t\d{t} + \frac{1}{2}\pa{\alpha X_t}\alpha\d{t} +\alpha X_t\d{B_t}\\
+          &=\pa{r-\frac{\alpha^2}{2}}\ X_t\d{t} + \alpha X_t\circ\d{B_t}
+          \end{align*}
+        \subsubsection{}
+
+        \begin{align*}
+          \d{X_t}
+          &=2\exp(-X_t)X_t\d{t}+X_t^2\d{B_t}\\
+          &=\pa{2\exp(-X_t)-X_t^3}\ X_t\d{t} + \frac{1}{2}X_t^2\pa{2X_t}\d{t} +X_t^2\d{B_t}\\
+          &=\pa{2\exp(-X_t)-X_t^3}\ X_t\d{t}+ X_t^2\circ\d{B_t}
+        \end{align*}
+        \subsection{}
+
+        A stochastic process \(X_t\) is considered to be continuous in mean square (CMS) if for all \(t\) it satisfies \(E X_t^2<\infty\) and \(\lim_{s\rightarrow t}\E\pa{X_t-X_s}^2=0\)
+        \subsubsection{}
+        \(B_t\) is CMS because \(\E\pa{B_s-B_t}^2=\abs{s-t}\rightarrow 0\).
+        \subsubsection{}
+        If \(f\) is \(C\)-Lipschitz then \(f(B_t)\) is CMS because \(\E\pa{f(B_s)-f(B_t)}^2\le C\E\abs{B_s-B_t}^2=C\abs{s-t}\rightarrow 0\).
+        \subsubsection{}
+\label{ex3.13c}
+        Let \(X_t\in \mcV(S, T)\) be CMS. Then we show
+        \[
+          \int_0^T X_t \d{B_t}=\lim_n\int_S^T\phi_n(t, \omega)\d{B_t(\omega)}\,\,,
+        \]
+        where \(\phi_n(t, \omega)=\sum_jX_{t_j^{(n)}}(\omega)1\ca{t\in[t_j,t_{j+1})}\).
+
+        Per Lemma~\ref{lemma:validelem}, it suffices to show convergence in \(L^2(\P\times [S,T])\).
+
+
+        \begin{align*}
+          \E\int_S^T\pa{X_t-\phi_n(t,\cdot)}^2\d{t}
+          &=\sum_j\E\int_{t_j^{(n)}}^{t_{j+1}^{(n)}}(X_t-X_{t_j^{(n)}})^2\d{t}\\
+          &=\sum_j\Delta_jt\E\sup_{s\in[t_j^{(n)},t_{j+1}^{(n)}]}\pa{X_{t_j}-X_s}^2\\
+          &\le\frac{1}{n}\sum_j \epsilon_n^2=\epsilon_n^2\rightarrow 0\,\,,
+        \end{align*}
+        where we apply a uniform bound \(\epsilon_n\ge \E^{1/2}(X_t-X_{s})^2\) for any \(t,s\) within \(n^{-1}\) distance of one another holding on \([S, T]\), with \(\epsilon_n\rightarrow 0\).
+
+        The aformentioned \(\epsilon_n\) sequence exists by virtue of uniform continuity of \(X\) as a function from indices in \([S, T]\) to random variables in \(\Omega\rightarrow\R\).
+
+        CMS is by definition continuity of \(X:[S,T]\rightarrow\R^{\Omega}\) viewing \([S, T]\) as a standard Euclidean compact metric space and \(\R^\Omega\) as a standard topological space induced by the metric \(L^2(\P)\). By compactness \(X\) must be uniformly continuous.        
+        
 \end{document}
