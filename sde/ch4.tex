@@ -1,0 +1,118 @@
+\documentclass{article}
+
+\title{The It\^{o} Formula and the Martingale Representation Theorem}
+\author{Vladimir Feinberg}
+
+\usepackage{fullpage}
+
+\input{defs}
+
+\begin{document}
+
+\maketitle
+
+\section{The 1-dimensional It\^{o} Formula}
+
+\begin{definition}[It\^{o} Process]
+  Consider the probability space \((\Omega, \mcH,\P)\) where \(\mcH=\mcH_\infty\) for a filtration \(\ca{\mcH_t}\) for which the Brownian motion \(B_t\) is adapted. Let \(u\) be an \(H_t\) adapted as well, and \(L^1([0,T])\) almost surely in its first argument, and \(v\in\mcW_\mcH\), where \(\mcW_\mcH\) is defined in the previous chapter as a relaxation of \(\mcV_\mcH\) to almost surely \(L^2([0,T])\) processes for all \(T\ge 0\).
+
+  Then an It\^{o} process is a process \(X_t\) satisfying
+  \[
+    \d{X_t}=u \d{t}+v\d{B_t}\,\,,
+  \]
+  which is shorthand for \(X_T(\omega)=X_0+\int_0^T u(t,\omega)\d{t}+\int_0^T v(t, \omega)\d{B_t}\) holding almost surely for all \(T\ge 0\).
+\end{definition}
+
+In certain cases, we can find the functional form of an It\^{o} process through the analogue of the chain rule.
+
+\begin{theorem}[The 1-dimensional It\^{o} Formula]
+  Let \(X_t\) be an It\^{o} process satisfying \(\d{X_t}=u \d{t}+v\d{B_t}\) and suppose \(g\in\mcC^2(\R_+\times\R)\). Then \(Y_t=g(t, X_t)\) is an It\^{o} process satisfying
+  \[
+   \d{Y_t}=\partial_1g(t, X_t)\d{t}+\partial_2g(t, X_t)\d{X_t}+\frac{1}{2}\partial_2^2g(t, X_t)\pa{\d{X_t}}^2 \,\,,
+  \]
+  where \((\d{X_t})^2\) is provocative sugar for \(\d{t}\).
+\end{theorem}
+\begin{proof}
+  Letting \(V_s=v(s, \omega)\) and \(U_s=u(s, \omega)\) and desugaring, we must verify that \(g(t, X_t)-g(0, X_0)\) equals
+  \[
+   I(g, t, X)=\int_0^t\pa{\partial_1g(s,X_s)+U_s\partial_2g(s, X_s)+\frac{1}{2}V_s^2\partial_2^2g(s, X_s)}\d{s}+\int_0^tV_s\partial_2g(s,X_s)\d{B_s}\,\,.
+  \]
+
+  Before jumping into verification, we must first simplify the problem to work with bounded \(g\) and elementary \(u,v\). To argue without loss of generality, we first perform our reductions.
+
+  \textbf{It suffices to consider bounded \(g\).} Define the stopping time \(\tau_n=\inf\set{s>0}{\abs{X_s}\ge n}\). Define \(g_n\) to equal to \(g\), but be supported on only \([0,n]\times[-n,n]\) and \(\partial_1g,\partial_2^2g\); by continuity and compact support each \(g_n\) and its derivatives are bounded.
+
+  Defining \(\int_0^{t\land \tau_n}\cdots\) to be \(\int_0^{t}1\ca{s\le \tau_n}\cdots\), it's clear that \(I(g_n, t, X)=I(g,t\land \tau_n, X)\). For fixed \(t\), as \(X_t\) is \(L^2(\P\times [0,t])\)-integrable, \(\P\ca{\tau_n>t}\rightarrow 1\), which implies that \(I(g_n,t, X)=I(g, t\land \tau_n, X)\convas I(g, t, X)\). Since \(g_n\convas g\) as well, we can lift a proof of the It\^{o} formula from bounded \(g\) to unbounded.
+
+\textbf{It suffices to consider elementary \(u,v\)}.
+Furthermore, we may assume \(u,v\) are elementary functions; by integrability and adaptedness (and hence by Monotone Class Theorem) for \(u\) and It\^{o}'s construction elementary \(u_n,v_n\) exist with \(\d{X_t^{(n)}}=u_n\d{t}+v_n\d{B_t}\) for which \(X_t^{(n)}\convarg{L^1(\P)} X_t\), implying almost sure convergence along some subsequence. Then by continuous mapping theorem we have \(g(t, X_t^{(n)})\convas g(t, X_t)\). By boundedness of \(g\) each integral integrand of \(I(g, t, X^{(n)})\) is itself bounded, so by BCT \(I(g, t, X^{(n)})\convarg{L^1(\P)}I(g, t, X)\), and therefore through \(I(g, t, X^{(n)})=g(t, X_t^{(n)})\) we have almost sure equality of the limits.
+
+  \textbf{With these amenities out of the way}, by application of Taylor's theorem at each \(g_j=g(t_j,X_{t_j})\), the difference \(g(t, X_t)-g(0, X_0)\) is given by
+
+  \[
+    \sum_j\Delta_jg=\sum_j\partial_1g_j\Delta_jt+\partial_2g_j\Delta_jX+\frac{1}{2}\partial_1^2 g_j\pa{\Delta_jt}^2+\frac{1}{2}\partial_2^2g_j\pa{\Delta_jX}^2+\partial_1\partial_2g_j\Delta_jt\Delta_jX+R_j\,\,,
+  \]
+  with the remainder \(R_j=o\pa{\pa{\Delta_jt}^2+\pa{\Delta_jX}^2}\).
+
+  Under the limit of shrinking partitions, \(\sum_j\partial_1g_j\Delta_jt\rightarrow\int_0^t\partial_1g(s,X_s)\d{s}\), holding almost surely and then by a limit interchange (relying on \(g\)'s boundedness) in \(L^1(\P)\) as well.
+
+  Similarly, we have \(\sum_j\partial_2g_j\Delta_jX\rightarrow\int_0^t\partial_2g(s,X_s)\d{B_s}\) in \(L^2(\P)\), since \(g\in \mcV(0,t)\). Next, we leverage the fact that \(u,v\) are elementary such that for sufficiently fine grids, there exist constants \(u_j,v_j\) such that
+  \[
+    \pa{\Delta_j X}^2=u_j^2\pa{\Delta_jt}^2+2u_jv_j\Delta_jt\Delta_jX+v_j^2\pa{\Delta_jB}^2\,\,.
+  \]
+
+  In the original sum, for some bounded \(c_j\), we find that terms \(\sum_jc_j\Delta_jt\Delta_jX,\sum_jc_j\pa{\Delta_jt}^2\) vanish in \(L^2(\P)\), the former's second moment being \(O(n^{-3})\) and the latter's being \(O(n^{-4})\).
+
+  This leaves the conspicuous term \(\frac{1}{2}\sum_j\partial_2^2g_j\pa{\Delta_jB}^2\), which we may show tends to \(\int_0^t\partial_2^2g(s, X_s)V_s^2\d{s}\) in \(L^2(\P)\) by triangle inequality and comparing to the analogous sequence with \(\Delta_jt\) instead. A calculation involving normal moments and leveraging independent increments finds that indeed
+  \[\E\ha{\pa{\frac{1}{2}\sum_j\partial_2^2g_j\pa{\pa{\Delta_jB}^2-\Delta_jt}}^2}\rightarrow 0\,\,.\]
+
+  Since every term converges to the desired parts of our integral sum in \(L^2(\P)\) for some sequence, certainly we can choose a subsequence that converges almost surely. Since the discrete differences always equal \(g(t, X_t)-g(0, X_0)=\sum_j\Delta_jg\), the It\^{o} formula equality holds in the limit.
+    \end{proof}
+
+    \begin{theorem}[Stochastic Integration by Parts]
+      If \(f(s,\omega)=f(s)\) is deterministic and of bounded variation in \([0,t]\) such that the \href{https://en.wikipedia.org/wiki/Riemann%E2%80%93Stieltjes_integral}{Riemann-Stieltjes integral} is well-defined, then
+        \[
+          \int_0^t f(s)\d{B_s}=f(t)B_t-\int_0^tB_s\d{f_s}
+          \]
+        \end{theorem}
+        \begin{proof}
+          In the case of \(f\in\mcC^2\), this follows from the It\^{o} formula. But for the more general class, a direct proof is needed. For a sequence of shrinking partitions of \([0, t]\),
+          \[
+            f(t)B_t=\sum_j\Delta_j(fB)=\sum_jB_{t_{j+1}}\Delta_j f+\sum_jf_{t_j}\Delta_j B\convas \int_0^tB_s\d{f_s}+\int_0^t f(s)\d{B_s}\,\,,
+          \]
+          which is apparent after adding and subtracting the term \(f_{t_j}B_{t_{j+1}}\) within \(\Delta_j(fB)=f_{t_{j+1}}B_{t_{j+1}}-f_{t_{j}}B_{t_{j}}\).
+          \end{proof}
+          
+\section{The Multi-dimensional It\^{o} Formula}
+
+For vector-valued \(u:(\R_+,\R^n)\rightarrow\R^n\) and matrix-valued \(v:(\R_+,\R^n)\rightarrow\R^{m\times n}\), such that \(\d{X_t}=u\d{t}+v\d{B_t^{(m)}}\) has well-defined It\^{o} process components, for a conformal \(g\in\mcC^2\), an analogous multi-dimensional It\^{o} formula may be derived in the same manner as above via Taylor's theorem.
+
+\section{The Martinagle Representation Theorem}
+
+Note that this theorem has a similar multi-dimensional extension.
+
+\begin{theorem}[Martingale Representation Theorem]
+  Suppose \(M_t\) is a square-integrable martinagle with respect to the filtration generated by Brownian motion. Then there exists a stochastic process \(g(s,\omega)\in \mcV(0, t)\) such that
+  \[
+    M_t=\E\ha{M_0}+\int_0^tg(s,\cdot)\d{B_s}\,\,,
+  \]
+  holding almost surely for all \(t\ge 0\). 
+\end{theorem}
+\begin{proof}
+  The proof proceeds in several steps. First; for any \(T>0\) the set random variables defined by evaluating analytic functions with compact support on \(R^n\) on any finite tuple of Brownian motions \((B_{t_1},\cdots,B_{t_n})\) is dense in \(L^2(\mcF_T,\P)\), the set of real-valued square-integrable rvs measurable with respect to \(\mcF_T\).
+
+  Second; the linear span of random variables of type \(\exp\pa{\int_0^Th(t)\d{B_t}-\frac{1}{2}\int_0^Th^2(t)\d{t}}\) for all (deterministic) \(h\in L^2([0,T])\) is also dense in \(L^2(\mcF_T, \P)\) by virtue of spanning the set described above over analytic functions with compact support.
+
+  By the density of the class described above, it suffices to consider only random variables of the aforementioned form. For any such \(Y_T\) defined by some \(h\), as the final representation equality holds under linear transformation. Since \(Y_t=\exp(X_t)\), where \(\d{X_t}=-\frac{1}{2}h^2(s)\d{s}+h(s)\d{B_s}\). Applying It\^{o}'s formula yields an equality exactly of the desired form \(Y_T=1 + \int_0^tg(s,\cdot)\d{B_s}\). In turn, for any square-integrable, \(\mcF_T\)-measurable random variable, such as \(M_T\), by linearity we may write it as \(\E[M_T]+\int_0^Tg_{T}(s,\cdot)\d{B_s}\).
+
+  This holds for all \(T\), and \(\E\ha{M_T}=\E \ha{M_0}\) uniformly, but we must show that the \(g_T\) values are the same across \(T\) values. Luckily, this holds due to Exercise 15 of Chapter 3.
+  \end{proof}
+
+
+\section{Exercises}
+
+\subsection{}
+
+Exercise 4.9 is completed inline in the proof of It\^{o}'s formula provided above.
+
+\end{document}
