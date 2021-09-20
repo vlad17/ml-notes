@@ -109,10 +109,258 @@ Note that this theorem has a similar multi-dimensional extension.
   \end{proof}
 
 
-\section{Exercises}
+  \section{Exercises}
+
+  \subsection{}
+
+  In the following, we choose a base process and \(\mcC^2(\R_+\times \R)\) function \(g\) to derive a canonical It\^{o} form for a given stochastic process.
+
+  \subsubsection{}
+  \(X_t=B_t^2\), choose \(g(t, x)=x^2\) so \(X_t=g(t, B_t)\). Then,
+  \[\d{X_t}=\d{t}+2B_t\d{B_t}\,\,.\]
+
+  \subsubsection{}
+  \(X_t=2+t+\exp\pa{B_t}\), choose \(g(t, x)=2+t+\exp(x)\) so \(X_t=g(t, B_t)\). Then,
+  \[\d{X_t}=\pa{1+\frac{1}{2}\exp(B_t)}\d{t}+\exp\pa{B_t}\d{B_t}\,\,.\]
+  \subsubsection{}
+  \(X_t=B_1(t)^2+B_2(t)^2\), choose \(g\pa{t, \mat{x_1\\x_2}}=x_1^2+x_2^2\) so \(X_t=g(t, B_t^{(2)})\). Then,
+  \[\d{X_t}=2\d{t}+2B_1(t)\d{B_1(t)}+2B_2\d{B_2(t)}\,\,.\]
+  \subsubsection{}
+  \(X_t=\mat{t_0+t& B_t}^\top\), choose \(g(t, x)=\mat{t_0+t&x}^\top\) so \(X_t=g(t, B_t)\). Then,
+  \begin{align*}
+    \d{X_1(t)}&=\d{t}\\
+    \d{X_2(t)}&=\d{B_t}\,\,.
+  \end{align*}
+
+  \subsubsection{}
+  \(X_t=g(t, B_1(t), B_2(t), B_3(t)) = \mat{B_1(t)+B_2(t)+B_3(t) & B_2^2(t)-B_1(t)B_3(t)}\). Then,
+  \begin{align*}
+    \d{X_1(t)}&=\d{B_1(t)}+\d{B_2(t)}+\d{B_3(t)}\\
+    \d{X_2(t)}&=\d{t}-B_3(t)\d{B_1(t)}+2B_2(t)\d{B_2(t)}-B_1(t)\d{B_3(t)}\,\,.
+  \end{align*}
+
+  \subsection{}
+  % 4.2
+  Letting \(X_t=g(t, B_t)=\frac{1}{3}B_t^3\), It\^{o}'s formula gives us
+  \[
+\d{X_t}=B_t\d{t}+B_t^3\d{B_t}\,\,,
+\]
+from which we can derive the desired fact that
+\[
+  \int_0^tB_s\d{B_s}=\frac{1}{3}B_t^3-\int_0^tB_s\d{s}\,\,.
+\]
 
 \subsection{}
+% 4.3
+\label{ex:ibp}
+With \(X_t,Y_t\) It\^{o} processes, letting \(Z_t=g(t, X_t, Y_t)=X_tY_t\) and applying It\^{o}'s formula yields
+\[
+  \d{Z_t}=Y_t\d{X_t}+X_t\d{Y_t}+\d{X_t}\cdot\d{Y_t}\,\,,
+\]
+which by de-sugaring yeilds integration by parts:
+\[
+  \int_0^tX_s\d{Y_s}=X_tY_t-X_0Y_0-\int_0^tY_s\d{X_s}-\int_0^t\d{X_s}\cdot\d{Y_s}\,\,,
+\]
+where by virtue of being It\^{o} processes, square integrability, adaptedness immediately follow. Notably, the joint measurability condition, requiring that \((t,\omega)\mapsto X_t(\omega)\) is \((\mcB(\R_+)\times \mcF_\infty)\)-measurable, follows by chosing an appropriate version of \(X_t\), which is proven to exist in Chapter 3.
 
-Exercise 4.9 is completed inline in the proof of It\^{o}'s formula provided above.
+\subsection{} % 4.4
 
+Let \(\theta(t)\in\mcV^n(0, T)\). Define
+\[
+  Z_t=\exp\pa{\int_0^t\theta(s)\cdot\d{B(s)}-\frac{1}{2}\int_0^t\|\theta(s)\|_2^2\d{s}}\,\,,
+\]
+where \(B(t)\) is Brownian motion in \(\R^n\). We will canonicalize \(Z_t\) as an It\^{o} process and show a martinagle property.
+
+Let \(Y_t\) be an rv such that \(\d{Y_t}=\theta(s)\cdot\d{B(t)}-\frac{1}{2}\|\theta(s)\|_2^2\d{t}\). Notice this is well-formed, with measurability and adaptiveness properties following from \(\theta(t)\in\mcV^n\), with the only nuanced point being that \(\|\theta(s)\|_2^2\in L^1[0,T]\) holding almost surely by virtue of each component of \(\theta(s)\) being in \(L^2(\P\times[0,T])\).
+
+Then \(Z_t=g(t, Y_t)=\exp Y_t\) with \(Y_0=0\). An application of a 1-dimensional It\^{o}'s formula, albeit with a wider filtration \(\mcH_t=\mcF_t^{(n)}\), yields
+\[
+  \d{Z_t}=\exp Y_t \theta(t)\cdot \d{B(t)}= Z_t \theta(t)\cdot \d{B(t)}\,\,,
+\]
+where by the martingale property of smooth It\^{o} processes, \(Z_t\) is a martingale if \(Z_t\theta(t)\) components are in \(mcV\). This is because every consitutent \(Z_t\theta_k(t)\d{B_k}\) is itself a martingale with respect to \(\mcH\), so the sum of such terms remains one.
+
+\subsection{} % 4.5
+
+Let \(B_t\) be 1-dimensional Brownian motion with \(B_0=0\). With It\^{o}'s formula we can derive a simple recurrence for even moments of the Normal distribution.
+
+In particular, letting \(g_k(t, x)=x^k\), It\^{o}'s formula applied to \(g_k(t, B_t)\) yeilds
+\[
+  \d{B_t^k}=\frac{1}{2}k(k-1)B_t^{k-2}\d{t}+kB_t^{k-1}\d{B_t}\,\,,
+\]
+holding for all \(k\) almost surely. Then applying expectations to both sides, and defining a notation for the moments \(\beta_k(t)=\E B_t^k\), by virtue of It\^{o} integrals being mean-zero, yields the recurrence relation
+\[
+  \beta_k(t)=\frac{1}{2}k(k-1)\E \int_0^tB_t^{k-2}\d{t}=\frac{1}{2}k(k-1)\int_0^t\beta_{k-2}(t)\d{t}\,\,,
+\]
+by an application of DCT. In turn, we are able to do some computation to find that \(\beta_2(t)=t\), \(\beta_4(t)=3t^2\), and \(\beta_6(t)=15t^3\).
+
+\subsection{} %4.6
+
+Let \(c,\alpha\) be constants. Then setting \(X_t=g(t, B(t))=\exp\pa{ct+\sum_{j=1}^n\alpha_jB_j(t)}\) for \(n\)-dimensional Brownian motion \(B(t)\) and applying It\^{o}'s formula yields
+\[
+  \d{X_t}=\pa{c+\frac{1}{2}\sum_{j=1}^n\alpha_j^2}X_t\d{t}+X_t\sum_{j=1}^{n}\alpha_j\d{B_j}\,\,,
+\]
+which follows from computation without much fanfare (except the substitution for the definition of \(X_t\) at the end).
+
+\subsection{} % 4.7
+
+Let \(X(t)\) be defined by \(\d{X(t)}=v\times \d{B(t)}\) where \((t,\omega)\mapsto v_t(\omega)\in\mcV^n\) with \(X\in\R^n,B(t)\in\R^n\).
+
+Note that \(\|X(t)\|_2^2\) is in general not a martingale; a simple example is \(v=1\), where \(X_t=B_t\) so its square norm is \(t\) in expectation, which is not constant-mean and thus not a martingale.
+
+On the other hand, define \(M_t=\|X(t)\|_2^2-\int_0^t\|v(s)\|_2^2\d{s}\). We verify that this is indeed a martingale.
+
+Integrability and adaptedness follow by inspecting each component of \(M_t\). To show the martingale property, that \(\CE{M_t}{\mcF_s^{(n)}}=M_s\), we require two observations. First, the equality is completely symmetric in each component of \(X(t)\), so it suffices to show this in just one dimension. Second, by expanding \(X_t=(X_t-X_s)+X_s\), \(\CE{M_t}{\mcF_s^{(n)}}=M_s+\CE{(X_t-X_s)^2}{\mcF_s^{(n)}}-\int_s^tv_s^2\d{s}\).
+
+We conclude by observing that \(\CE{(X_t-X_s)^2}{\mcF_s^{(n)}}=\int_s^tv_s^2\d{s}\) by an application of It\^{o}'s isometry. This requires \(X_t\in\mcV\) and for \(X_t\) to be a martingale (which it is), the latter promoting \(\CE{(X_t-X_s)^2}{\mcF_s^{(n)}}\) to an unconditional \(\E{(X_t-X_s)^2}\).
+
+  \textbf{Observation}. There doesn't seem to be a need for boundedness of \(v\), which is curious.
+
+\subsection{} % 4.8
+
+Let \(\laplace=\sum_i\partial_i^2\) be the Laplace operator. Then It\^{o}'s formula, applied to \(f(B(t))\), reduces to
+\[
+  f(B(t))-f(B(0))=\int_0^t\nabla f(B_s)\cdot \d{B_s}+\frac{1}{2}\int_0^t\laplace f(B_s)\d{s}\,\,.
+  \]
+
+  Consider now a \(g\in \mcC^1\) which is \(\mcC^2\) everywhere but a finite set of points, with \(\abs{g''}\le M\) where defined. Then the above still holds.
+
+  Indeed, similar to the construction of the It\^{o} integral for non-continuous functions, consider a convolution \(g_k''=\phi_k*g''\) for boxcars \(\phi_k\) with shrinking support in \(k\). This is well-defined everywhere on the domain since the convolution is unique up to measure-zero sets. Along with initial conditions, this induces a set of functions \(g_k',g_k\) by integration, all of which have the property that \(g_k\rightarrow g,g_k'\rightarrow g'\) uniformly (since \(g'',g_k''\) are bounded). We also have \(g_k''\rightarrow g''\) outside the specified measure-zero set. By boundedness of \(g_k''\) and \(M\)-Lipschitzness \(g_k'\), we can exchange the integrals and limits of the above formula; so the mere pointwise convergence of \(g_k,g_k',g_k''\) is sufficient.
+\label{ex:discont}
+  \subsection{} % 4.9
+  
+  Exercise 4.9 is completed inline in the proof of It\^{o}'s formula provided above.
+
+  \subsection{} % 4.10
+
+  We can't directly apply It\^{o}'s formula to \(g(B_t)\), where \(g(x)=\abs{x}\) is \(\mcC^2\) everywhere with uniformly bounded second derivative except the origin. Instead, consider the Huber approximation
+  \[
+    g_\epsilon(x)=\begin{cases}
+      \abs{x}& \abs{x}\ge \epsilon\\
+      \frac{1}{2}\pa{\epsilon + \frac{x^2}{\epsilon}} & \text{o/w}
+      \end{cases}\,\,.
+    \]
+    which is \(\mcC^2\) everywhere but at \(\pm\epsilon\) with jump discontinuities, but still uniformly bounded second derivatives.
+
+    By the previous Exercise~\ref{ex:discont},
+    \begin{align*}
+      g_\epsilon(B_t)-g_\epsilon(B_0)&=\int_0^tg_\epsilon'(B_s)\d{B_s}+\frac{1}{2}\int_0^tg_\epsilon''(B_s)\d{s}\\
+      &=\int_0^tg_\epsilon'(B_s)\d{B_s}+\frac{1}{2}\int_0^t1\ca{\abs{B_s}\le\epsilon}\d{s}\,\,,
+    \end{align*}
+    despite the jump discontinuities of the second derivative. Let
+    \[
+      L_t(\epsilon)=\frac{1}{2}\int_0^t1\ca{\abs{B_s}\le\epsilon}\d{s}=\frac{1}{2\epsilon}\lambda\pa{\set{s\in[0,t]}{\abs{B_s}\le \epsilon}}\,\,,
+    \]
+    where \(\lambda\) is the Lebesgue measure. We now turn our attention to the remaining integral term
+    \[
+      \int_0^tg_\epsilon'(B_s)\d{B_s}=\underbrace{\int_0^tg_\epsilon'(B_s)1\ca{\abs{B_s}\le\epsilon}\d{B_s}}_{A_\epsilon}+\underbrace{\int_0^tg_\epsilon'(B_s)1\ca{\abs{B_s}>\epsilon}\d{B_s}}_{B_\epsilon}\,\,.
+    \]
+
+    First, we show \(A_\epsilon\rightarrow 0\) in \(L^2(\P)\) as \(\epsilon\rightarrow 0\).
+    \begin{align*}
+      \E\ha{A_\epsilon^2}
+      &=\E\int_0^t\pa{g_\epsilon'(B_s)1\ca{\abs{B_s}\le \epsilon}}^2\d{s} & \text{It\^{o} isometry}\\
+      &=\frac{1}{\epsilon^2}\E\int_0^tB_s^21\ca{\abs{B_s}\le \epsilon}\d{s} & \text{def.~of } g_\epsilon\\
+      &=\frac{1}{\epsilon^2}\int_0^t\CE{B_s^2}{\abs{B_s}\le \epsilon}\P\ca{\abs{B_s}\le \epsilon}\d{s} & \text{DCT}\\ 
+      &\le \int_0^t\P\ca{\abs{B_s}\le \epsilon}\d{s} & \CE{B_s^2}{\abs{B_s}\le \epsilon}\le\epsilon^2\\
+      &\le O(\epsilon)
+    \end{align*}
+
+    To finish, notice that the \(N(0,s)\) density is maximized at the origin by \((2\pi s)^{-1/2}\). Then \(\P\ca{\abs{B_s}\le \epsilon}=O\pa{\epsilon s^{-1/2}}\). The integral \(\int_0^ts^{-1/2}\d{s}=\int_{t^{-1/2}}^\infty u^{-2}\d{u}=\sqrt{t}\) by reflection across unity which is \(O(1)\) relative to \(\epsilon\).
+
+    Finally, by inspection of \(B_\epsilon\) and letting \(\epsilon\rightarrow 0\), we have
+    \[
+      \abs{B_t}-\abs{B_0}=\int_0^t\sgn(B_s)\d{B_s}+L_t\,\,,
+    \]
+    where \(L_t=\lim_{\epsilon\rightarrow 0}L_t(\epsilon)\). Such a limit surely exists in \(L^2(\P)\)---the same integral we just performed would prove it!.
+
+    \subsection{} % 4.11
+
+    \begin{lemma} Let \(X_t=g(t, B_t)\) with \(g\in\mcC^2\). Then by It\^{o}'s formula, if \(\partial_1g(t, B_t)+\frac{1}{2}\partial_2^2g(t, B_t)=0\), \(X_t\) is an It\^{o} integral. If, further, \(\partial_2 g(t, B_t)\in \mcV\) (integrability in \(L^2(\P\times [0,T])\) being the only condition not implied by \(g\in\mcC^2\) here), then \(X_t\) must be a martingale by properties of the It\^{o} integral.
+    \end{lemma}
+
+    By computation, the lemma above verifies that the following are martingales with respect to the natural Brownian motion filtration:
+
+    \begin{enumerate}
+    \item \(X_t=\exp\pa{\frac{1}{2}t}\cos B_t\)
+    \item \(X_t=\exp\pa{\frac{1}{2}t}\sin B_t\)
+    \item \(X_t=(B_t+t)\exp\pa{-B_t-\frac{1}{2}t}\).
+    \end{enumerate}
+
+    \subsection{} % 4.12
+    Let \(\d{X(t)}=u(t)\d{t}+v(t)\times \d{B(t)}\) with \(u,v\) stochastic processes in \(\R^n\) such that the It\^{o} process \(X(t)\) is well defined. Further, assume that
+    \[
+      \E\int_0^t\norm{u(s)}\d{s}+      \E\int_0^t\norm{v(s)v^\top(s)}\d{s}<\infty\,\,,
+    \]
+    and that \(X_t\) is a martingale with respect to \(\mcF\). Then we will show that \(u=\textbf{0}\) almost everywhere on \(\R_+\times\Omega\).
+
+    Since \(X_t\) is a martingale, it must be that \(\CE{X(t)}{\mcF_s}=X(s)\) for all \(t> s\). Subtracting out the \(\mcF_s\)-measurable components of the integrals \(\int_0^su(r)\d{r}\) and \(\int_0^sv(r)\times \d{B_r}\) from both sides, which yields
+    \[
+\CE{\int_s^tu(r)\d{r}}{\mcF_s}+\CE{\int_s^tv(r)\times\d{B(r)}}{\mcF_s}=\textbf{0}\,\,.
+      \]
+      In a lemma after this proof, we will show that \(\CE{\int_s^tv_r\times\d{B_r}}{\mcF_s}=\textbf{0}\) by a general property of It\^{o} integrals. As a result, \(\CE{\int_s^tu(r)\d{r}}{\mcF_s}=\textbf{0}\). Appealing to DCT and applying Liebniz's rule,
+      \[
+        \partial_t\CE{\int_s^tu(r)\d{r}}{\mcF_s}=\CE{\partial_t\int_s^tu(r)\d{r}}{\mcF_s}=\CE{u(t)}{\mcF_s}\,\,,
+      \]
+      implying that the latter is \(\textbf{0}\) as well. Then taking the limit \(s\rightarrow t^{-}\) and applying Corollary C.9 we find that \(\CE{u(t)}{\mcF_{\lim}}=u(t)=\textbf{0}\) where \(\mcF_{\lim}=\sigma\ca{\mcF_s}_{s<t}=\mcF_t\), the latter fact holding by choosing a {\em surely} continuous (and therefore left-continuous) version of \(B_t\) such that its generated natural sigma algebra is {\em surely} predicted from the filtrations leading up to it. Event wise, by left continuity of the generating process, for any \(A\in\mcF_t\) there's a countable monotonic sequence of events \(A_s\nearrow A\) as \(s\rightarrow t\) with each \(A_s\in\mcF_s\), so that \(\lim_s A_s\in \mcF_{\lim}\) by the limit closure property of a sigma algebra.
+
+      From this argumentation, it's clear why the filtration of the martingale matters; the lke
+
+      \begin{lemma}[Mean-zero Conditional Property for It\^{o} Integrals]
+        Let \(f\in\mcV(S, T)\). Then \(\CE{\int_S^Tf_t\d{B_t}}{\mcF_s}=0\) almost surely. Note that this is not quite as strong as independent increments.
+      \end{lemma}
+      \begin{proof}
+        Directly from It\^{o}'s construction, there exist some elementary \(\phi_n\convarg{L^2(\P\times[S,T])}f\) for whom
+        \[\int_S^T\phi_n(t)\d{B_t}\convarg{L^2(\P)}\int_S^Tf_t\d{B_t}\,\,.
+        \]
+        Inspecting such an elementary integral, we find that
+        \[
+          \int_S^T\phi_n(t)\d{B_t}=\sum_je_j^{(n)}\Delta_j B\,\,,
+        \]
+        for some finite set of fixed rvs \(e_j^{(n)}\in\mcF_{t_j}\) and increments \(\Delta_j B\) from a partition of \([S, T]\). But taking \(\CE{\cdot}{\mcF_s}\) of both sides here shows that the elementary integral must be zero since it is the sum of finitely many scaled independent increments \(\Delta_jB\) from the future, requiring an application of the tower property:
+        \[
+          \CE{\sum_je_j^{(n)}\Delta_j B}{\mcF_s}=\CE{\sum_j\CE{e_j^{(n)}\Delta_j B}{\mcF_{t_j}}}{\mcF_s}=\CE{\sum_je_j^{(n)}\CE{\Delta_j B}{\mcF_{t_j}}}{\mcF_s}=0\,\,.
+          \]
+        In turn, as \(\int_S^T\phi_n(t)\d{B_t}\convas\int_S^T f_t\d{B_t}\) as well, by uniqueness of It\^{o} integrals, the limit holds after applying conditional expectations \(\CE{\cdot}{\mcF_s}\), which shows the desired lemma.
+      \end{proof}
+        \subsection{} % 4.13
+        Let \(\d{X_t}=u_t\d{t}+\d{B_t}\). Assume \(u\in\mcV\). We will show that \(Y_t=X_t\exp \pa{-Z_t}\), where \(\d{Z_t}=\frac{u_t^2}{2}\d{t}+u_t\d{B_t}\), is a martingale.
+
+        By It\^{o}'s formula applied to \(g(t, x, z)=x\exp\pa{-z}\), we find that \(\d{Y_t}=\d{g(t, X_t, Z_t)}\) has no \(\d{t}\) term, and must then be a martingale.
+        \subsection{} % 4.14
+        For each of the following, we find \(f\in\mcV(0, T)\) such that for the given \(F\), we have the almost sure equality
+        \[
+          F(\omega)=\E\ha{ F} + \int_0^T f_t(\omega)\d{B_t(\omega)}\,\,.
+        \]
+
+        We will do so by appropriate choice of \(g\) such that we can define a process \(X_t=g(t, B_t)\) with the property that \(X_T=F\), \(X_0=\E F\), and \(\d{X_t}=f_t\d{B_t}\) for some \(f_t\) to be derived since we chose \(g\) such that \(2\partial_1g+\partial_2^2g=0\), so there's no \(\d{t}\) term.
+
+        \subsubsection{}
+
+        \(F=B_T\). Choose \(g(t, x)=x\), yielding \(f_t=1\).
+        \subsubsection{}
+
+        \(F=\int_0^TB_t\d{t}\). Here, we use Exercise~\ref{ex:ibp} with parts \(X_t=B_t,Y_t=t\), yielding
+        \[
+          \int_0^TB_t\d{t}=B_TT-\int_0^Tt\d{B_t}
+        \]
+        from integration by parts of \(\d{\pa{X_tY_t}}\). Since \(TB_T=\int_0^T T\d{B_t}\), \(f_t=T-t\) suffices.
+        \subsubsection{}
+
+        \(F=B_T^2\). Choose \(g(t, x)=x^2-t\), yielding \(f_t=2B_t\).
+        \subsubsection{}
+
+        \(F=B_T^3\). Temporarily, define \(F'=B_T^3-3TB_T\). Choosing \(g'(t, x)=x^3-3tx\), yields \(f_t'=3B_t^2-3t\).b
+
+        Then notice that \(F = F'+3TB_T=\E F' + \int_0^T\pa{f_t'+3T}\d{B_t}\), so set \(f_t=f_t'+3T\) to finish as \(\E F'=\E F\).
+        
+        \subsubsection{}
+
+        \(F=\exp B_T\). Choose \(g(t, x)=\exp\pa{x-\frac{t}{2}+\frac{T}{2}}\), yielding \(f_t=g(t, B_t)\). This \(g\) was derived in the same manner as the previous exercise.
+        \subsubsection{}
+
+        \(F=\sin B_T\). Choose \(g(t, x)=\exp\pa{\frac{t-T}{2}}\sin x\), yielding \(f_t=\exp\pa{\frac{t-T}{2}}\cos B_t\). This was derived as before, but required performing the same ``\(F'\) iteration'' to a fixed point.
+        
+    \subsection{} % 4.15
+
+    The desired result is a direct computation of It\^{o}'s formula.
 \end{document}
