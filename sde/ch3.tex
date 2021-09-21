@@ -283,13 +283,13 @@ Conversely, suppose \(M_t\) is a real-valued \(\mcF_t\)-martingale which satisfi
 
 By Corollary C.7 in the appendix (also, for discrete settings, by Theorem 4.7 from \c{C}inlar's Probability and Stochastics,  p.201, Theorem 4.7, the characterization of uniformly integrable martingales), {\em with the additional assumption that \(M_t\) is continuous, an assumption absent from {\O}ksendal}, we have that an integrable \(Y\) exists such that \(M_t\convarg{L^1}Y\).
 
-Then, notice that \(\CE{Y-X_t}{\mcF_t}=0\) if \(\E\ha{1_H\pa{Y-X_t}}=0\) is for all events \(H\in \mcF_t\).
-But \(1_H\pa{X_s-X_t}\convarg{L^1}1_H\pa{Y-X_t}\) as \(s\rightarrow\infty\) by analyzing the cases of \(1_H\in\{0,1\}\). So \(\E\ha{1_H\pa{Y-X_t}}=\lim_{s\rightarrow\infty}\E\ha{1_H\pa{X_s-X_t}}\) where for \(s\ge t\)
+Then, notice that \(\CE{Y-M_t}{\mcF_t}=0\) if \(\E\ha{1_H\pa{Y-M_t}}=0\) is for all events \(H\in \mcF_t\).
+But \(1_H\pa{M_s-M_t}\convarg{L^1}1_H\pa{Y-M_t}\) as \(s\rightarrow\infty\) by analyzing the cases of \(1_H\in\{0,1\}\). So \(\E\ha{1_H\pa{Y-M_t}}=\lim_{s\rightarrow\infty}\E\ha{1_H\pa{M_s-M_t}}\) where for \(s\ge t\)
 \[
-  \E\ha{1_H\pa{X_s-X_t}}=\E \ha{1_H\CE{X_s-X_t}{\mcF_t}}=0\,\,.
+  \E\ha{1_H\pa{M_s-M_t}}=\E \ha{1_H\CE{M_s-M_t}{\mcF_t}}=0\,\,.
 \]
 
-The continuity assumption seems load-bearing, but perhaps uninterestingly so. With \(\epsilon\) a Rademacher random variable, \(M_t=\epsilon 1\ca{t\ge 1}\), and an unnaturally large constant filtration \(\mcH_t=\sigma\{\epsilon\}\) (note the natural filtration has \(\mcF_t=\emptyset\) for \(t<1\)), then \(M_t=0\neq \epsilon=\CE{\epsilon}{\mcH_{t}}\) for any \(t<1\).
+The continuity assumption seems load-bearing. For discussion, see \url{https://math.stackexchange.com/a/4256605/38471}{here}.
 
 \subsection{}\label{ex3.9}
 
@@ -499,7 +499,7 @@ First, we show that, almost surely,
 \[
   \CE{h}{\mcH_\infty}=\CE{h}{\mcF_t}=h\,\,,
 \]
-which follows from the near-left-continuity of the filtration \(\mcF_s\subset\bigcap_{\epsilon<0}\mcF_{s+\epsilon}\subset\bigcup_n\mcH_n\) for each \(s\) (since we can take intersection over rational \(\epsilon\)).
+which follows from the left-continuity of the filtration \(\mcF_t=\bigcap_{\epsilon<0}\mcF_{t-\epsilon}\subset\bigcup_n\mcH_n\) for each \(s\) (since we can take intersection over rational \(\epsilon\)). The filtration is left-continuous by assuming a version of \(B_t\) which is (see \url{https://math.stackexchange.com/questions/1716856/left-continuity-of-a-l%C3%A9vy-filtration}{discussion here} and \url{https://mathoverflow.net/questions/46957/right-continuity-of-natural-filtrations}{here}).
 
 Then by Doob-Dynkin, \(\CE{h}{\mcH_n}=G_n(B_{t_1},B_{t_2},\cdots, B_{t_k})\) for some Borel \(G_n\); which per the text can be approximated by a sequence of continuous functions \(F_n\) (we diagonalize the iteration again).
 
